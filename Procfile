@@ -1,0 +1,1 @@
+web: gunicorn stories:app --log-file=-
