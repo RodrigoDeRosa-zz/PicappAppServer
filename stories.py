@@ -11,8 +11,7 @@ def get_id_by_name(name):
         mimetype='application/json',
         response=json.dumps(data)
     )
-    #return response
-    return "Hello World!"
+    return response
 
 if __name__ == '__main__':
     app.run()
