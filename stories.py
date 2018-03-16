@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/id/<name>')
 def get_id_by_name(name):
-    data = {'id': 'someId', 'name': name}
+    data = {'id': 'someOtherId', 'name': name}
     response = app.response_class(
         status=200,
         mimetype='application/json',
