@@ -1,0 +1,473 @@
+swagger: '2.0'
+info:
+  description: PicApp application server API
+  version: "1.0.0"
+  title: PicApp API
+
+# tags are used for organizing operations
+tags:
+- name: accounts
+  description: User account administration
+- name: ping
+  description: Status port for Shared Server
+- name: stats
+  description: Application use data
+- name: stories
+  description: Stories management
+- name: friends
+  description: Relation management
+
+paths:
+  /login:
+    post:
+      tags:
+      - accounts
+      summary: log into the system
+      operationId: logIn
+      description: |
+        Logs in a user into the system and returns a validation token if both user and password are correct.
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/UserLoginInfo'
+      responses:
+        200:
+          description: user successfully logged in
+          schema:
+            $ref: '#/definitions/UserInfo'
+        400:
+          description: parameters do not match (i.e. wrong password or token)
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: user does not exist
+        500:
+          description: server error
+          schema:
+            $ref: '#/definitions/Error'
+  /logout:
+    post:
+      tags:
+      - accounts
+      summary: log out of the system
+      operationId: logOut
+      description: |
+        Logs given user out of the system if both user name and token are valid.
+      produces:
+      - application/json
+      parameters:
+      - in: header
+        name: X-User-Id
+        required: true
+        type: string
+      - in: header
+        name: X-User-Token
+        required: true
+        type: string
+        format: uuid
+      responses:
+        200:
+          description: user successfully logged out
+        400:
+          description: token does not belong to user
+        500:
+          description: server error
+          schema:
+            $ref: '#/definitions/Error'
+  /signup:
+    post:
+      tags:
+      - accounts
+      summary: create a user in the system
+      operationId: signUp
+      description: |
+        Creates a new user in the system if user name or external token are not currently used.
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/UserLoginInfo'
+      responses:
+        200:
+          description: user successfully created
+          schema:
+            $ref: '#/definitions/UserLoginInfo'
+        404:
+          description: user name occupied or token already used 
+        500:
+          description: server error
+          schema:
+            $ref: '#/definitions/Error'
+  /delete:
+    delete:
+      tags:
+      - accounts
+      summary: delete a user from the system
+      operationId: deleteUser
+      description: |
+        Deletes a user if the user name corresponds with the token
+      produces:
+      - application/json
+      parameters:
+      - in: header
+        name: X-User-Id
+        required: true
+        type: string
+      - in: header
+        name: X-User-Token
+        required: true
+        type: string
+        format: uuid
+      responses:
+        200:
+          description: user successfully deleted
+          schema:
+            $ref: '#/definitions/UserInfo'
+        400:
+          description: token does not belong to user
+        404:
+          description: user not found
+        500:
+          description: server error
+          schema:
+            $ref: '#/definitions/Error'
+  /status:
+    get:
+      tags:
+      - ping
+      summary: check server status
+      operationId: ping
+      description: |
+        Responds to an alive status question 
+      responses:
+        200:
+          description: server is up and running
+  /flash_story:
+    post:
+      tags:
+      - stories
+      summary: upload a flash story
+      operationId: postFlashStoty
+      description: | 
+        Uploads a flash story for a given a user if all parameters are correct.
+      produces:
+      - application/json
+      parameters:
+      - in: header
+        name: X-User-Id
+        required: true
+        type: string
+      - in: header
+        name: X-User-Token
+        required: true
+        type: string
+        format: uuid
+      - in: body
+        name: file
+        required: true
+        schema:
+          $ref: '#/definitions/FileUpload'
+      responses:
+        200:
+          description: flash story successfully uploaded
+          schema:
+            $ref: '#/definitions/FileUploadSuccess'
+        400:
+          description: file not uploadable
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: server error
+          schema:
+            $ref: '#/definitions/Error'
+  /invites:
+    post:
+      tags:
+      - friends
+      summary: send friendship invitation
+      operationId: inviteFriend
+      description: |
+        Sends an invitation from one user to another, if fields are valid.
+      produces: 
+      - application/json
+      parameters:
+      - in: header
+        name: X-User-Id
+        required: true
+        type: string
+      - in: header
+        name: X-User-Token
+        required: true
+        type: string
+        format: uuid
+      - in: body
+        name: file
+        required: true
+        schema:
+          $ref: '#/definitions/FriendInvite'
+      responses:
+        200:
+          description: friend invite correctly sent
+          schema:
+            $ref: '#/definitions/Invite'
+        400:
+          description: user and token do not correspond
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: server error
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      tags:
+      - friends
+      summary: get all friendship invitations for user
+      operationId: getInvites
+      description: |
+        Returns a list of all received invitations for a given user
+      produces:
+      - application/json
+      parameters:
+      - in: header
+        name: X-User-Id
+        required: true
+        type: string
+      - in: header
+        name: X-User-Token
+        required: true
+        type: string
+        format: uuid
+      responses:
+        200:
+          description: invites correctly fetched
+          schema:
+            $ref: '#/definitions/InviteList'
+        400:
+          description: user not found
+        500:
+          description: server error
+          schema:
+            $ref: '#/definitions/Error'
+  /invites/accept:
+      post:
+        tags:
+        - friends
+        summary: accept a friendship invitation
+        operationId: acceptInvite
+        description: |
+          An invite with a given ID is accepted by the receiver.
+        produces:
+        - application/json
+        parameters:
+        - in: header
+          name: X-User-Id
+          required: true
+          type: string
+        - in: header
+          name: X-User-Token
+          required: true
+          type: string
+          format: uuid
+        - in: body
+          name: invite
+          required: true
+          schema:
+            $ref: '#/definitions/Invite'
+        responses:
+          200:
+            description: invite correctly accepted
+          404: 
+            description: user or invitation not found
+            schema:
+              $ref: '#/definitions/Error'
+          500:
+            description: server error
+            schema:
+              $ref: '#/definitions/Error'
+  /invites/cancel:
+    delete:
+      tags:
+      - friends
+      summary: cancel a friendship invitation
+      operationId: cancelInvite
+      description: |
+        Cancels a friendship invitation (both sender and sendee can do this)
+      produces:
+      - application/json
+      parameters:
+      - in: header
+        name: X-User-Id
+        required: true
+        type: string
+      - in: header
+        name: X-User-Token
+        required: true
+        type: string
+        format: uuid
+      - in: body
+        name: invite
+        required: true
+        schema:
+          $ref: '#/definitions/Invite'
+      responses:
+        200:
+          description: invitation correctly cancelled
+        400:
+          description: incorrect request
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: invitation not found
+        500: 
+          description: server error
+          schema:
+            $ref: '#/definitions/Error'
+  /unfriend:
+    delete:
+      tags:
+      - friends
+      summary: breaks a friendship link between users
+      operationId: cancelFriendship
+      description: |
+        Unfriends two users
+      produces: 
+      - application/json
+      parameters: 
+      - in: header
+        name: X-User-Id
+        required: true
+        type: string
+      - in: header
+        name: X-User-Token
+        required: true
+        type: string
+        format: uuid
+      - in: body
+        name: friend
+        required: true
+        schema:
+          $ref: '#/definitions/FriendInvite'
+      responses:
+        200:
+          description: friendship correctly deleted
+        400:
+          description: impossible deletion
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: server error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  UserLoginInfo:
+    required:
+    - username
+    - password
+    properties:
+      username:
+        type: string
+        example: rodrigo.derosa
+      password:
+        type: string
+        example: myCool-password
+      externalAuthToken:
+        type: string
+        format: uuid
+        example: d290f1ee-6c54-4b01-90e6-d701748f0851
+  UserInfo:
+    required:
+    - username
+    - token
+    properties:
+      username:
+        type: string
+        example: rodrigo.derosa
+      token:
+        type: string
+        format: uuid
+        example: 2361832f-82ea-43d0-9d58-28d310d7435e
+  FileUpload:
+    required:
+    - fileLink
+    properties:
+      fileLink:
+        type: string
+        example: firebase.magical-link.com
+  FileUploadSuccess:
+    required:
+    - username
+    - fileLink
+    properties:
+      username:
+        type: string
+        example: rodrigo.derosa
+      fileLink:
+        type: string
+        example: firebase.magical-link.com
+  FriendInvite:
+    required:
+    - sendee
+    properties:
+      sendee:
+        type: string
+        example: lionel.mekki
+  Invite:
+    required:
+    - sender
+    - sendee
+    - id
+    properties:
+      sender:
+       type: string
+       example: rodrigo.derosa
+      sendee:
+        type: string
+        example: lionel.mekki
+      id:
+        type: string
+        format: uuid
+        example: cf6466a5-19cf-4da0-859d-8ab1f8367ea4
+  InviteList:
+    required:
+    - invites
+    properties:
+      invites:
+        type: array
+        items:
+          $ref: '#/definitions/Invite'
+  Error:
+    required:
+    - code
+    - message
+    properties:
+      code:
+        type: integer
+        example: 404
+      message:
+        type: string
+        example: The given external token does not belong to given user.
+      
+# Added by API Auto Mocking Plugin
+# host: stories-app-server.herokuapp.com
+# basePath: /
+schemes:
+ - https
+# Added by API Auto Mocking Plugin
+# host: stories-app-server.herokuapp.com
+# basePath: /
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+basePath: /SteelSoft/PicApp/1.0.0
