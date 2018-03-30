@@ -8,9 +8,9 @@ install:
   - pip install pylint
 
 script:
-  - python -m unittest discover
+  - python -m unittest tests/test_stories.py
   - coverage erase
-  - coverage run test_stories.py && coverage html
+  - coverage run tests/test_stories.py
   - pylint --output-format=text stories.py
 
 after_success:
