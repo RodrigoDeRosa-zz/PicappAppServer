@@ -1,32 +1,33 @@
 sudo: true
 dist: trusty
-
 language: python
 python: 3.6
-
 install:
 - pip install -r requirements.txt
 - pip install coverage
-
 jobs:
   include:
   - stage: Build Docker image and push to Heroku
     script:
-      - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-      - docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
-      - docker build -t picapp-app-server .
-      - docker tag picapp-app-server registry.heroku.com/$APP_NAME/web
-      - docker push registry.heroku.com/$APP_NAME/web
+    - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+    - heroku login
+    - "$HEROKU_USER"
+    - "$HEROKU_PASSWORD"
+    - docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
+    - docker build -t picapp-app-server .
+    - docker tag picapp-app-server registry.heroku.com/$APP_NAME/web
+    - docker push registry.heroku.com/$APP_NAME/web
   - stage: run tests
     script:
-      - docker ps | grep -i $APP_NAME
-      - coverage erase
-      - coverage run --source=. -m unittest discover -s tests/
-      - coverage report -m
-
+    - docker ps | grep -i $APP_NAME
+    - coverage erase
+    - coverage run --source=. -m unittest discover -s tests/
+    - coverage report -m
 env:
   global:
   - secure: OQ2y0C4Hi/WWBUOHeRu6KBrLgOcr2prOgMEpvT2clVNrFMNMqcTW7HTcq9sbeFbR23n3hc3rv7yO2VM/s7Dxbqk5kAW0KbwBlj607WVS6HbF9rq84DRZKjINGtn5MDPJHrv8kp0g71WAvTJZWQwd7IbGQSc4SOxlGS8KH+Iz1/MqX6SGotIEXgLBrtP2wrtDRb26pTitunWTficiAXY2mFoCHsDlsKOT3qxcBYHl994R8UsbQaTCPE7dBSTYtdm97mbpMYxAE08OM55X/9KN13lGXKO4UjdvKMDZLxuvX7DDmYYAdi9iK8syd5OJRNwdHBqWt/dHJ9KxLNg8ORVjr8NhraA2csvyBHYMIAQXdvil4bFyH2y1K0nG6fFKhW6AnCeOGU/UDrwMfPBLHCgAa250wyaFQqb1Bg1N1OYfEoGhmx38zOAHjkpI1fADdG3l2LFdvk8uCw0i3979K6KW4p43NFyG//ouF9szNqm8KWf8VWOuvTqFTueOl5teoDD66EOd3UusSOmno6aNMDODYznbWzI+CwAYXwaZJomknrK2Eaw8xsB8reHwC0DKOj6hApkKKF3n2ce9S5xU3LcD21B35MMGU1jjADeLvaEAtqSW7PCr7pHFCRWBv2uobw/nv88cwxjIMEoDqhJYKC1mgypgx5Adn8sEsZgUy8wlcww=
   - secure: wE7+OLK1LWXwZeAwXKHxZiQMYPOg6aG8zB0Z6Z2VzpCqWr3bC634GJRYCNlM4bn+o30dQ9RQgBT7bFa2ieg5kKq0QNdjKM/a/RSw39PQ3YNY/E+wuBzYiJUrRuEWzNMOb3bcDb0eBiX7qIFzXqxnDsdM/EOe5ZrwCD4pjwnGvEit+hsSIO4Tok0CRdr08TgaCF00V8RyBJ6Cp+A8hUjupu+s9Bq9U/1CmLQM2ttvq3zp0Mtr17ojU/S3Hhp9e3xfjC5SSJ91v7w4t7CL1XE4qiN7n1c8vdL/x/aW/0LIFSD9QY4ZVKLVFLIVtH6JcqC/cYVoI/EyV5GPMsv5EMMeP7ZI8OZzSqsYWk9m2rjOlLEsWkuQQe1BBKPZ53y4kOkXT2qc+V5nZRJEMVAOt6sfJEFIIQqAhEZ4FiVXQRPt12LncUmY73bYeCCbEzv/Jq4B9yTGnugV6z0Pn3lIDM21s2ZGJbOUAXw5aF7XF1S9FbK/ClecZBN7OHPyiIJqrLbhnztM5DOCcuOQb4Wa/wGUqFBkdxx/vNEpYmQ0zX7+r1dCuLWuK8f81XGyCZF7YAiaBcF1ma0cadCqDBbcvRqmDCJMV+aJCIWKicyzXpl+6IAB62O8VdSGYP90WLrJec8qYad8AKaHt9WHGlBWrzOH1pRv2XUfDlLKXU2F5ypff+U=
   - secure: fDtDxIjA43qG5pa0JPWrqwgXUPZeWw9PCmhpuppEBu6pExDqQmQWhIWPTt1W5XvyzKivue90U4HcQCgRqIJVQeoBQ/T+77LdotdVjs6bd59wclvUl2r1oRv/w8eM1cFPqh0MElqSsPeW7YHbbeRdEGNMgF1LS+uZ2b0onLMTQvZA6/o8wkHWkg+I7cgXIeLgqK89laB6kbD7Lsy5m7B0DZf5CuOJOWZoY6M5V/UjR502Uppl6/NwNCoz7A5HOTrZQGiVTB6QEAKCs3lUyslmmQx5HYFZGBnXgr1mCKyIFrLtxTX6Rbi+qMu8uiiAR3pa767YT/HLSJZ2gE4bW5Xp7ij7EEebnOR6GmTaQmYGcQT/VFMqz2RPz9XkzEewib44JeLtXMpemKBHIeB/UJmUV5PTUxP4ifmdbJCF5jFmeymU/atZH1B4dtZxKMTo5TqLxaoQ2sz7ZLGCh+GNuJpbiVd0LX9C3+IJzxKRaNPuZnfsGBKEGFKGkcSG9rXwj5EnQd/ZuwokGIToKItj6ah8ELWTGsRrOArM+HS8TfOcwXcTOD3ZNpBU0cUIu8tgJwhwqg4cBNrZnmIor66lOMWNW1Yom+ipEGTEpWy329yAdNq3+2pQOlU+1MwbwSET2Kc/e5LGYS+YtLKdiO9vd9Yctbt410P8tJy/wP3UZ3jSVSM=
   - secure: aOslbw9jSqsfNWQ7KjxeuvNKMJPtudoOU7OPF938GFjvSU5wWyCgrUD3wU2lzAekE3HMLNR8rE0cXu0Wbh8/JOZq2R3jOWCAyFkIqPXW96sjfnjsLCKFVzsuYrKJZfxJUSEHJLNDcG4cfxuGAV6dzIPwZpwgbQ8h8I1iQHzJ1pMj6q4BbGn4Tklt09DD8++5HpA7Qey7EolIotgrc9oHYnky4D4G58uY5OK0jW7eUogV1QlVzwvKjvYK0sliXY8C78DyYli0ma9RpuLC03pghmZZRikF4ZJWN217dP9g38tOJEEvUbO+F4eAnFdX/36H9rPnqAwqZQSQ+D5rRkldk+Gr7qYzXFDSrLJFben9E32R4OY07+81s+X41T5bWSCe4n2wgp41txlwFpsXOLk2eNPXD1o4JiLpKUitRAxBAFd5Hbu6BZJpijErnFb6mkXbaRPK47AYWERh8MfzLQErstJijGSfiDtoX701l8q0KBX7uvI7/Vl61qgp7iylvKi9xZu824SOkYb39a3duj+kFFVkgMPieWpB2Ul1SGR1P04NNye/U+emdzWzl0n5vmqLNAkpJEI9EZ6at6cdjYZ45sWos6sikPpl0ZZxvSrMoaVUu0H2p97GlqKTaERRliZOevSj5RdI8Xi0r8l+oJH3gNGEt3NSjKBtdzrcr9EvvYc=
+  - secure: TyCX4GdLYTnmBbBRWb1xh8xDcVSy51nKJ0wcAAO4WnPKcpZWLkQrXg/eghHKLEj3OrlQMtRiGCV52KDp/ivJfUVl6V6sWeDhYIExqHJ4WCgfvFKPaJy5EY8RhamXj5E/gtadmdjoCT9iIxj2QNK2ugq6K4peNKrmogleUWW8qvbCIpuyPRkudARd41ZgRXTZehfwpDrqx80CUk9z5LMVZxnGYIX/JtU4STmN+Kl8Ha2lFpREFJKLS8w0WIrj1Qo4z/CtMqltLWwJHZPwETSnqIiOmkbM4WwIYu4fCYIn8HkekSYAcvIwTq6yW7abBmP5QBcC99QmPnu3jMFwjSMJ8b2lqDwEdn2qOOkpiGH4XHg6lXziLxW2ZEXsExYLuwEwrNl9SgDDhg9NqJ9RtnYjPGSVeEyPhLE2pXQHyWAnqhxC89++3dtjw+vsGKL2mmgQ0Z1YcZF5PGzLrI4ZJfWErnk7fh0c9Fh9TdBU31D+/n7GQHrFfVVoSgbQkLRIUOj6/rItNNxE+cxa0ku+nfru9Zvaz6mQRltKE0N7kX4pgnHQxn8C+oEFumZKsx4Lx6jSAWBsLDDdciBrgMihntCpqvuV27c/RnL7dttjRmJHziJt9DRGP/PDK/Nf6XuqFdLUqldndAOKKtSHhZn+cBapolb7rCLSkdsiWVcbhruM5tk=
+  - secure: g4+DbMxE9BAdqsYh9hvLhE23qbVWvnUAjcTfPosZjaAVMPxloTG+XOLsfbjKONi0uN127MBYv3srKPKqN721W1GENutSHEC2e8byCjHoW8xInWMShyoNr6WlRS4gHCwrJkiBYS3g2kYgzUi6PC9BqeY2h/sCwU9QCH2TDm8wvkWbkhGRlVjzbnx9R4DjHs4WFkgYFJT8x4J6oD5XWJXEm0LfYAGah6bX49AYsy2itTDaW0SVorDaFL9/5Ama0H8TEzkfZprJXmX5Gdatv0fuFqqTuzV2vm04yzfx3nfemVm/Z5NAfYhvDhtOpIIz9D6sJOHdGMVGbLBbNrunV3MfNLr3NBci6Fy8+iKblCNhwl74ZNGkS4XIPCkvZE0Q9U6OgbKKBao+FK08Xag7AZ9AGgo9ciK8187Cdbc7fqxU+LT099gje6mrHCkLMrefR2y+PCLqsNs7dfh7w5RAn+MOdVBjpfqE6LTmtfN4co5MffeyeGPUdd3o5y0F2wng4gQZDakuoiFGq8Ks6j07iLO5FV5Ktj60TwMXZyCSDEAzo/mTpJTmL+qBRoePlaKvG7o02Z1sIY9YVMY0uzaRc5iIeIytjXJFvbUWsNFEsfyl/omI8IEfXxbuqmRJ9gQjCkTw6m2mVnkwClYXLetxFcuAOUQkbLJF+jCdBZW+zfxUaSM=
