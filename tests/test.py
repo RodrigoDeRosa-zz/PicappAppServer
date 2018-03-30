@@ -2,13 +2,13 @@ import unittest
 from flask import json
 import os, sys, inspect
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
-import stories
+import main
 
 
 class HomeResponseTest(unittest.TestCase):
 
     def setUp(self):
-        self.app = stories.app.test_client()
+        self.app = main.app.test_client()
         self.app.testing = True
 
     def test_home_page(self):
