@@ -1,8 +1,8 @@
-import unittest
-from flask import json
 import os
 import sys
 import inspect
+import unittest
+from flask import json
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
 from src import main
 
