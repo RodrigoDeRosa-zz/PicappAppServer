@@ -1,1 +1,1 @@
-web: gunicorn src/stories:app --log-file=-
+web: gunicorn /src/stories:app --log-file=-
