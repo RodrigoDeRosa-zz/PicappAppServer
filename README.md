@@ -1,11 +1,9 @@
 # StoriesAppServer
 
+## Status
 [![Build Status](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer.svg?token=rEyCUWQVS9saEunkyMqa&branch=master)](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer)
-[![codecov](https://codecov.io/gh/RodrigoDeRosa/StoriesAppServer/branch/master/graph/badge.svg?token=z6KQ00Bcth)](https://codecov.io/gh/RodrigoDeRosa/StoriesAppServer)
-![Heroku](https://heroku-badge.herokuapp.com/?app=picapp-app-server)
 
 ## Docker
-
 To build the application inside Docker, we just need to execute the Shell script
 called 'docker-build.sh'. To do that, the following shell command is needed:
 
@@ -20,6 +18,12 @@ can be done by running the following command in the console:
     $ chmod +x docker-build.sh
     
 ## Heroku
+![Heroku](https://heroku-badge.herokuapp.com/?app=picapp-app-server)
 
 Heroku is integrated automatically via GitHub. Every time we update master branch,
 Heroku builds and deploys the last version.
+
+## Code coverage
+[![codecov](https://codecov.io/gh/RodrigoDeRosa/StoriesAppServer/branch/master/graph/badge.svg?token=z6KQ00Bcth)](https://codecov.io/gh/RodrigoDeRosa/StoriesAppServer)
+
+By clicking on the badge, you can see the code coverage report.
