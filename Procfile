@@ -1,1 +1,1 @@
-web: gunicorn src/main:app --log-file=-
+web: sh -c 'cd ./src/ && gunicorn main:app --log-file=-'
