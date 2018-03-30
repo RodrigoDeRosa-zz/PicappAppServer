@@ -1,4 +1,4 @@
-# StoriesAppServer
+# PicappAppServer
 
 ## Status
 [![Build Status](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer.svg?token=rEyCUWQVS9saEunkyMqa&branch=master)](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer)
