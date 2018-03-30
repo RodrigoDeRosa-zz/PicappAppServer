@@ -10,8 +10,8 @@ install:
 script:
   - python -m unittest discover
   - coverage erase
-  - coverage run /tests/test_stories.py && coverage html
-  - pylint --output-format=text /src/stories.py
+  - coverage run test_stories.py && coverage html
+  - pylint --output-format=text stories.py
 
 after_success:
   - codecov

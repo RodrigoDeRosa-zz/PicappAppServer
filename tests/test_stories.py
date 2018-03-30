@@ -1,6 +1,6 @@
 import unittest
 from flask import json
-from src import stories
+import stories
 
 
 class HomeResponseTest(unittest.TestCase):
