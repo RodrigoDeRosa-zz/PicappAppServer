@@ -13,11 +13,8 @@ jobs:
   - stage: Build Docker image and push to Heroku
     script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-      - docker build -t picapp-app-server .
-      - docker images
-      - docker tag picapp-app-server $DOCKER_USERNAME/picapp-app-server
-      - docker push $DOCKER_USERNAME/picapp-app-server
       - docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
+      - docker build -t picapp-app-server .
       - docker tag picapp-app-server registry.heroku.com/$APP_NAME/web
       - docker push registry.heroku.com/$APP_NAME/web
   - stage: run tests
