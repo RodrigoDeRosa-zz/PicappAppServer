@@ -5,7 +5,7 @@ install:
 script:
   - coverage erase
   - coverage run --source=. -m unittest discover -s tests/
-  - pylint --errors-only --output-format=text src/main.py
+  - pylint --errors-only --output-format=text src
 after_success:
   - codecov -t $CODECOV_TOKEN
 env:
