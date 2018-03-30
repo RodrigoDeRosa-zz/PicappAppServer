@@ -8,4 +8,4 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 # Execute program
 ENTRYPOINT ["python"]
-CMD ["src/main.py"]
+CMD ["main.py"]

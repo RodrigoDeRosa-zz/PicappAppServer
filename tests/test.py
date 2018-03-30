@@ -1,7 +1,7 @@
 """Main testing module"""
 import unittest
 from flask import json
-from src import main
+import main
 
 
 class MainTest(unittest.TestCase):
