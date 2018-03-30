@@ -1,10 +1,11 @@
-# Set python enviroment
-FROM python:3
-# Add main file
-COPY stories.py /src/stories.py
-# Install dependencies
-COPY requirements.txt /tmp
-WORKDIR /tmp
+FROM ubuntu:latest
+# Update
+RUN apt-get update -y
+RUN apt-get install -y python-pip python-dev build-essential
+# Create directory and install dependencies
+COPY . /app
+WORKDIR /app
 RUN pip install -r requirements.txt
-# Run script
-CMD ["python", "/src/stories.py"]
+# Execute program
+ENTRYPOINT ["python"]
+CMD ["stories.py"]

@@ -1,0 +1,17 @@
+language: python
+python:
+  - 3.6
+
+install:
+  - pip install -r requirements.txt
+  - pip install codecov
+
+script:
+  - python -m unittest discover
+  - behave
+  - coverage erase
+  - coverage run test_webapp.py && coverage html
+  - pylint --output-format=text src/stories.py
+
+after_success:
+  - codecov
