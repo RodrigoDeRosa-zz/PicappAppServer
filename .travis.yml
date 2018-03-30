@@ -13,5 +13,5 @@ jobs:
     - coverage erase
     - coverage run --source=. -m unittest discover -s tests/
     - coverage report -m
-    - pylint src/*.py
-    - pylint test/*.py
+    - pylint src/main.py
+    - pylint tests/test.py
