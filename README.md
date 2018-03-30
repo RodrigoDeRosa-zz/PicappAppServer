@@ -1,5 +1,7 @@
 # StoriesAppServer
 
+[![Build Status](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer.svg?token=rEyCUWQVS9saEunkyMqa&branch=master)](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer)
+
 ## Docker
 
 To build the application inside Docker, we just need to execute the Shell script
