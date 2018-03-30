@@ -3,7 +3,7 @@ python: 3.6
 install:
   - pip install -r requirements.txt
 script:
-  - pytest --cov-config .coveragerc --cov=$(pwd)
+  - coverage run --source=. -m unittest discover -s tests/
   - pylint --output-format=text main.py
 after_success:
   - codecov -t $CODECOV_TOKEN
