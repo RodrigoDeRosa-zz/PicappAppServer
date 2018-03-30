@@ -1,24 +1,35 @@
 sudo: true
 dist: trusty
+
 language: python
 python: 3.6
+
 install:
 - pip install -r requirements.txt
 - pip install coverage
+
 jobs:
   include:
-  - stage: build docker image and push to heroku
+  - stage: Build Docker image and push to Heroku
     script:
-    - docker login --username=_ --password=$HEROKU_TOKEN registry.heroku.com
-    - docker build -t registry.heroku.com/$APP_NAME/web .
-    - docker push registry.heroku.com/$APP_NAME/web
+      - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      - docker build -t picapp-app-server .
+      - docker images
+      - docker tag picapp-app-server $DOCKER_USERNAME/picapp-app-server
+      - docker push $DOCKER_USERNAME/picapp-app-server
+      - docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
+      - docker tag picapp-app-server registry.heroku.com/$APP_NAME/web
+      - docker push registry.heroku.com/$APP_NAME/web
   - stage: run tests
     script:
-    - docker ps | grep -i $APP_NAME
-    - coverage erase
-    - coverage run --source=. -m unittest discover -s tests/
-    - coverage report -m
+      - docker ps | grep -i $APP_NAME
+      - coverage erase
+      - coverage run --source=. -m unittest discover -s tests/
+      - coverage report -m
+
 env:
   global:
+  - secure: OQ2y0C4Hi/WWBUOHeRu6KBrLgOcr2prOgMEpvT2clVNrFMNMqcTW7HTcq9sbeFbR23n3hc3rv7yO2VM/s7Dxbqk5kAW0KbwBlj607WVS6HbF9rq84DRZKjINGtn5MDPJHrv8kp0g71WAvTJZWQwd7IbGQSc4SOxlGS8KH+Iz1/MqX6SGotIEXgLBrtP2wrtDRb26pTitunWTficiAXY2mFoCHsDlsKOT3qxcBYHl994R8UsbQaTCPE7dBSTYtdm97mbpMYxAE08OM55X/9KN13lGXKO4UjdvKMDZLxuvX7DDmYYAdi9iK8syd5OJRNwdHBqWt/dHJ9KxLNg8ORVjr8NhraA2csvyBHYMIAQXdvil4bFyH2y1K0nG6fFKhW6AnCeOGU/UDrwMfPBLHCgAa250wyaFQqb1Bg1N1OYfEoGhmx38zOAHjkpI1fADdG3l2LFdvk8uCw0i3979K6KW4p43NFyG//ouF9szNqm8KWf8VWOuvTqFTueOl5teoDD66EOd3UusSOmno6aNMDODYznbWzI+CwAYXwaZJomknrK2Eaw8xsB8reHwC0DKOj6hApkKKF3n2ce9S5xU3LcD21B35MMGU1jjADeLvaEAtqSW7PCr7pHFCRWBv2uobw/nv88cwxjIMEoDqhJYKC1mgypgx5Adn8sEsZgUy8wlcww=
+  - secure: wE7+OLK1LWXwZeAwXKHxZiQMYPOg6aG8zB0Z6Z2VzpCqWr3bC634GJRYCNlM4bn+o30dQ9RQgBT7bFa2ieg5kKq0QNdjKM/a/RSw39PQ3YNY/E+wuBzYiJUrRuEWzNMOb3bcDb0eBiX7qIFzXqxnDsdM/EOe5ZrwCD4pjwnGvEit+hsSIO4Tok0CRdr08TgaCF00V8RyBJ6Cp+A8hUjupu+s9Bq9U/1CmLQM2ttvq3zp0Mtr17ojU/S3Hhp9e3xfjC5SSJ91v7w4t7CL1XE4qiN7n1c8vdL/x/aW/0LIFSD9QY4ZVKLVFLIVtH6JcqC/cYVoI/EyV5GPMsv5EMMeP7ZI8OZzSqsYWk9m2rjOlLEsWkuQQe1BBKPZ53y4kOkXT2qc+V5nZRJEMVAOt6sfJEFIIQqAhEZ4FiVXQRPt12LncUmY73bYeCCbEzv/Jq4B9yTGnugV6z0Pn3lIDM21s2ZGJbOUAXw5aF7XF1S9FbK/ClecZBN7OHPyiIJqrLbhnztM5DOCcuOQb4Wa/wGUqFBkdxx/vNEpYmQ0zX7+r1dCuLWuK8f81XGyCZF7YAiaBcF1ma0cadCqDBbcvRqmDCJMV+aJCIWKicyzXpl+6IAB62O8VdSGYP90WLrJec8qYad8AKaHt9WHGlBWrzOH1pRv2XUfDlLKXU2F5ypff+U=
+  - secure: fDtDxIjA43qG5pa0JPWrqwgXUPZeWw9PCmhpuppEBu6pExDqQmQWhIWPTt1W5XvyzKivue90U4HcQCgRqIJVQeoBQ/T+77LdotdVjs6bd59wclvUl2r1oRv/w8eM1cFPqh0MElqSsPeW7YHbbeRdEGNMgF1LS+uZ2b0onLMTQvZA6/o8wkHWkg+I7cgXIeLgqK89laB6kbD7Lsy5m7B0DZf5CuOJOWZoY6M5V/UjR502Uppl6/NwNCoz7A5HOTrZQGiVTB6QEAKCs3lUyslmmQx5HYFZGBnXgr1mCKyIFrLtxTX6Rbi+qMu8uiiAR3pa767YT/HLSJZ2gE4bW5Xp7ij7EEebnOR6GmTaQmYGcQT/VFMqz2RPz9XkzEewib44JeLtXMpemKBHIeB/UJmUV5PTUxP4ifmdbJCF5jFmeymU/atZH1B4dtZxKMTo5TqLxaoQ2sz7ZLGCh+GNuJpbiVd0LX9C3+IJzxKRaNPuZnfsGBKEGFKGkcSG9rXwj5EnQd/ZuwokGIToKItj6ah8ELWTGsRrOArM+HS8TfOcwXcTOD3ZNpBU0cUIu8tgJwhwqg4cBNrZnmIor66lOMWNW1Yom+ipEGTEpWy329yAdNq3+2pQOlU+1MwbwSET2Kc/e5LGYS+YtLKdiO9vd9Yctbt410P8tJy/wP3UZ3jSVSM=
   - secure: aOslbw9jSqsfNWQ7KjxeuvNKMJPtudoOU7OPF938GFjvSU5wWyCgrUD3wU2lzAekE3HMLNR8rE0cXu0Wbh8/JOZq2R3jOWCAyFkIqPXW96sjfnjsLCKFVzsuYrKJZfxJUSEHJLNDcG4cfxuGAV6dzIPwZpwgbQ8h8I1iQHzJ1pMj6q4BbGn4Tklt09DD8++5HpA7Qey7EolIotgrc9oHYnky4D4G58uY5OK0jW7eUogV1QlVzwvKjvYK0sliXY8C78DyYli0ma9RpuLC03pghmZZRikF4ZJWN217dP9g38tOJEEvUbO+F4eAnFdX/36H9rPnqAwqZQSQ+D5rRkldk+Gr7qYzXFDSrLJFben9E32R4OY07+81s+X41T5bWSCe4n2wgp41txlwFpsXOLk2eNPXD1o4JiLpKUitRAxBAFd5Hbu6BZJpijErnFb6mkXbaRPK47AYWERh8MfzLQErstJijGSfiDtoX701l8q0KBX7uvI7/Vl61qgp7iylvKi9xZu824SOkYb39a3duj+kFFVkgMPieWpB2Ul1SGR1P04NNye/U+emdzWzl0n5vmqLNAkpJEI9EZ6at6cdjYZ45sWos6sikPpl0ZZxvSrMoaVUu0H2p97GlqKTaERRliZOevSj5RdI8Xi0r8l+oJH3gNGEt3NSjKBtdzrcr9EvvYc=
-  - secure: i4OuZ6QerSHAilw+NjW16HZelCbiaSi8gF30S4MgeqY8Ncz/GboJGpOzmq7PvbClmoT2pYUps1uOGZrXI/JKvTjFen5FS8r1Qz7zmxa64Jm84GmNDBZFZzPIncIQeoi1auuoY84F5eoQyVHFgfYsAQzmz3SoBbNfw7pyyoQLuwMdVaB09wdrKnSbKdnbgfzOMXJwTDqIvbYKYnwWvfSvqiBq5jVNI93/Bs1bHchLMpccLv5U49TgIv8jVCwswoXJLUd/eI5g29dXfWVSnCJeESrmSW1e1SkGGn3VBkRzJKPTTkcMZ4jvCodscsBxwhZf6OzLgQ41t8bPj8e9kuVEoSD5uzTeR2Rj8ojUWMRfVsoQKfJ+RDfm3/nlFEaHMMPVXryap/h6kTjgU2AkvefhI791FB63+c/ZAdvcW83pnEmt8kL/95iwWkqRSo8CPo/fUUPe/eDVWuKLGzSaLWJJ1hx7xGue9N438tujNw9Ls7YIMZIvavNkCAvrrJSQbWNWCBd9vs6AvdoYz/lMMrIW9IEwwa2CvKGNn8EPJOybBtwHxpzwW1jLK1EW0FZaF+ewLe0VRta2Xdb+52PKmdjX/wXdiadycGjTukP9e1NYlisYvekFsiWxC6NYl1TSYJCKPOp7Hk5DbmxxwhO7B3AtLPT73Q2RD9EsrJ4f+JE08os=
