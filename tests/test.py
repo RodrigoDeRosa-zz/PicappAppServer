@@ -1,8 +1,10 @@
 import unittest
 from flask import json
-import os, sys, inspect
+import os
+import sys
+import inspect
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))))
-import main
+from src import main
 
 
 class HomeResponseTest(unittest.TestCase):
