@@ -1,15 +1,13 @@
-sudo: true
-dist: trusty
 language: python
 python: 3.6
 install:
-- pip install -r requirements.txt
-- pip install coverage
-- pip install pylint
-jobs:
-  include:
-  - stage: run tests
-    script:
-    - coverage erase
-    - coverage run --source=. -m unittest discover -s tests/
-    - pylint --output-format=text src/main.py
+  - pip install -r requirements.txt
+script:
+  - coverage erase
+  - coverage run --source=. -m unittest discover -s tests/
+  - pylint --errors-only --output-format=text src/main.py
+after_success:
+  - codecov -t $CODECOV_TOKEN
+env:
+  global:
+    secure: w1Bx6+vhEkT7BY8TBFDLA5ulnPMXV39lsvQP9oSP5xycXlilhzrwcRF4ZhDmbad6wJ/I8UCP3rq7Qa8K9sXUEgUxgYiYNCagg/LTg9qSOzcTLGSZzKN4mHgv2vtoHYqdna7eST4Vxf32Cxy5/e+7EJJdN9esSR4AOtzl6k/19rjOkCM0n8Pt9/lgVrAvMSp7fto6AZHJWVeHPV7zPBvtWVafDiOVW8oJ0VYItZcDuQYBaDFAJzPMywvLgwWdNUfwlmwXRWLVQs7ziQYbBiWLqf1iwXrvCn77nY+EAU0DsX5x54F0SEDrM9ZwiWMHWY3bVgN8A2B/JTUqCJ0XkiInfOB2HKvOagkZkgXl3SUiCCQ4BYoMo04mHkyXLdmgxOAK1z3mo0XJRCH+EnO5T/PxM/HE9FS6NXLnxK8Q7WWh0DOzjcQScjjBqi0xB5vQ1nY74jWqyBp6Ak76h+iPl8cKgT3Yduc6QKAr89xinIQR183FbQJmegzR7M9kQxPE9PL/scnzlY6NNkQlykkwGiy2RaPTLzAIPH+5Az4JisWIQcQr2sjWEW3FA16tGbaJIgVClhcLDu930CrBYoglxouMay73tORd4hUvlj+rRB7OqncfFhvB3UEZPxHz/5Kbe0jsSd5TmAVf+KdsHq+0bIQTJS1MM8F+pB28+WpXck8R3WY=

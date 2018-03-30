@@ -1,6 +1,7 @@
 # StoriesAppServer
 
 [![Build Status](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer.svg?token=rEyCUWQVS9saEunkyMqa&branch=master)](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer)
+[![codecov](https://codecov.io/gh/RodrigoDeRosa/StoriesAppServer/branch/master/graph/badge.svg?token=z6KQ00Bcth)](https://codecov.io/gh/RodrigoDeRosa/StoriesAppServer)
 
 ## Docker
 
