@@ -1,9 +1,7 @@
+"""Main module"""
 from flask import Flask
 from flask import json
 
-"""
-Main module
-"""
 
 APP = Flask(__name__)
 
