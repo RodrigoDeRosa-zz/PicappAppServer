@@ -18,7 +18,7 @@ can be done by running the following command in the console:
     $ chmod +x docker-build.sh
     
 ## Heroku
-![Heroku](https://heroku-badge.herokuapp.com/?app=picapp-app-server)
+![Heroku](https://heroku-badge.herokuapp.com/?app=picapp-app-server&root=/)
 
 Heroku is integrated automatically via GitHub. Every time we update master branch,
 Heroku builds and deploys the last version.
