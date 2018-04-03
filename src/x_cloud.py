@@ -6,6 +6,7 @@ from flask_restful import Api
 from src.model.database import mongo
 from src.resources.user import UserResource
 from src.resources.profile import ProfileResource
+from src.resources.ping import PingResource
 
 LOCAL_MONGO = 'mongodb://localhost:27017/restdb'
 CLOUD_MONGO = 'mongodb://heroku_lw3s78tf:dhk2glio3fs16ket6aapjc2867@ds229549.mlab.com:29549/heroku_lw3s78tf'
@@ -17,7 +18,7 @@ app.config['MONGO_DBNAME'] = 'restdb'
 
 api.add_resource(UserResource, "/users")
 api.add_resource(ProfileResource, "/users/<username>")
-
+api.add_resource(PingResource, "/ping")
 
 if __name__ == '__main__':
     app.config['MONGO_URI'] = 'mongodb://localhost:27017/restdb'
@@ -40,3 +41,4 @@ def run_app(local=True):
 # GET /users/<username>: profile del user <username>
 # PUT /users/<username>: edit del user <username>
 # DELETE /users/<username>: eliminar el user <username>
+# GET /ping: devuelve una respuesta vacia con status code 200
