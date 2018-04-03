@@ -1,0 +1,12 @@
+web:
+  restart: always
+  build: .
+  command: gunicorn -b 0.0.0.0:5000 'src.main:run_app(local=False)' --log-file=-
+  ports:
+    - "5000:5000"
+  volumes:
+    - .:/todo
+  links:
+    - mongo
+mongo:
+  image: mongo:3.0.2

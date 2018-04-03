@@ -1,11 +1,5 @@
-FROM ubuntu:latest
-# Update
-RUN apt-get update -y
-RUN apt-get install -y python-pip python-dev build-essential
+FROM python:3.6
 # Create directory and install dependencies
-COPY . /app
-WORKDIR /app
+COPY . /todo
+WORKDIR /todo
 RUN pip install -r requirements.txt
-# Execute program
-ENTRYPOINT ["python"]
-CMD ["src/main.py"]
