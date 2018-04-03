@@ -24,6 +24,6 @@ Heroku is integrated automatically via GitHub. Every time we update master branc
 Heroku builds and deploys the last version.
 
 ## Code coverage
-[![codecov](https://codecov.io/gh/RodrigoDeRosa/PicappAppServer/branch/master/graph/badge.svg?token=z6KQ00Bcth)](https://codecov.io/gh/RodrigoDeRosa/StoriesAppServer)
+[![codecov](https://codecov.io/gh/RodrigoDeRosa/PicappAppServer/branch/master/graph/badge.svg?token=z6KQ00Bcth)](https://codecov.io/gh/RodrigoDeRosa/PicappAppServer)
 
 By clicking on the badge, you can see the code coverage report.
