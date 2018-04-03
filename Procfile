@@ -1,1 +1,1 @@
-web: gunicorn src.main:app --log-file=-
+web: gunicorn 'src.x_cloud:run_app(local=False)' --log-file=-
