@@ -7,7 +7,6 @@ from src.model.user import User
 
 class UserResource(Resource):
 
-    @staticmethod
     def get(self):
         output = []
         # for each user in DB
@@ -17,7 +16,6 @@ class UserResource(Resource):
         response = {'result': output}
         return ResponseBuilder.build_response(response)
 
-    @staticmethod
     def post(self):
         # get data
         new_name = self._get_user_name_from_request()
@@ -36,7 +34,6 @@ class UserResource(Resource):
         response = {'result': output}
         return ResponseBuilder.build_response(response)
 
-    @staticmethod
     def delete(self):
         # delete all
         delete_result = User.delete_all()
@@ -45,10 +42,8 @@ class UserResource(Resource):
         response = {'result': output}
         return ResponseBuilder.build_response(response)
 
-    @staticmethod
     def _get_user_name_from_request(self):
         return request.json['name']
 
-    @staticmethod
     def _get_user_age_from_request(self):
         return request.json['age']

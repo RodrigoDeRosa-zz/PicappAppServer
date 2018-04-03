@@ -24,7 +24,6 @@ class ProfileResource(Resource):
             err_msg = "No user found with that name"
             return ResponseBuilder.build_error_response(err_msg,status_code)
 
-    @staticmethod
     def put(self, username):
         # get data received
         new_age = request.json['age']
@@ -40,7 +39,6 @@ class ProfileResource(Resource):
         response = {'result': output}
         return ResponseBuilder.build_response(response)
 
-    @staticmethod
     def delete(self, username):
         # search one by username and delete
         user = User.delete_one(username)
@@ -51,7 +49,6 @@ class ProfileResource(Resource):
         response = {'result': output}
         return ResponseBuilder.build_response(response)
 
-    @staticmethod
     def _find_one_user(self, query):
         user = User.get_one(query)
         if not user:
