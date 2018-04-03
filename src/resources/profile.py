@@ -1,3 +1,5 @@
+from typing import re
+
 from flask import request
 from flask_restful import Resource
 
@@ -26,7 +28,7 @@ class ProfileResource(Resource):
 
     def put(self, username):
         # get data received
-        new_age = request.json['age']
+        new_age = self._get_age_from_request()
 
         # look for user and update, returning user info after being updated
         updated_user = User.update_profile(username, {'age': new_age})
@@ -54,3 +56,6 @@ class ProfileResource(Resource):
         if not user:
             raise UserNotFoundException("No user found matching criteria")
         return user
+
+    def _get_age_from_request(self):
+        return request.json['age']
