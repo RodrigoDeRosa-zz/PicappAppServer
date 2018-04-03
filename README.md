@@ -1,7 +1,7 @@
 # PicappAppServer
 
 ## Status
-[![Build Status](https://travis-ci.com/RodrigoDeRosa/PicappAppServer.svg?token=rEyCUWQVS9saEunkyMqa&branch=master)](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer)
+[![Build Status](https://travis-ci.com/RodrigoDeRosa/PicappAppServer.svg?token=rEyCUWQVS9saEunkyMqa&branch=master)](https://travis-ci.com/RodrigoDeRosa/PicappAppServer)
 
 ## Docker
 In order to run the server locally via Docker, you need to install both
