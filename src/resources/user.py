@@ -2,7 +2,6 @@ from flask import request
 from flask_restful import Resource
 
 from src.resources.response_builder import ResponseBuilder
-from src.model.database import mongo
 from src.model.user import User
 
 
@@ -21,7 +20,7 @@ class UserResource(Resource):
         new_name = self._get_user_name_from_request()
         new_age = self._get_user_age_from_request()
 
-        #TODO: validate username-already-taken
+        #TO DO validate username-already-taken
 
         #insert into DB
         new_user_id = User.insert_one( {'name':new_name, 'age':new_age} )

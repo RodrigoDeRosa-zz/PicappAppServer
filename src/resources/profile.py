@@ -2,7 +2,7 @@ from flask import request
 from flask_restful import Resource
 
 from src.resources.response_builder import ResponseBuilder
-from src.model.database import mongo
+#from src.model.database import mongo
 from src.model.user import User
 
 class UserNotFoundException(Exception):
@@ -15,8 +15,8 @@ class ProfileResource(Resource):
             user = self._find_one_user( {'name':username } )
             output = {'name':user['name'], 'age':user['age']}
             response = {'result' : output}
-            return ResponseBuilder.build_response(output)
-        except UserNotFoundException as e:
+            return ResponseBuilder.build_response(response)
+        except UserNotFoundException:
             status_code = 404
             err_msg = "No user found with that name"
             return ResponseBuilder.build_error_response(err_msg,status_code)
@@ -46,8 +46,8 @@ class ProfileResource(Resource):
         response = {'result' : output}
         return ResponseBuilder.build_response(response)
 
-    def _find_one_user(self,filter):
-        user = User.get_one(filter)
+    def _find_one_user(self,query):
+        user = User.get_one(query)
         if not user:
             raise UserNotFoundException("No user found matching criteria")
         return user

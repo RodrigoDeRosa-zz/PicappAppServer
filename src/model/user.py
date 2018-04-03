@@ -13,8 +13,8 @@ class User:
         return User.get_users_db().find()
 
     @staticmethod
-    def get_one(filter):
-        return User.get_users_db().find_one(filter)
+    def get_one(query):
+        return User.get_users_db().find_one(query)
 
     @staticmethod
     def insert_one(new_user):

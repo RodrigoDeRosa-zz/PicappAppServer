@@ -1,7 +1,7 @@
 from flask import Flask
-from flask import request
-from flask_restful import Resource, Api
-
+#from flask import request
+#from flask_restful import Resource, Api
+from flask_restful import Api
 
 from src.model.database import mongo
 from src.resources.user import UserResource
@@ -32,12 +32,11 @@ def run_app(local=True):
     return app
 
 
-'''
-TESTED ENDPOINTS:
-()  GET /users: lista todos los usuarios
-()  POST /users: agrega un nuevo usuario
-()  DELETE /users: elimina todos los usuarios
-()  GET /users/<username>: profile del user <username>
-()  PUT /users/<username>: edit del user <username>
-()  DELETE /users/<username>: eliminar el user <username>
-'''
+
+# TESTED ENDPOINTS:
+# GET /users: lista todos los usuarios
+# POST /users: agrega un nuevo usuario
+# DELETE /users: elimina todos los usuarios
+# GET /users/<username>: profile del user <username>
+# PUT /users/<username>: edit del user <username>
+# DELETE /users/<username>: eliminar el user <username>
