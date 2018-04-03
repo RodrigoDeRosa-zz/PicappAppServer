@@ -4,21 +4,24 @@
 [![Build Status](https://travis-ci.com/RodrigoDeRosa/PicappAppServer.svg?token=rEyCUWQVS9saEunkyMqa&branch=master)](https://travis-ci.com/RodrigoDeRosa/StoriesAppServer)
 
 ## Docker
-To build the application inside Docker, we just need to execute the Shell script
-called 'docker-build.sh'. To do that, the following shell command is needed:
+In order to run the server locally via Docker, you need to install both
+[docker](https://docs.docker.com/install/) and 
+[docker-compose](https://docs.docker.com/compose/install/).
 
-    $ ./docker-build.sh    
+Once you have both of them, you can get the server running by opening a
+console in the project directory and running the following commands:
 
-This shell script deletes the old version images and containers and create a new
-one for the latest application build.
+    $ sudo docker-compose build
+
+This one will build the project in the container.
+
+    $ sudo docker-compose up
     
-**NOTE:** You have to give execution permission to that Shell script first. That
-can be done by running the following command in the console:
-
-    $ chmod +x docker-build.sh
+And this one will start listening on [localhost:5000](https://localhost:5000).
+You can stop it anytime with CTRL+C.
     
 ## Heroku
-![Heroku](https://heroku-badge.herokuapp.com/?app=picapp-app-server&root=/)
+![Heroku](https://heroku-badge.herokuapp.com/?app=picapp-app-server&root=/users)
 
 Heroku is integrated automatically via GitHub. Every time we update master branch,
 Heroku builds and deploys the last version.
