@@ -2,6 +2,7 @@ from src.model.database import mongo
 
 from pymongo.collection import ReturnDocument
 
+
 class User:
 
     @staticmethod
@@ -26,9 +27,10 @@ class User:
 
     @staticmethod
     def update_profile(username,updated_param_dict):
-        return mongo.db.users.find_one_and_update(filter =  {'name':username}, \
-                                                update = { "$set" : updated_param_dict }, \
-                                                return_document=ReturnDocument.AFTER )
+        return mongo.db.users.find_one_and_update(filter={'name':username},
+                                                  update={"$set": updated_param_dict},
+                                                  return_document=ReturnDocument.AFTER)
+
     @staticmethod
     def delete_one(username):
-        return mongo.db.users.find_one_and_delete( {'name':username} )
+        return mongo.db.users.find_one_and_delete({'name': username})
