@@ -30,3 +30,8 @@ Heroku builds and deploys the last version.
 [![codecov](https://codecov.io/gh/RodrigoDeRosa/PicappAppServer/branch/master/graph/badge.svg?token=z6KQ00Bcth)](https://codecov.io/gh/RodrigoDeRosa/PicappAppServer)
 
 By clicking on the badge, you can see the code coverage report.
+
+## API
+ 
+You can see the interface of this Application Server
+[here](https://app.swaggerhub.com/apis/SteelSoft/PicApp-AppServer-Checkpoint1/1.0.1).
