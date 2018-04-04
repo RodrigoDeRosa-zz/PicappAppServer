@@ -1,5 +1,4 @@
 from src.model.database import mongo
-from exceptions import Exception
 
 
 class InvalidTokenException(Exception):
@@ -25,7 +24,7 @@ class Token(object):
         # if somehow.get_epochs > tk['expiresAt']:
         #   raise ExpiredTokenException
         # return tk['username']
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @staticmethod
     def create(token,expiration_epochs,username):
