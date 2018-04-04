@@ -6,24 +6,24 @@ from pymongo.collection import ReturnDocument
 class User:
 
     @staticmethod
-    def get_users_db():
+    def _get_users_db():
         return mongo.db.users
 
     @staticmethod
     def get_all():
-        return User.get_users_db().find()
+        return User._get_users_db().find()
 
     @staticmethod
     def get_one(query):
-        return User.get_users_db().find_one(query)
+        return User._get_users_db().find_one(query)
 
     @staticmethod
     def insert_one(new_user):
-        return User.get_users_db().insert(new_user)
+        return User._get_users_db().insert(new_user)
 
     @staticmethod
     def delete_all():
-        return User.get_users_db().delete_many({})
+        return User._get_users_db().delete_many({})
 
     @staticmethod
     def update_profile(username, updated_param_dict):
@@ -33,4 +33,4 @@ class User:
 
     @staticmethod
     def delete_one(username):
-        return User.get_users_db().find_one_and_delete({'name': username})
+        return User._get_users_db().find_one_and_delete({'name': username})
