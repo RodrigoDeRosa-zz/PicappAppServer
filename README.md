@@ -11,14 +11,19 @@ In order to run the server locally via Docker, you need to install both
 Once you have both of them, you can get the server running by opening a
 console in the project directory and running the following commands:
 
-    $ sudo docker-compose build
-
-This one will build the project in the container.
-
-    $ sudo docker-compose up
+    $ ./docker-run.sh
     
 And this one will start listening on [localhost:5000](https://localhost:5000).
 You can stop it anytime with CTRL+C.
+
+**NOTES:**
+
+To run this Shell script, you will need to give it execution permission with
+the command:
+
+    $ chmod +x docker-run.sh
+
+Also, it runs 'sudo' commands so you will be asked for super user password.
     
 ## Heroku
 ![Heroku](https://heroku-badge.herokuapp.com/?app=picapp-app-server&root=/users)
