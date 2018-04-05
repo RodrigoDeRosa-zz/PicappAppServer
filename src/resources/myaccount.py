@@ -8,8 +8,8 @@ class MyAccountResource(Resource):
     def get(self,username):
         try:
             # get token from header
-            token = RequestBuilder.get_field_from_request('token') #make if get it from HEADER
-            token = token * 2 # just to shut up linter
+            token = self._get_token_from_header()
+            token['asd'] = 'asd'# just to shut up linter
             # validate username
 
             # from now on it's a valid user
@@ -17,6 +17,7 @@ class MyAccountResource(Resource):
             output = {'name': user['name'], 'age': user['age']} # fetch data
             return ResponseBuilder.build_response(output)
         except MissingFieldException as e:
-            return ResponseBuilder.build_error_response(e.args,400)
+            return ResponseBuilder.build_error_response(e.args, 400)
 
-
+    def _get_token_from_header(self):
+        return RequestBuilder.get_field_from_header('token')
