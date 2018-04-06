@@ -45,8 +45,8 @@ You can see the interface of this Application Server
 
 The following list indicates the development status of each branch.
 
- - feature_login -- **WIP**
- - feature_myaccount_get -- **WIP**
+ - feature_login -- _On Develop_
+ - feature_myaccount_get -- _On Develop_
  - feature_token -- **WIP**
  - feature_ping -- _On Develop_
  - feature_sharedserverproxy -- **WIP**
