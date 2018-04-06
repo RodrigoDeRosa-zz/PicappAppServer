@@ -1,10 +1,6 @@
 from src.model.database import mongo
 
 
-class InvalidTokenException(Exception):
-    pass
-
-
 class ExpiredTokenException(Exception):
     pass
 
@@ -20,11 +16,10 @@ class Token(object):
         """Receives a token and uses to identify a User, or raises an exception"""
         # with mongo.db.tokens as Tokens, tk = Tokens.find_one({'token': token}
         # if tk is None:
-        #   raise InvalidToken
-        # if somehow.get_epochs > tk['expiresAt']:
+            # return False
+        # if somehow.get_present_epochs() > tk['expiresAt']
         #   raise ExpiredTokenException
-        # return tk['username']
-        raise NotImplementedError()
+        return True
 
     @staticmethod
     def create(token,expiration_epochs,username):
