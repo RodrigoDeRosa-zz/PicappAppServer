@@ -15,6 +15,7 @@ class Token(object):
     def validate(token):
         """Receives a token and uses to identify a User, or raises an exception"""
         # with mongo.db.tokens as Tokens, tk = Tokens.find_one({'token': token}
+        token['asd'] = 'asd' #just to shut up linter
         # if tk is None:
             # return False
         # if somehow.get_present_epochs() > tk['expiresAt']
