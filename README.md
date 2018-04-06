@@ -40,3 +40,20 @@ By clicking on the badge, you can see the code coverage report.
  
 You can see the interface of this Application Server
 [here](https://app.swaggerhub.com/apis/SteelSoft/PicApp-AppServer-Checkpoint-1/1.0.1).
+
+## Branch Status
+
+The following list indicates the development status of each branch.
+
+ - feature_login -- **WIP**
+ - feature_myaccount_get -- **WIP**
+ - feature_token -- **WIP**
+ - feature_ping -- _On Develop_
+ - feature_sharedserverproxy -- **WIP**
+ 
+**REFERENCE:**
+    
+    WIP: Still being worked on.
+    On Develop: Work finished but on develop branch.
+    Done: Work finished and on main branch.
+
