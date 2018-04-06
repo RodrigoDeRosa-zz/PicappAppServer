@@ -29,4 +29,3 @@ class LoginResource(Resource):
 
     def _get_password_from_request(self):
         return RequestBuilder.get_field_from_request('password')
-
