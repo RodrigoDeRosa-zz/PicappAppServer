@@ -2,7 +2,7 @@
 from flask_restful import Resource
 
 from src.resources.response_builder import ResponseBuilder
-from src.model.sharedserver_proxy import SharedServerProxy, InvalidDataException, NoServerException, UnexpectedErrorException
+from src.model.shared_server_service import SharedServerService, InvalidDataException, NoServerException, UnexpectedErrorException
 from src.resources.request_builder import MissingFieldException,RequestBuilder
 
 class LoginResource(Resource):
@@ -11,7 +11,7 @@ class LoginResource(Resource):
             user_data = {}
             user_data['username'] = self._get_username_from_request()
             user_data['password'] = self._get_password_from_request()
-            output_dict = SharedServerProxy.post_token(user_data)
+            output_dict = SharedServerService.post_token(user_data)
             #do something about Token expiration date
             response = {'token': output_dict['token']}
             return ResponseBuilder.build_response(response)

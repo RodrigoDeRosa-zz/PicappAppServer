@@ -15,7 +15,7 @@ class UnexpectedErrorException(Exception):
     pass
 
 
-class SharedServerProxy(object):
+class SharedServerService(object):
 
     @staticmethod
     def post_user(data_dict):
