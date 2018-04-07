@@ -47,7 +47,7 @@ The following list indicates the development status of each branch.
 
  - feature_login -- _On Develop_
  - feature_myaccount_get -- _On Develop_
- - feature_token -- **WIP**
+ - feature_token -- _On Develop_
  - feature_ping -- _On Develop_
  - feature_sharedserverproxy -- **WIP**
  
