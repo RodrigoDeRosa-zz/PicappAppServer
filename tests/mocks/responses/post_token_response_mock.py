@@ -1,8 +1,8 @@
 post_token_response_mock = {
-    'metadata':{
+    'metadata': {
         'version': 'v1.0.1'
     },
-    'token':{
+    'token': {
         'token': "asd", 'expiresAt': 1546311600
     }
 }
