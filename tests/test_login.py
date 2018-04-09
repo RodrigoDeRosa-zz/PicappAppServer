@@ -3,9 +3,9 @@ import unittest.mock as mock
 from src.resources.login import LoginResource
 from src.resources.response_builder import ResponseBuilder
 from src.resources.request_builder import MissingFieldException
-from src.model.shared_server_service import SharedServerService,InvalidDataException,UnexpectedErrorException,NoServerException
+from src.model.services.shared_server_service import SharedServerService,InvalidDataException,UnexpectedErrorException,NoServerException
 # from tests.mocks.token_mock import token_mock
-from tests.mocks.sharedserver_post_token_mock import sharedserver_post_token_mock
+from tests.mocks.responses.post_token_response_mock import post_token_response_mock
 
 class LoginResourceTestCase(unittest.TestCase):
 
@@ -13,9 +13,9 @@ class LoginResourceTestCase(unittest.TestCase):
         service = LoginResource()
         service._get_username_from_request = mock.MagicMock(return_value = "user")
         service._get_password_from_request = mock.MagicMock(return_value = "pw")
-        SharedServerService.post_token = mock.MagicMock(return_value = sharedserver_post_token_mock)
+        SharedServerService.get_new_token = mock.MagicMock(return_value = post_token_response_mock)
         ResponseBuilder.build_response = lambda response,status_code = 200 : response
-        self.assertEqual(service.post()['token'],sharedserver_post_token_mock['token'])
+        self.assertEqual(service.post()['token'], post_token_response_mock['token'])
 
     def test_login_missingfield(self):
         service = LoginResource()
@@ -28,7 +28,7 @@ class LoginResourceTestCase(unittest.TestCase):
         service = LoginResource()
         service._get_username_from_request = mock.MagicMock(return_value="user")
         service._get_password_from_request = mock.MagicMock(return_value = "pw")
-        SharedServerService.post_token = mock.MagicMock(side_effect = InvalidDataException)
+        SharedServerService.get_new_token = mock.MagicMock(side_effect = InvalidDataException)
         ResponseBuilder.build_response = lambda response, status_code: status_code
         self.assertEqual(service.post(),401)
 
@@ -36,7 +36,7 @@ class LoginResourceTestCase(unittest.TestCase):
         service = LoginResource()
         service._get_username_from_request = mock.MagicMock(return_value="user")
         service._get_password_from_request = mock.MagicMock(return_value = "pw")
-        SharedServerService.post_token = mock.MagicMock(side_effect = UnexpectedErrorException)
+        SharedServerService.get_new_token = mock.MagicMock(side_effect = UnexpectedErrorException)
         ResponseBuilder.build_response = lambda response, status_code: status_code
         self.assertEqual(service.post(),500)
 
@@ -44,6 +44,6 @@ class LoginResourceTestCase(unittest.TestCase):
         service = LoginResource()
         service._get_username_from_request = mock.MagicMock(return_value="user")
         service._get_password_from_request = mock.MagicMock(return_value = "pw")
-        SharedServerService.post_token = mock.MagicMock(side_effect = NoServerException)
+        SharedServerService.get_new_token = mock.MagicMock(side_effect = NoServerException)
         ResponseBuilder.build_response = lambda response, status_code: status_code
         self.assertEqual(service.post(),500)
