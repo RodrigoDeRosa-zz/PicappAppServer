@@ -9,7 +9,7 @@ class MyAccountResource(Resource):
         try:
             # get token from header
             token = self._get_token_from_header()
-            token['asd'] = 'asd'# just to shut up linter
+            token['asd'] = 'asd' # just to shut up linter
             # validate username
 
             # from now on it's a valid user

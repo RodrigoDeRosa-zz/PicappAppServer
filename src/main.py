@@ -1,6 +1,4 @@
 from flask import Flask
-# from flask import request
-# from flask_restful import Resource, Api
 from flask_restful import Api
 
 from src.model.database import mongo
@@ -23,6 +21,7 @@ api.add_resource(ProfileResource, "/users/<username>")
 api.add_resource(PingResource, "/ping")
 api.add_resource(LoginResource,"/users/login")
 api.add_resource(MyAccountResource,"/users/<username>/myaccount")
+
 
 def run_app(local=True):
     if local:
