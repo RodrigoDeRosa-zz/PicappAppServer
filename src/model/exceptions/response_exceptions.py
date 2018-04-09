@@ -2,6 +2,7 @@ class ResponseException(Exception):
     """Generic exception, receives a JSON including code and error message"""
     def __init__(self, data):
         self.message = data['message']
+        self.error_code = data['code']
 
     def __str__(self):
         return self.message

@@ -5,6 +5,9 @@ from src.model.exceptions.request_exceptions import *
 
 class SharedServerService(object):
 
+    def __init__(self):
+        self.connector = SharedServerConnector()
+
     @staticmethod
     def post_user(data_dict):
         """Receives an UserInfo dict, posts it to sharedserverURL/user and returns response's
@@ -19,11 +22,10 @@ class SharedServerService(object):
         # return status code, possibly raise exception
         return response_status_code
 
-    @staticmethod
-    def get_new_token(user_info):
+    def get_new_token(self, user_info):
         """ Processes the request to the shared server to get a new token for a given user."""
         try:
-            token = SharedServerConnector.get_new_token(user_info)
+            token = self.connector.get_new_token(user_info)
         except BadRequestException as bre:
             raise InvalidDataException(bre.message)
         except InternalServerErrorException as isee:
