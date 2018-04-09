@@ -1,7 +1,7 @@
 import unittest
 
 from src.resources.ping import PingResource
-from src.resources.response_builder import ResponseBuilder
+from src.utils.response_builder import ResponseBuilder
 
 
 class PingResourceTestCase(unittest.TestCase):

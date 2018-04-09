@@ -1,8 +1,8 @@
 from flask_restful import Resource
 
 from src.model.user import User
-from src.resources.request_builder import RequestBuilder,MissingFieldException
-from src.resources.response_builder import ResponseBuilder
+from src.utils.request_builder import RequestBuilder,MissingFieldException
+from src.utils.response_builder import ResponseBuilder
 
 class MyAccountResource(Resource):
     def get(self,username):

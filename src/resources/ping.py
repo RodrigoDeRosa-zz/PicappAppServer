@@ -1,6 +1,6 @@
 from flask_restful import Resource
 
-from src.resources.response_builder import ResponseBuilder
+from src.utils.response_builder import ResponseBuilder
 
 
 class PingResource(Resource):

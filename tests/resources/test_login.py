@@ -1,10 +1,9 @@
 import unittest
 import unittest.mock as mock
 from src.resources.login import LoginResource
-from src.resources.response_builder import ResponseBuilder
-from src.resources.request_builder import MissingFieldException
+from src.utils.response_builder import ResponseBuilder
+from src.utils.request_builder import MissingFieldException
 from src.model.services.shared_server_service import SharedServerService,InvalidDataException,UnexpectedErrorException,NoServerException
-# from tests.mocks.token_mock import token_mock
 from tests.mocks.responses.post_token_response_mock import post_token_response_mock
 
 class LoginResourceTestCase(unittest.TestCase):

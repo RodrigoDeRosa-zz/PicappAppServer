@@ -1,8 +1,8 @@
 from flask_restful import Resource
 
-from src.resources.response_builder import ResponseBuilder
+from src.utils.response_builder import ResponseBuilder
 from src.model.services.shared_server_service import SharedServerService, InvalidDataException, NoServerException, UnexpectedErrorException
-from src.resources.request_builder import MissingFieldException,RequestBuilder
+from src.utils.request_builder import MissingFieldException,RequestBuilder
 
 class LoginResource(Resource):
     def post(self):

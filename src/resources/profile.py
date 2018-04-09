@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
 
-from src.resources.response_builder import ResponseBuilder
+from src.utils.response_builder import ResponseBuilder
 #from src.model.database import mongo
 from src.model.user import User
 
