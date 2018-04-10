@@ -1,0 +1,321 @@
+swagger: '2.0'
+info:
+  version: '1.0.1'
+  title: 'App Server Checkpoint 1'
+  description: 'First checkpoint for app server '
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+basePath: /SteelSoft/PicApp-AppServer-Checkpoint1/1.0.1
+schemes:
+ - https
+# Data type
+consumes:
+  - application/json
+produces:
+  - application/json
+# Security
+securityDefinitions:
+  BusinessToken:
+    type: apiKey
+    in: header
+    name: token
+  ApplicationToken:
+    type: apiKey
+    in: header
+    name: token
+# Tags
+tags:
+  - name: user management
+    description: "User management related operations"
+  - name: server management
+    description: "Server management related operations"
+# End points
+paths:
+  # Management paths
+  /ping:
+    get:
+      tags:
+        - server management
+      security:
+        - ApplicationToken: []
+      description: "Used to report to parent server."
+      responses:
+        200:
+          description: "Server is up."
+        401:
+          description: "Unauthorized."
+        500:
+          description: "Internal server error."
+          schema:
+            $ref: '#/definitions/Error'
+      summary: "Server status checking."
+  /stats:
+    get:
+      tags:
+        - server management
+      security:
+        - ApplicationToken: []
+      description: "Returns server information."
+      responses:
+        200:
+          description: "Server is up."
+        401:
+          description: "Unauthorized."
+        500:
+          description: "Internal server error."
+          schema:
+            $ref: '#/definitions/Error'
+      summary: "Server data."
+  # User paths
+  /users/login:
+    post:
+      tags:
+        - user management
+      description: "Logs a user into the system if the given information is valid."
+      parameters:
+        - description: "User information."
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserLoginInfo'
+      responses:
+        200:
+          description: "User correctly logged in."
+          schema:
+            $ref: '#/definitions/UserLoginConfirmation'
+        400:
+          description: "Incorrect password."
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: "User not found."
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: "Internal server error."
+          schema:
+            $ref: '#/definitions/Error'
+      summary: "Log user into the system."
+  /users/signup:
+    post:
+      tags:
+        - user management
+      description: "Creates a user in the system if the given information is valid."
+      parameters:
+        - description: "User information."
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserLoginInfo'
+      responses:
+        200:
+          description: "User correctly created."
+          schema:
+            $ref: '#/definitions/UserLoginInfo'
+        400:
+          description: "Username already exists."
+          schema:
+            $ref: '#/definitions/UserLoginInfo'
+        500:
+          description: "Internal server error."
+          schema:
+            $ref: '#/definitions/Error'
+      summary: "Create user in the system."
+  /users/logout:
+    post:
+      tags:
+        - user management
+      description: "Logs an user out of the system if parameters are correct."
+      security:
+        - BusinessToken: []
+      parameters:
+        - description: "User information."
+          in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserLogoutInfo'
+      responses:
+        200:
+          description: "User correctly logged out."
+          schema:
+            $ref: '#/definitions/UserLogoutInfo'
+        400:
+          description: "Incorrect user name."
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: "Unauthorized."
+        500:
+          description: "Internal server error."
+          schema:
+            $ref: '#/definitions/Error'
+      summary: "Log user out of the system."
+  /users/{userid}/myaccount:
+    put:
+      tags:
+        - user management
+      description: "Update user account personal information. Both user and admin can do this."
+      security:
+        - BusinessToken: []
+        - ApplicationToken: []
+      parameters:
+        - in: path
+          name: userid
+          type: string
+          required: true
+          description: "ID of the user to modify."
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserAccountInfo'
+          description: "User information."
+      responses:
+        200:
+          description: "Information correctly updated."
+        400:
+          description: "Invalid parameters."
+          schema:
+            $ref: '#/definitions/Error'
+        401:
+          description: "Unauthorized."
+        404:
+          description: "Invalid user."
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: "Internal server error."
+          schema:
+            $ref: '#/definitions/Error'
+      summary: "Update user."
+    delete:
+      tags:
+        - user management
+      description: "Delete account. Both the user and the administrator can do this."
+      security:
+        - BusinessToken: []
+        - ApplicationToken: []
+      parameters:
+        - in: path
+          name: userid
+          type: string
+          required: true
+          description: "ID of the user to delete."
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UserLoginInfo'
+          description: "User information."
+      responses:
+        200:
+          description:  "User correctly deleted"
+          schema:
+            $ref: '#/definitions/UserLogoutInfo'
+        401:
+          description: "Unauthorized."
+        404:
+          description: "Invalid user."
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: "Internal server error."
+          schema:
+            $ref: '#/definitions/Error'
+      summary: "Delete user."
+
+# Definitions
+definitions:
+  # Log in
+  UserLoginInfo:
+    description: "Information sent by a user to log in."
+    type: object
+    properties:
+      username:
+        type: string
+        example: nando.steel
+      password:
+        type: string
+        example: alpha-phi
+    required:
+      - username
+      - password
+  # Log in confirmation
+  UserLoginConfirmation:
+    description: "Information returned to a user after log in."
+    type: object
+    properties:
+      username:
+        type: string
+        example: nando.steel
+      userid:
+        type: string
+        format: uuid
+        example: 0579a1d3-016a-4482-b29f-abe0ab1bb2be
+      token:
+        $ref: '#/definitions/Token'
+    required:
+      - username
+      - token
+      - userid
+  # Log out
+  UserLogoutInfo:
+    description: "Information sent by a user to log out."
+    type: object
+    properties:
+      username:
+        type: string
+        example: nando.steel
+    required:
+      - username
+  # Personal information
+  UserAccountInfo:
+    description: "User account information."
+    type: object
+    properties:
+      username:
+        type: string
+        example: nando.steel
+      firstname:
+        type: string
+        example: Nando
+      lastname:
+        type: string
+        example: Steel
+      password:
+        type: string
+        example: alpha-phi
+      email:
+        type: string
+        example: n.steel@gmail.com
+  # Time
+  Timestamp:
+    type: string
+    description: "Epoch time."
+    example: "2018-07-02"
+  # Token
+  Token:
+    description: "Security token"
+    type: object
+    properties:
+      expiresAt:
+        $ref: '#/definitions/Timestamp'
+      token:
+        type: string
+        description: "Authentication token"
+  # Error
+  Error:
+    description: "Error response."
+    type: object
+    properties:
+      status:
+        type: number
+        description: "HTTP status code."
+        example: 418
+      message:
+        type: string
+        description: "Error information."
+        example: "Couldn't do that 'cause I'm a teapot."

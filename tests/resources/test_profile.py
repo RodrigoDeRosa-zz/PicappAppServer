@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 from src.resources.profile import ProfileResource,UserNotFoundException
-from src.resources.response_builder import ResponseBuilder
+from src.utils.response_builder import ResponseBuilder
 from tests.mocks.user_mock import user_mock
 
 

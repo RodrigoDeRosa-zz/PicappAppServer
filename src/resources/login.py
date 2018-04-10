@@ -1,28 +1,36 @@
-# from flask import request
 from flask_restful import Resource
 
-from src.resources.response_builder import ResponseBuilder
+from src.utils.response_builder import ResponseBuilder
 from src.model.services.shared_server_service import SharedServerService, InvalidDataException, NoServerException, UnexpectedErrorException
-from src.resources.request_builder import MissingFieldException,RequestBuilder
+from src.utils.request_builder import MissingFieldException, RequestBuilder
+from src.utils.logger_config import Logger
+
 
 class LoginResource(Resource):
+
+    def __init__(self):
+        self.logger = Logger(__name__)
+        self.shared_server_service = SharedServerService()
+
     def post(self):
         try:
             user_data = {}
             user_data['username'] = self._get_username_from_request()
             user_data['password'] = self._get_password_from_request()
-            output_dict = SharedServerService.get_new_token(user_data)
-            #do something about Token expiration date
+            self.logger.info('User data generated. ({})'.format(user_data))
+            output_dict = self.shared_server_service.get_new_token(user_data)
+            # do something about Token expiration date
             response = {'token': output_dict['token']}
+            self.logger.info('Token received from service. ({})'.format(response))
             return ResponseBuilder.build_response(response)
-        except MissingFieldException as e:
-            return ResponseBuilder.build_error_response(e.args,400) #check status_code
-        except InvalidDataException as e:
-            return ResponseBuilder.build_error_response(e.args, 401) #check status_code
-        except NoServerException as e:
-            return ResponseBuilder.build_error_response(e.args, 500) #check status_code
-        except UnexpectedErrorException as e:
-            return ResponseBuilder.build_error_response(e.args, 500) #check status_code
+        except MissingFieldException as mfe:
+            return ResponseBuilder.build_error_response(str(mfe), 400)  # check status_code
+        except InvalidDataException as ide:
+            return ResponseBuilder.build_error_response(str(ide), 400)  # check status_code
+        except NoServerException as nse:
+            return ResponseBuilder.build_error_response(str(nse), 500)  # check status_code
+        except UnexpectedErrorException as uee:
+            return ResponseBuilder.build_error_response(str(uee), 500)  # check status_code
 
     def _get_username_from_request(self):
         return RequestBuilder.get_field_from_request('username')

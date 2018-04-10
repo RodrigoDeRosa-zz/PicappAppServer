@@ -4,13 +4,14 @@ from src.model.connectors.shared_server_connector import SharedServerConnector
 from src.model.exceptions.response_exceptions import *
 from tests.mocks.responses.post_token_response_mock import *
 
-NEW_TOKEN_URI = 'https://picappss.herokuapp.com/token'
+NEW_TOKEN_URI = 'https://picappss.herokuapp.com/api/token'
 
 
 class MockResponse:
     """Class to mock any response"""
 
     def __init__(self, json_data, status_code):
+        self.text = json_data
         self.json_data = json_data
         self.status_code = status_code
 

@@ -4,7 +4,7 @@ import unittest.mock as mock
 from tests.mocks.token_mock import token_mock
 from tests.mocks.user_mock import user_mock
 from src.resources.myaccount import MyAccountResource,MissingFieldException
-from src.resources.response_builder import ResponseBuilder
+from src.utils.response_builder import ResponseBuilder
 from src.model.user import User
 
 class MyAccountTestCase(unittest.TestCase):

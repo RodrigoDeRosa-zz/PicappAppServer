@@ -1,4 +1,5 @@
 from src.model.database import mongo
+from src.utils.logger_config import Logger
 import time
 
 
@@ -10,6 +11,7 @@ class Token(object):
 
     @staticmethod
     def _get_tokens_db():
+        Logger(__name__).info('Retrieving all tokens.')
         return mongo.db.tokens
 
     @staticmethod
@@ -33,7 +35,9 @@ class Token(object):
         with a user"""
         tk = Token._get_tokens_db().find_one({'username': username})
         new_token_id = Token._get_tokens_db().insert({'token': token, 'expiresAt': expiration_epochs, 'username': username})
+        Logger(__name__).info('Token {} stored for user {}, with id {}'.format(token, username, new_token_id))
         # enforce only one active session
         if tk is not None:
+            Logger(__name__).info('Old token ({}) removed for user ({}).'.format(token, username))
             tk.find_and_delete({'_id': tk['_id']})
         return new_token_id
