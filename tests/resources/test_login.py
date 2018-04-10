@@ -29,7 +29,7 @@ class LoginResourceTestCase(unittest.TestCase):
         service._get_password_from_request = mock.MagicMock(return_value = "pw")
         SharedServerService.get_new_token = mock.MagicMock(side_effect = InvalidDataException)
         ResponseBuilder.build_response = lambda response, status_code: status_code
-        self.assertEqual(service.post(),401)
+        self.assertEqual(service.post(),400)
 
     def test_login_unexpected(self):
         service = LoginResource()
