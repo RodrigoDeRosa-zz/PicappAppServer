@@ -4,7 +4,8 @@ from src.resources.login import LoginResource
 from src.utils.response_builder import ResponseBuilder
 from src.utils.request_builder import MissingFieldException
 from src.model.services.shared_server_service import SharedServerService,InvalidDataException,UnexpectedErrorException,NoServerException
-from tests.mocks.responses.post_token_response_mock import post_token_response_mock
+from tests.mocks.responses.token_response_mock import post_token_response_mock
+
 
 class LoginResourceTestCase(unittest.TestCase):
 
