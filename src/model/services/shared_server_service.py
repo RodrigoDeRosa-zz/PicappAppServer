@@ -29,9 +29,9 @@ class SharedServerService(object):
         try:
             token = self.connector.get_new_token(user_info)
             self.logger.info('Token successfully retrieved from connector.')
-        except BadRequestException as bre:
-            self.logger.error(str(bre))
-            raise InvalidDataException(bre.message)
+        except (BadRequestException, NotFoundException) as e:
+            self.logger.error(str(e))
+            raise InvalidDataException(e.message)
         except InternalServerErrorException as isee:
             self.logger.error(str(isee))
             raise UnexpectedErrorException(isee.message)

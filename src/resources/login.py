@@ -2,7 +2,7 @@ from flask_restful import Resource
 
 from src.utils.response_builder import ResponseBuilder
 from src.model.services.shared_server_service import SharedServerService, InvalidDataException, NoServerException, UnexpectedErrorException
-from src.utils.request_builder import MissingFieldException,RequestBuilder
+from src.utils.request_builder import MissingFieldException, RequestBuilder
 from src.utils.logger_config import Logger
 
 
@@ -24,13 +24,13 @@ class LoginResource(Resource):
             self.logger.info('Token received from service. ({})'.format(response))
             return ResponseBuilder.build_response(response)
         except MissingFieldException as mfe:
-            return ResponseBuilder.build_error_response(mfe.args, 400)  # check status_code
+            return ResponseBuilder.build_error_response(str(mfe), 400)  # check status_code
         except InvalidDataException as ide:
-            return ResponseBuilder.build_error_response(ide.args, 401)  # check status_code
+            return ResponseBuilder.build_error_response(str(ide), 400)  # check status_code
         except NoServerException as nse:
-            return ResponseBuilder.build_error_response(nse.args, 500)  # check status_code
+            return ResponseBuilder.build_error_response(str(nse), 500)  # check status_code
         except UnexpectedErrorException as uee:
-            return ResponseBuilder.build_error_response(uee.args, 500)  # check status_code
+            return ResponseBuilder.build_error_response(str(uee), 500)  # check status_code
 
     def _get_username_from_request(self):
         return RequestBuilder.get_field_from_request('username')
