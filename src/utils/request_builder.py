@@ -1,4 +1,5 @@
 from flask import request
+from src.utils.logger_config import Logger
 
 
 class MissingFieldException(Exception):
@@ -12,11 +13,13 @@ class RequestBuilder(object):
         try:
             return request.json[key]
         except Exception:
-            raise MissingFieldException("Missing field "+key)
+            Logger(__name__).error("Missing field: {}".format(key))
+            raise MissingFieldException("Missing field " + key)
 
     @staticmethod
     def get_field_from_header(key):
         try:
             return request.headers[key]
         except Exception:
-            raise MissingFieldException("Missing field "+key)
+            Logger(__name__).error("Missing field: {}".format(key))
+            raise MissingFieldException("Missing field " + key)

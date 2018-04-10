@@ -1,5 +1,6 @@
 from flask import jsonify
 from flask import make_response
+from src.utils.logger_config import Logger
 
 
 class ResponseBuilder:
@@ -11,4 +12,5 @@ class ResponseBuilder:
     @staticmethod
     def build_error_response(error_message, status_code):
         response = {'message': error_message, 'status_code': status_code}
+        Logger(__name__).info('Response created: {}'.format(response))
         return ResponseBuilder.build_response(response, status_code)

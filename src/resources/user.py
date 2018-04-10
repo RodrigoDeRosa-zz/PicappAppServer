@@ -3,9 +3,13 @@ from flask_restful import Resource
 
 from src.utils.response_builder import ResponseBuilder
 from src.model.user import User
+from src.utils.logger_config import Logger
 
 
 class UserResource(Resource):
+
+    def __init__(self):
+        self.logger = Logger(__name__)
 
     def get(self):
         output = []
@@ -13,6 +17,7 @@ class UserResource(Resource):
         for user in User.get_all():
             output.append({'name': user['name'], 'age': user['age']})
         # formatting
+        self.logger.info('User list fetched. ({})'.format(output))
         response = {'result': output}
         return ResponseBuilder.build_response(response)
 
@@ -24,7 +29,9 @@ class UserResource(Resource):
         # TO DO validate username-already-taken
 
         # insert into DB
-        new_user_id = User.insert_one({'name': new_name, 'age': new_age})
+        user = {'name': new_name, 'age': new_age}
+        new_user_id = User.insert_one(user)
+        self.logger.info('User ({}) added to DB with id {}'.format(user, new_user_id))
 
         # return fresh data from DB
         new_user = User.get_one({'_id': new_user_id})
@@ -37,6 +44,7 @@ class UserResource(Resource):
     def delete(self):
         # delete all
         delete_result = User.delete_all()
+        self.logger.info('All users were deleted from DB.')
         # return amount of users deleted
         output = str(delete_result.deleted_count) + " users were deleted"
         response = {'result': output}
