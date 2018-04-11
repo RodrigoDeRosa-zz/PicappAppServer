@@ -11,7 +11,6 @@ class Token(object):
 
     @staticmethod
     def _get_tokens_db():
-        Logger(__name__).info('Retrieving all tokens.')
         return mongo.db.tokens
 
     @staticmethod
@@ -22,11 +21,15 @@ class Token(object):
     def validate(token):
         """Receives a token and looks for it in the database, returning True or False whether it is found
         or not, or raising an exception if it expired"""
+        Logger(__name__).info('Looking for token {}'.format(token))
         tk = Token._get_tokens_db().find_one({'token': token})
         if tk is None:
+            Logger(__name__).info("Token {} not found".format(token))
             return False
         if Token._get_current_epochs() > tk['expiresAt']:
+            Logger(__name__).info("Token {} was found but it had expired".format(token))
             raise ExpiredTokenException
+        Logger(__name__).info("Token {} found".format(token))
         return True
 
     @staticmethod

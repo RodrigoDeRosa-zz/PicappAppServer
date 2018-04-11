@@ -20,8 +20,8 @@ app.config['MONGO_DBNAME'] = 'restdb'
 api.add_resource(UserResource, "/users")
 api.add_resource(ProfileResource, "/users/<username>")
 api.add_resource(PingResource, "/ping")
-api.add_resource(LoginResource,"/users/login")
-api.add_resource(MyAccountResource,"/users/<username>/myaccount")
+api.add_resource(LoginResource, "/users/login")
+api.add_resource(MyAccountResource, "/users/<username>/myaccount")
 
 
 def run_app(local=True):
