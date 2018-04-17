@@ -16,27 +16,30 @@ class SignUpResource(Resource):
     def post(self):
         try:
             # get all data from request
-            # TODO: add other user-info fields (obligatory and optional)
             user_data = {}
             user_data['username'] = self._get_username_from_request()
             user_data['password'] = self._get_password_from_request()
             self.logger.info('User data generated. ({})'.format(user_data))
 
             # validate data received
-            # TODO
+
+            # fill in accessory fields
+            shared_server_request = dict(user_data)
+            shared_server_request['id'] = 0
+            shared_server_request['_rev'] = 0
+            shared_server_request['applicationOwner'] = "steelsoft"
 
             # ask shared server for register
-            output_dict = self.shared_server_service.create_user(user_data)
+            output_dict = self.shared_server_service.create_user(shared_server_request)
             self.logger.info("User {} successfully registered in shared server".format(output_dict['username']))
 
             # register new user in own DB:
-            # FIXME: UNCOMMENT NEXT LINE
-            #del user_data['password']    # dont save the password
+            pw = user_data.pop('password')    # dont save the password
             new_user_id = User.insert_one(user_data)
             self.logger.info('User ({}) added to DB with id {}'.format(user_data, new_user_id))
 
             # return response
-            response = {'username': output_dict['username'], 'password': user_data['password']}
+            response = {'username': output_dict['username'], 'password': pw}
             return ResponseBuilder.build_response(response)
         except MissingFieldException as mfe:
             return ResponseBuilder.build_error_response(str(mfe), 400)  # check status_code
@@ -46,7 +49,6 @@ class SignUpResource(Resource):
             return ResponseBuilder.build_error_response(str(nse), 500)  # check status_code
         except UnexpectedErrorException as uee:
             return ResponseBuilder.build_error_response(str(uee), 500)  # check status_code
-
 
     def _get_username_from_request(self):
         return RequestBuilder.get_field_from_request('username')
