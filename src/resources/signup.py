@@ -30,11 +30,13 @@ class SignUpResource(Resource):
             self.logger.info("User {} successfully registered in shared server".format(output_dict['username']))
 
             # register new user in own DB:
+            # FIXME: UNCOMMENT NEXT LINE
+            #del user_data['password']    # dont save the password
             new_user_id = User.insert_one(user_data)
             self.logger.info('User ({}) added to DB with id {}'.format(user_data, new_user_id))
 
             # return response
-            response = {'username': output_dict['username'], 'password': output_dict['password']}
+            response = {'username': output_dict['username'], 'password': user_data['password']}
             return ResponseBuilder.build_response(response)
         except MissingFieldException as mfe:
             return ResponseBuilder.build_error_response(str(mfe), 400)  # check status_code
