@@ -1,0 +1,1 @@
+user_info_mock = {'username': "martin.errazquin", 'password': "mesaque5endiscreta"}
