@@ -4,6 +4,7 @@ import json
 from configparser import ConfigParser
 from src.model.exceptions.response_exceptions import *
 from src.utils.logger_config import Logger
+from pathlib import Path
 
 BASE_PATH = "/api"
 SERVER_TOKEN = '1713908341'
@@ -16,9 +17,13 @@ class SharedServerConnector(object):
     def __init__(self):
         self.success_codes = [200, 201, 204]
         self.logger = Logger(__name__)
-        parser = ConfigParser()
-        parser.read_file(open('config.cfg'))
-        self.host = parser.get('shared_server', 'host')
+        my_file = Path('config.cfg')
+        if my_file.is_file():
+            parser = ConfigParser()
+            parser.read_file(open('config.cfg'))
+            self.host = parser.get('shared_server', 'host')
+        else:
+            self.host = 'https://picappss.herokuapp.com'
 
     def create_user(self, user_info):
         """Posts a user to the server"""
