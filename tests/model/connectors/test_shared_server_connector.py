@@ -4,8 +4,10 @@ from src.model.connectors.shared_server_connector import SharedServerConnector
 from src.model.exceptions.response_exceptions import *
 from tests.mocks.responses.token_response_mock import *
 
-NEW_TOKEN_URI = 'https://picappss.herokuapp.com/api/token'
-NEW_USER_URI = 'https://picappss.herokuapp.com/api/user'
+NEW_TOKEN_URI_0 = 'https://picappss.herokuapp.com/api/token'
+NEW_TOKEN_URI_1 = 'http://localhost:3000/api/token'
+NEW_USER_URI_0 = 'https://picappss.herokuapp.com/api/user'
+NEW_USER_URI_1 = 'http://localhost:3000/api/user'
 
 
 class MockResponse:
@@ -22,10 +24,9 @@ class MockResponse:
 
 def mock_request_successful_post(*args, **kwargs):
     """Returns successful responses for posts"""
-    print(args[0])
-    if args[0] == NEW_TOKEN_URI:
+    if args[0] in [NEW_TOKEN_URI_0, NEW_TOKEN_URI_1]:
         return MockResponse(post_token_response_mock, 200)
-    elif args[0] == NEW_USER_URI:
+    elif args[0] in [NEW_USER_URI_0, NEW_USER_URI_1]:
         return MockResponse(post_user_response_mock, 200)
 
 
