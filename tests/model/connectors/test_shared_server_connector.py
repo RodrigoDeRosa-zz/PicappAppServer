@@ -31,10 +31,9 @@ def mock_request_successful_post(*args, **kwargs):
 
 
 def mock_bad_request(*args, **kwargs):
-    print(args[0])
-    if args[0] == NEW_TOKEN_URI:
+    if args[0] in [NEW_TOKEN_URI_0, NEW_TOKEN_URI_1]:
         return MockResponse(missing_username_mock, 400)
-    elif args[0] == NEW_USER_URI:
+    elif args[0] in [NEW_USER_URI_0, NEW_USER_URI_1]:
         return MockResponse(missing_password_mock, 400)
 
 
