@@ -20,7 +20,9 @@ class SharedServerConnector(object):
         my_file = Path('config.cfg')
         if my_file.is_file():
             parser = ConfigParser()
-            parser.read_file(open('config.cfg'))
+            file = open('config.cfg')
+            parser.read_file(file)
+            file.close()
             self.host = parser.get('shared_server', 'host')
         else:
             self.host = 'https://picappss.herokuapp.com'

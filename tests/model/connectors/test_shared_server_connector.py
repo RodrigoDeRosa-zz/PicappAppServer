@@ -22,6 +22,7 @@ class MockResponse:
 
 def mock_request_successful_post(*args, **kwargs):
     """Returns successful responses for posts"""
+    print(args[0])
     if args[0] == NEW_TOKEN_URI:
         return MockResponse(post_token_response_mock, 200)
     elif args[0] == NEW_USER_URI:
@@ -29,6 +30,7 @@ def mock_request_successful_post(*args, **kwargs):
 
 
 def mock_bad_request(*args, **kwargs):
+    print(args[0])
     if args[0] == NEW_TOKEN_URI:
         return MockResponse(missing_username_mock, 400)
     elif args[0] == NEW_USER_URI:
