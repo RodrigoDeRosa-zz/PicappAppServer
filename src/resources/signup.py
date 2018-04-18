@@ -1,6 +1,8 @@
 from flask_restful import Resource
 
-from src.model.services.shared_server_service import SharedServerService, InvalidDataException, NoServerException, UnexpectedErrorException
+from src.model.exceptions.response_exceptions import *
+from src.model.exceptions.request_exceptions import *
+from src.model.services.shared_server_service import SharedServerService
 from src.utils.response_builder import ResponseBuilder
 from src.utils.request_builder import RequestBuilder, MissingFieldException
 from src.model.user import User
@@ -49,6 +51,9 @@ class SignUpResource(Resource):
             return ResponseBuilder.build_error_response(str(nse), 500)  # check status_code
         except UnexpectedErrorException as uee:
             return ResponseBuilder.build_error_response(str(uee), 500)  # check status_code
+        except ConnectionFailException as cfe:
+            return ResponseBuilder.build_error_response(str(cfe), 500)  # check status_code
+
 
     def _get_username_from_request(self):
         return RequestBuilder.get_field_from_request('username')

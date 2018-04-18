@@ -1,11 +1,12 @@
 import requests
 import time
 import json
+from configparser import ConfigParser
 from src.model.exceptions.response_exceptions import *
 from src.utils.logger_config import Logger
 
-SERVER_TOKEN = '92668751'
-SHARED_SERVER_HOST = 'https://picappss.herokuapp.com/api'
+BASE_PATH = "/api"
+SERVER_TOKEN = '1713908341'
 NEW_TOKEN_PATH = '/token'
 NEW_USER_PATH = '/user'
 
@@ -15,12 +16,15 @@ class SharedServerConnector(object):
     def __init__(self):
         self.success_codes = [200, 201, 204]
         self.logger = Logger(__name__)
+        parser = ConfigParser()
+        parser.read_file(open('config.cfg'))
+        self.host = parser.get('shared_server', 'host')
 
     def create_user(self, user_info):
         """Posts a user to the server"""
         # Generate uri
-        uri = SHARED_SERVER_HOST+NEW_USER_PATH
-        params = {'token': SERVER_TOKEN}
+        uri = self.host + BASE_PATH + NEW_USER_PATH
+        params = {'ApplicationToken': SERVER_TOKEN}
         self.logger.info('HTTP Post to URI {} with body {} and params {}'.format(uri, user_info, params))
         # Get response
         response = requests.post(uri,
@@ -42,7 +46,7 @@ class SharedServerConnector(object):
     def get_new_token(self, user_info):
         """Gets a token for a given user"""
         # Generate uri
-        uri = SHARED_SERVER_HOST + NEW_TOKEN_PATH
+        uri = self.host + BASE_PATH + NEW_TOKEN_PATH
         self.logger.info('HTTP Post to URI {} with body {}'.format(uri, user_info))
         # Get response
         response = requests.post(uri,

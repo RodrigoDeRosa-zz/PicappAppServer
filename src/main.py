@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restful import Api
+from configparser import ConfigParser
 from src.utils.logger_config import Logger
 from src.model.database import mongo
 from src.resources.user import UserResource
@@ -25,13 +26,22 @@ api.add_resource(LoginResource, "/users/login")
 api.add_resource(MyAccountResource, "/users/<username>/myaccount")
 api.add_resource(SignUpResource, "/users/signup")
 
+
 def run_app(local=True):
+    parser = ConfigParser()
+    parser.add_section('shared_server')
+
     if local:
         app.config['MONGO_URI'] = LOCAL_MONGO
+        parser.set('shared_server', 'host', 'http://localhost:3000')
         logger.info('Starting app with local database.')
     else:
         app.config['MONGO_URI'] = CLOUD_MONGO
+        parser.set('shared_server', 'host', 'https://picappss.herokuapp.com')
         logger.info('Starting app with remote database')
+    with open('config.cfg', 'w') as file:
+        parser.write(file)
+        file.close()
     mongo.init_app(app)
     logger.info('Database initialized.')
     return app

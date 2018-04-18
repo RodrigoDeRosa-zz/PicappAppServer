@@ -2,6 +2,7 @@ from src.model.connectors.shared_server_connector import SharedServerConnector
 from src.model.exceptions.response_exceptions import *
 from src.model.exceptions.request_exceptions import *
 from src.utils.logger_config import Logger
+from requests.exceptions import ConnectionError
 
 
 class SharedServerService(object):
@@ -27,6 +28,9 @@ class SharedServerService(object):
             # External error
             self.logger.error(str(isee))
             raise UnexpectedErrorException(isee.message)
+        except ConnectionError as ce:
+            self.logger.error(str(ce))
+            raise ConnectionFailException()
         # Return new user
         return new_user
 
@@ -43,5 +47,8 @@ class SharedServerService(object):
             # External error
             self.logger.error(str(isee))
             raise UnexpectedErrorException(isee.message)
+        except ConnectionError as ce:
+            self.logger.error(str(ce))
+            raise ConnectionFailException()
         # Return new token
         return token

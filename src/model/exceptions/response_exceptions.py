@@ -33,6 +33,15 @@ class InternalServerErrorException(ResponseException):
     pass
 
 
+class ConnectionFailException(ResponseException):
+    """To be thrown on connection to external server failure"""
+    def __init__(self):
+        super(ConnectionFailException, self).__init__({
+            'message': "Failed to connect to external server.",
+            'code': 500
+        })
+
+
 class InvalidResponseException(Exception):
     """To be thrown when the data inside the response is not correct."""
     pass
