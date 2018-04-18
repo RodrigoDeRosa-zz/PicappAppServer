@@ -15,7 +15,7 @@ class UserResource(Resource):
         output = []
         # for each user in DB
         for user in User.get_all():
-            output.append({'name': user['name'], 'age': user['age']})
+            output.append({'username': user['username']})
         # formatting
         self.logger.info('User list fetched. ({})'.format(output))
         response = {'result': output}

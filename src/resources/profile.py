@@ -17,8 +17,8 @@ class ProfileResource(Resource):
     def get(self, username):
         # search one by given username
         try:
-            user = self._find_one_user({'name': username})
-            output = {'name': user['name'], 'age': user['age']}
+            user = self._find_one_user({'username': username})
+            output = {'username': user['username']}
             self.logger.info('User profile found: {}'.format(output))
             response = {'result': output}
             return ResponseBuilder.build_response(response)
@@ -28,6 +28,8 @@ class ProfileResource(Resource):
             self.logger.error(err_msg)
             return ResponseBuilder.build_error_response(err_msg, status_code)
 
+    # deprecated until user has more info than username and password
+    """
     def put(self, username):
         # get data received
         new_age = self._get_age_from_request()
@@ -44,12 +46,13 @@ class ProfileResource(Resource):
         # formatting
         response = {'result': output}
         return ResponseBuilder.build_response(response)
+    """
 
     def delete(self, username):
         # search one by username and delete
         user = User.delete_one(username)
         if user:  # match found
-            output = {'name': user['name'], 'age': user['age']}
+            output = {'username': user['username']}
             self.logger.info('User profile deleted. ({})'.format(output))
         else:  # no matches
             output = "No user found with that name"
@@ -62,6 +65,7 @@ class ProfileResource(Resource):
         if not user:
             raise UserNotFoundException("No user found matching criteria")
         return user
-
+    """
     def _get_age_from_request(self):
         return request.json['age']
+    """
