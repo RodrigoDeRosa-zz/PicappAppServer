@@ -4,7 +4,7 @@ import json
 from src.model.exceptions.response_exceptions import *
 from src.utils.logger_config import Logger
 
-SERVER_TOKEN = '92668751'
+SERVER_TOKEN = '1713908341'
 SHARED_SERVER_HOST = 'https://picappss.herokuapp.com/api'
 NEW_TOKEN_PATH = '/token'
 NEW_USER_PATH = '/user'
@@ -20,7 +20,7 @@ class SharedServerConnector(object):
         """Posts a user to the server"""
         # Generate uri
         uri = SHARED_SERVER_HOST+NEW_USER_PATH
-        params = {'token': SERVER_TOKEN}
+        params = {'ApplicationToken': SERVER_TOKEN}
         self.logger.info('HTTP Post to URI {} with body {} and params {}'.format(uri, user_info, params))
         # Get response
         response = requests.post(uri,
