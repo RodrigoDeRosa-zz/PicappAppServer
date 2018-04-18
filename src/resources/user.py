@@ -20,7 +20,7 @@ class UserResource(Resource):
         self.logger.info('User list fetched. ({})'.format(output))
         response = {'result': output}
         return ResponseBuilder.build_response(response)
-"""
+    """
     def post(self):
         # get data
         new_name = self._get_user_name_from_request()
@@ -40,7 +40,7 @@ class UserResource(Resource):
         output = {'name': new_user['name'], 'age': new_user['age']}
         response = {'result': output}
         return ResponseBuilder.build_response(response)
-"""
+    """
 
     def delete(self):
         # delete all
@@ -53,7 +53,8 @@ class UserResource(Resource):
 
     def _get_user_username_from_request(self):
         return request.json['username']
-"""
+
+    """
     def _get_user_age_from_request(self):
         return request.json['age']
-"""
+    """
