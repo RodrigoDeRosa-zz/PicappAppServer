@@ -20,7 +20,7 @@ class MyAccountResource(Resource):
 
             # from now on it's a valid user
             user = User.get_one({'username': username})
-            output = {'name': user['name'], 'age': user['age']}  # fetch data
+            output = {'username': user['username']}  # fetch data
             self.logger.info('User account retrieved. ({})'.format(output))
             return ResponseBuilder.build_response(output)
         except MissingFieldException as e:

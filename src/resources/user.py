@@ -15,12 +15,12 @@ class UserResource(Resource):
         output = []
         # for each user in DB
         for user in User.get_all():
-            output.append({'name': user['name'], 'age': user['age']})
+            output.append({'username': user['username']})
         # formatting
         self.logger.info('User list fetched. ({})'.format(output))
         response = {'result': output}
         return ResponseBuilder.build_response(response)
-
+    """
     def post(self):
         # get data
         new_name = self._get_user_name_from_request()
@@ -40,6 +40,7 @@ class UserResource(Resource):
         output = {'name': new_user['name'], 'age': new_user['age']}
         response = {'result': output}
         return ResponseBuilder.build_response(response)
+    """
 
     def delete(self):
         # delete all
@@ -50,8 +51,10 @@ class UserResource(Resource):
         response = {'result': output}
         return ResponseBuilder.build_response(response)
 
-    def _get_user_name_from_request(self):
-        return request.json['name']
+    def _get_user_username_from_request(self):
+        return request.json['username']
 
+    """
     def _get_user_age_from_request(self):
         return request.json['age']
+    """

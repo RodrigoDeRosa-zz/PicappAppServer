@@ -16,7 +16,7 @@ class SignUpResourceTestCase(unittest.TestCase):
         service._get_password_from_request = mock.MagicMock(return_value=user_info_mock['password'])
         service._get_username_from_request = mock.MagicMock(return_value=user_info_mock['username'])
         service.shared_server_service.create_user = mock.MagicMock(return_value=post_user_response_mock['user'])
-        User.insert_one = mock.MagicMock(return_value=3)  # TODO: is '3' a valid _id?
+        User.insert_one = mock.MagicMock(return_value='5ad79a63a8817419a237e670')
         ResponseBuilder.build_response = lambda response, status_code = 200: response
         self.assertEqual(service.post(), user_info_mock)
 

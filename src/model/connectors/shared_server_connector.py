@@ -6,6 +6,7 @@ from src.model.exceptions.response_exceptions import *
 from src.utils.logger_config import Logger
 from pathlib import Path
 
+
 BASE_PATH = "/api"
 SERVER_TOKEN = '1713908341'
 NEW_TOKEN_PATH = '/token'
