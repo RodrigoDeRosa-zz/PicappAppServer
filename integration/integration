@@ -6,6 +6,8 @@ import requests
 import unittest
 import time
 import json
+import hashlib
+import random
 
 HOSTS = ['https://picapp-app-server.herokuapp.com', 'localhost:5000']
 
@@ -19,7 +21,8 @@ def main():
         # Run servers
         os.popen('./run').read()
     # Run test
-    host = HOSTS[1] if local else host = HOSTS[0]
+    if local: host = HOSTS[1]
+    else: host = HOSTS[0]
     tester = IntegrationTestCase()
     tester.test_login_happy_case(host)
     tester.test_signup_happy_case(host)
@@ -30,45 +33,62 @@ def main():
 
 class IntegrationTestCase(unittest.TestCase):
 
-    def setUp(self):
-        self.success_codes = [200, 201, 204]
-
     def test_login_happy_case(self, host):
         uri = host + '/users/login'
+        print("URI Generated: {}".format(uri))
         body = {
-            'username': 'steel-do',
+            'username': 'thisisauser',
             'password': 'some-password'
         }
+        print("Request body: {}".format(body))
         # Get response
+        print("Performing HTTP request...")
         response = requests.post(uri,
                                  data=json.dumps(body),
                                  headers={'Content-Type': 'Application/json'})
         # Handle error codes
-        if response.status_code not in self.success_codes:
+        if response.status_code not in [200, 201, 204]:
             self.fail("Fail! Received code {} with message {}".format(response.status_code, response.json()['message']))
+        print("Successfull request. Now checking values.")
         # Get data
-        self.assertEqual('steel-do', response.json()['username'])
-        self.assertNotNull(response.json()['userid'])
-        self.assertNotNull(response.json()['token'])
-        self.assertNotNull(response.json()['token']['token'])
+        self.assertEqual('thisisauser', response.json()['username'])
+        self.assertTrue(response.json()['token'] != None)
+        self.assertTrue(response.json()['token']['token'] != None)
         self.assertTrue(response.json()['token']['expiresAt'] > time.time())
+        print("Login tests passed.")
 
     def test_signup_happy_case(self, host):
         uri = host + '/users/signup'
+        print("URI Generated: {}".format(uri))
+        username = str(int(hashlib.sha256(str(random.randrange(100)).encode('utf-8')).hexdigest(), 16) % 10**8)
         body = {
-            'username': 'steel-do',
+            'username': username,
             'password': 'some-password'
         }
+        print("Request body: {}".format(body))
         # Get response
+        print("Performing HTTP request...")
         response = requests.post(uri,
                                  data=json.dumps(body),
                                  headers={'Content-Type': 'Application/json'})
         # Handle errors
-        if response.status_code not in self.success_codes:
+        if response.status_code not in [200, 201, 204]:
             self.fail("Fail! Received code {} with message {}".format(response.status_code, response.json()['message']))
+        print("Successfull request. Now checking values.")
         # Check data
-        self.assertEqual('steel-do', response.json()['username'])
+        self.assertEqual(username, response.json()['username'])
         self.assertEqual('some-password', response.json()['password'])
+        print("User creation tests passed.")
+        # Delete created user
+        print("Deleting created user.")
+        uri = 'https://picappss.herokuapp.com/api/users/'+username
+        response = requests.delete(uri, headers={'Content-Type': 'Application/json'})
+        if response.status_code not in [200, 201, 204]:
+            self.fail("Fail! Received code {} with message {}".format(response.status_code, response.json()['message']))
+        print("User correctly deleted from shared server")
+
+
+
 
 
 main()
