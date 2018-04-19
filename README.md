@@ -49,11 +49,11 @@ You can see the interface of this Application Server
 
 The following list indicates the development status of each branch.
 
- - feature_login -- _On Develop_
- - feature_myaccount_get -- _On Develop_
- - feature_token -- _On Develop_
- - feature_ping -- _On Develop_
- - feature_sharedserverservice -- _On Develop_
+ - feature_login -- *Done*
+ - feature_myaccount_get -- *Done*
+ - feature_token -- *Done*
+ - feature_ping -- *Done*
+ - feature_sharedserverservice -- *Done*
  
 **REFERENCE:**
     
