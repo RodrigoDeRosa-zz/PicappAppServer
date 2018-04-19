@@ -22,7 +22,7 @@ class LoginResource(Resource):
             self.logger.info('User data generated. ({})'.format(user_data))
             output_dict = self.shared_server_service.get_new_token(user_data)
             # do something about Token expiration date
-            response = {'token': output_dict['token']}
+            response = {'username':user_data['username'],'token': output_dict}
             self.logger.info('Token received from service. ({})'.format(response))
             return ResponseBuilder.build_response(response)
         except MissingFieldException as mfe:
