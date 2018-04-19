@@ -3,13 +3,13 @@ post_token_response_mock = {
         'version': 'v1.0.1'
     },
     'token': {
-        'token': 'asd',
+        'token': 21324,
         'expiresAt': 1546311600
     }
 }
 
 token_object_mock = {
-    'token': 'asd',
+    'token': 21324,
     'expiresAt': 1546311600
 }
 
