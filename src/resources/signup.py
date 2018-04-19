@@ -8,6 +8,7 @@ from src.utils.request_builder import RequestBuilder, MissingFieldException
 from src.model.user import User
 from src.utils.logger_config import Logger
 
+import hashlib
 
 class SignUpResource(Resource):
 
@@ -27,7 +28,7 @@ class SignUpResource(Resource):
 
             # fill in accessory fields
             shared_server_request = dict(user_data)
-            shared_server_request['id'] = user_data['username']  # because username acts as identifier
+            shared_server_request['id'] = int(hashlib.sha256(user_data['username'].encode('utf-8')).hexdigest(), 16) % 10**8
             shared_server_request['_rev'] = 0
             shared_server_request['applicationOwner'] = "steelsoft"
 
