@@ -53,7 +53,7 @@ The following list indicates the development status of each branch.
  - feature_myaccount_get -- _On Develop_
  - feature_token -- _On Develop_
  - feature_ping -- _On Develop_
- - feature_sharedserverproxy -- _On Develop_
+ - feature_sharedserverservice -- _On Develop_
  
 **REFERENCE:**
     

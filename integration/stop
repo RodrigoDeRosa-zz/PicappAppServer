@@ -1,0 +1,4 @@
+#!/bin/bash
+
+PicappAppServer/shutdown
+PicAppSS/shutdown
