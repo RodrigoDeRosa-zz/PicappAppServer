@@ -27,7 +27,7 @@ class SignUpResource(Resource):
 
             # fill in accessory fields
             shared_server_request = dict(user_data)
-            shared_server_request['id'] = 0
+            shared_server_request['id'] = user_data['username']  # because username acts as identifier
             shared_server_request['_rev'] = 0
             shared_server_request['applicationOwner'] = "steelsoft"
 
