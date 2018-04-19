@@ -9,21 +9,25 @@ In order to run the server locally via Docker, you need to install both
 [docker-compose](https://docs.docker.com/compose/install/).
 
 Once you have both of them, you can get the server running by opening a
-console in the project directory and running the following commands:
+console and executing:
 
-    $ ./docker-run.sh
+    $ <path-to-project-folder>/startup
     
 And this one will start listening on [localhost:5000](https://localhost:5000).
-You can stop it anytime with CTRL+C.
+You can stop it anytime by running:
+
+    $ <path-to-project-folder>/shutdown
+
 
 **NOTES:**
 
-To run this Shell script, you will need to give it execution permission with
+To run this Shell scripts, you will need to give them execution permission with
 the command:
 
-    $ chmod +x docker-run.sh
+    $ chmod +x startup
+    $ chmod +x shutdown
 
-Also, it runs 'sudo' commands so you will be asked for super user password.
+Also, they run 'sudo' commands so you will be asked for super user password.
     
 ## Heroku
 ![Heroku](https://heroku-badge.herokuapp.com/?app=picapp-app-server&root=/users)
@@ -45,11 +49,11 @@ You can see the interface of this Application Server
 
 The following list indicates the development status of each branch.
 
- - feature_login -- _On Develop_
- - feature_myaccount_get -- _On Develop_
- - feature_token -- _On Develop_
- - feature_ping -- _On Develop_
- - feature_sharedserverproxy -- **WIP**
+ - feature_login -- *Done*
+ - feature_myaccount_get -- *Done*
+ - feature_token -- *Done*
+ - feature_ping -- *Done*
+ - feature_sharedserverservice -- *Done*
  
 **REFERENCE:**
     

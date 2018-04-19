@@ -1,7 +1,7 @@
 web:
   restart: always
   build: .
-  command: gunicorn -b 0.0.0.0:5000 'src.main:run_app(local=False)' --log-file=-
+  command: gunicorn -b 0.0.0.0:5000 'src.main:run_app(local=True, external_server=True)' --log-file=-
   ports:
     - "5000:5000"
   volumes:
