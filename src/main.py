@@ -27,16 +27,22 @@ api.add_resource(MyAccountResource, "/users/<username>/myaccount")
 api.add_resource(SignUpResource, "/users/signup")
 
 
-def run_app(local=True):
+def run_app(local=True, external_server=False):
     parser = ConfigParser()
     parser.add_section('shared_server')
 
     if local:
         app.config['MONGO_URI'] = LOCAL_MONGO
-        parser.set('shared_server', 'host', 'http://localhost:3000')
+        if external_server:
+            logger.info('Setting Heroku as Shared Server host.')
+            parser.set('shared_server', 'host', 'https://picappss.herokuapp.com')
+        else:
+            logger.info('Setting localhost as Shared Server host.')
+            parser.set('shared_server', 'host', 'http://localhost:3000')
         logger.info('Starting app with local database.')
     else:
         app.config['MONGO_URI'] = CLOUD_MONGO
+        logger.info('Setting Heroku as Shared Server host.')
         parser.set('shared_server', 'host', 'https://picappss.herokuapp.com')
         logger.info('Starting app with remote database')
     with open('config.cfg', 'w') as file:
