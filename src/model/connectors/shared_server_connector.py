@@ -67,8 +67,8 @@ class SharedServerConnector(object):
         # Get data
         token = response.json()['token']
         # Check data
-        if token['expiresAt'] < time.time():
-            raise InvalidResponseException('Expiration time is previous to current time!')
+        # if token['expiresAt'] < time.time():
+        #   raise InvalidResponseException('Expiration time is previous to current time!')
         # Return object
         return token
 
