@@ -42,5 +42,5 @@ class Token(object):
         # enforce only one active session
         if tk is not None:
             Logger(__name__).info('Old token ({}) removed for user ({}).'.format(token, username))
-            tk.find_and_delete({'_id': tk['_id']})
+            Token._get_tokens_db().find_and_delete({'_id': tk['_id']})
         return new_token_id
