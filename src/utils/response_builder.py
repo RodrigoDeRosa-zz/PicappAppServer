@@ -3,7 +3,7 @@ from flask import make_response
 from src.utils.logger_config import Logger
 
 
-class ResponseBuilder:
+class ResponseBuilder(object):
 
     @staticmethod
     def build_response(response, status_code=200):

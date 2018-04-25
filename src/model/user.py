@@ -3,7 +3,7 @@ from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 
 
-class User:
+class User(object):
 
     @staticmethod
     def _get_users_db():
