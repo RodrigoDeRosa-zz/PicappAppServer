@@ -1,9 +1,10 @@
 from flask import request
 from flask_restful import Resource
 from src.utils.response_builder import ResponseBuilder
+from src.utils.request_builder import RequestBuilder,MissingFieldException
 from src.model.user import User
 from src.utils.logger_config import Logger
-
+from src.model.token import ExpiredTokenException,Token
 
 class UserNotFoundException(Exception):
     pass
@@ -17,6 +18,13 @@ class ProfileResource(Resource):
     def get(self, username):
         # search one by given username
         try:
+            # get token from header
+            token = self._get_token_from_header()
+
+            # validate username
+            if not Token.validate(token):
+                return ResponseBuilder.build_error_response("Invalid token", 404)  # check status code
+            # from now on it's a valid user
             user = self._find_one_user({'username': username})
             output = {'username': user['username']}
             self.logger.info('User profile found: {}'.format(output))
@@ -27,6 +35,10 @@ class ProfileResource(Resource):
             err_msg = "No user found with that name"
             self.logger.error(err_msg)
             return ResponseBuilder.build_error_response(err_msg, status_code)
+        except ExpiredTokenException:
+            return ResponseBuilder.build_error_response("Session has expired", 400)  # check status code
+        except MissingFieldException as e:
+            return ResponseBuilder.build_error_response(e.args, 400)
 
     # deprecated until user has more info than username and password
     """
@@ -47,6 +59,10 @@ class ProfileResource(Resource):
         response = {'result': output}
         return ResponseBuilder.build_response(response)
     """
+    """
+    def _get_age_from_request(self):
+        return request.json['age']
+    """
 
     def delete(self, username):
         # search one by username and delete
@@ -65,7 +81,6 @@ class ProfileResource(Resource):
         if not user:
             raise UserNotFoundException("No user found matching criteria")
         return user
-    """
-    def _get_age_from_request(self):
-        return request.json['age']
-    """
+
+    def _get_token_from_header(self):
+        return RequestBuilder.get_field_from_header('token')
