@@ -1,10 +1,10 @@
-from flask import request
 from flask_restful import Resource
 from src.utils.response_builder import ResponseBuilder
-from src.utils.request_builder import RequestBuilder,MissingFieldException
+from src.utils.request_builder import RequestBuilder, MissingFieldException
 from src.model.user import User
 from src.utils.logger_config import Logger
-from src.model.token import ExpiredTokenException,Token
+from src.security.token import ExpiredTokenException, Token, InvalidTokenException
+
 
 class UserNotFoundException(Exception):
     pass
@@ -22,24 +22,26 @@ class ProfileResource(Resource):
             token = self._get_token_from_header()
 
             # validate username
-            if not Token.validate(token):
-                return ResponseBuilder.build_error_response("Invalid token", 404)  # check status code
+            callee_user = Token.identify(token)
+
             # from now on it's a valid user
             user = self._find_one_user({'username': username})
             output = {'username': user['username']}
             self.logger.info('User profile found: {}'.format(output))
             response = {'result': output}
             return ResponseBuilder.build_response(response)
+
         except UserNotFoundException:
-            status_code = 404
             err_msg = "No user found with that name"
             self.logger.error(err_msg)
-            return ResponseBuilder.build_error_response(err_msg, status_code)
-        except ExpiredTokenException:
-            return ResponseBuilder.build_error_response("Session has expired", 400)  # check status code
-        except MissingFieldException as e:
-            return ResponseBuilder.build_error_response(e.args, 400)
+            return ResponseBuilder.build_error_response(err_msg, 400)
 
+        except ExpiredTokenException as e:
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
+        except MissingFieldException as e:
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
+        except InvalidTokenException as e:
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
     # deprecated until user has more info than username and password
     """
     def put(self, username):

@@ -9,7 +9,7 @@ from tests.mocks.responses.token_response_mock import token_object_mock
 
 class LoginResourceTestCase(unittest.TestCase):
 
-    def test_login_succesful(self):
+    def test_login_successful(self):
         service = LoginResource()
         service._get_username_from_request = mock.MagicMock(return_value="user")
         service._get_password_from_request = mock.MagicMock(return_value="pw")
@@ -20,7 +20,7 @@ class LoginResourceTestCase(unittest.TestCase):
     def test_login_missingfield(self):
         service = LoginResource()
         service._get_username_from_request = mock.MagicMock(return_value="user")
-        service._get_password_from_request = mock.MagicMock(side_effect=MissingFieldException())
+        service._get_password_from_request = mock.MagicMock(side_effect=MissingFieldException("password"))
         ResponseBuilder.build_response = lambda response, status_code: status_code
         self.assertEqual(service.post(), 400)
 
@@ -43,7 +43,7 @@ class LoginResourceTestCase(unittest.TestCase):
     def test_login_noserver(self):
         service = LoginResource()
         service._get_username_from_request = mock.MagicMock(return_value="user")
-        service._get_password_from_request = mock.MagicMock(return_value ="pw")
+        service._get_password_from_request = mock.MagicMock(return_value="pw")
         SharedServerService.get_new_token = mock.MagicMock(side_effect=NoServerException)
         ResponseBuilder.build_response = lambda response, status_code: status_code
         self.assertEqual(service.post(), 500)

@@ -23,7 +23,7 @@ class SignUpResourceTestCase(unittest.TestCase):
     def test_signup_missing_field(self):
         service = SignUpResource()
         service._get_password_from_request = mock.MagicMock(return_value=user_info_mock['password'])
-        service._get_username_from_request = mock.MagicMock(side_effect = MissingFieldException)
+        service._get_username_from_request = mock.MagicMock(side_effect=MissingFieldException("username"))
         ResponseBuilder.build_error_response = lambda response, status_code: status_code
         self.assertEqual(service.post(), 400)
 

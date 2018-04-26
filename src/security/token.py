@@ -4,7 +4,21 @@ import time
 
 
 class ExpiredTokenException(Exception):
-    pass
+    def __init__(self):
+        self.message = "Received token has expired"
+        self.error_code = 400
+
+    def __str__(self):
+        return self.message
+
+
+class InvalidTokenException(Exception):
+    def __init__(self):
+        self.message = "Received token was invalid"
+        self.error_code = 400
+
+    def __str__(self):
+        return self.message
 
 
 class Token(object):
@@ -18,26 +32,34 @@ class Token(object):
         return int(time.time())
 
     @staticmethod
-    def validate(token):
-        """Receives a token and looks for it in the database, returning True or False whether it is found
-        or not, or raising an exception if it expired"""
+    def _find_token(token):
+        return Token._get_tokens_db().find_one({'token': token})
+
+    @staticmethod
+    def _create_token(token, expiration_epochs, username):
+        return Token._get_tokens_db().insert({'token': token, 'expiresAt': expiration_epochs, 'username': username})
+
+    @staticmethod
+    def identify(token):
+        """Receives a token and looks for it in the database, returning the username of the owner or
+        raising an exception if it was not found or had expired"""
         Logger(__name__).info('Looking for token {}'.format(token))
-        tk = Token._get_tokens_db().find_one({'token': token})
+        tk = Token._find_token(token)
         if tk is None:
             Logger(__name__).info("Token {} not found".format(token))
-            return False
+            raise InvalidTokenException
         if Token._get_current_epochs() > tk['expiresAt']:
             Logger(__name__).info("Token {} was found but it had expired".format(token))
             raise ExpiredTokenException
         Logger(__name__).info("Token {} found".format(token))
-        return True
+        return tk['username']
 
     @staticmethod
-    def create(token, expiration_epochs, username):
+    def save_new(token, expiration_epochs, username):
         """Saves to DB a newly created Token with expiration date (in epochs) associated
         with a user"""
         tk = Token._get_tokens_db().find_one({'username': username})
-        new_token_id = Token._get_tokens_db().insert({'token': token, 'expiresAt': expiration_epochs, 'username': username})
+        new_token_id = Token._create_token(token, expiration_epochs, username)
         Logger(__name__).info('Token {} stored for user {}, with id {}'.format(token, username, new_token_id))
         # enforce only one active session
         if tk is not None:
