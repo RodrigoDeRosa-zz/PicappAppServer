@@ -34,14 +34,14 @@ class ProfileResource(Resource):
         except UserNotFoundException:
             err_msg = "No user found with that name"
             self.logger.error(err_msg)
-            return ResponseBuilder.build_error_response(err_msg, 400)
-
+            return ResponseBuilder.build_error_response(err_msg, 404)
         except ExpiredTokenException as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
         except MissingFieldException as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
         except InvalidTokenException as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
+        
     # deprecated until user has more info than username and password
     """
     def put(self, username):
