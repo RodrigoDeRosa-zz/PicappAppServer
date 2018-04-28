@@ -28,6 +28,11 @@ class Token(object):
         return mongo.db.tokens
 
     @staticmethod
+    def _delete_all():
+        Logger(__name__).info('Deleting all tokens.')
+        return Token._get_tokens_db().delete_many({})
+
+    @staticmethod
     def _get_current_epochs():
         return int(time.time())
 
@@ -44,7 +49,7 @@ class Token(object):
         """Receives a token and looks for it in the database, returning the username of the owner or
         raising an exception if it was not found or had expired"""
         Logger(__name__).info('Looking for token {}'.format(token))
-        tk = Token._find_token(token)
+        tk = Token._find_token(int(token))
         if tk is None:
             Logger(__name__).info("Token {} not found".format(token))
             raise InvalidTokenException
@@ -64,5 +69,5 @@ class Token(object):
         # enforce only one active session
         if tk is not None:
             Logger(__name__).info('Old token ({}) removed for user ({}).'.format(token, username))
-            Token._get_tokens_db().find_and_delete({'_id': tk['_id']})
+            Token._get_tokens_db().remove({'_id': tk['_id']})
         return new_token_id

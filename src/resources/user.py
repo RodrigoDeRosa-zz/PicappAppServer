@@ -14,8 +14,12 @@ class UserResource(Resource):
     def get(self):
         output = []
         # for each user in DB
-        for user in User._get_all():
-            output.append({'username': user['username']})
+        all_users = User._get_all()
+        for user in all_users:
+            if 'username' in user:
+                output.append({'username': user['username']})
+            else:   # wacky - hacky - not nice
+                output.append([(str(i), str(user[i])) for i in user])
         # formatting
         self.logger.info('User list fetched. ({})'.format(output))
         response = {'result': output}
