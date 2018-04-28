@@ -10,6 +10,7 @@ from src.resources.login import LoginResource
 from src.resources.myaccount import MyAccountResource
 from src.resources.signup import SignUpResource
 from src.resources.cleaner import CleanerResource
+from src.resources.friendship import FriendshipResource
 
 LOCAL_MONGO = 'mongodb://localhost:27017/restdb'
 CLOUD_MONGO = 'mongodb://heroku_lw3s78tf:dhk2glio3fs16ket6aapjc2867@ds229549.mlab.com:29549/heroku_lw3s78tf'
@@ -27,6 +28,7 @@ api.add_resource(LoginResource, "/users/login")
 api.add_resource(MyAccountResource, "/users/<username>/myaccount")
 api.add_resource(SignUpResource, "/users/signup")
 api.add_resource(CleanerResource, "/admin/clean")
+api.add_resource(FriendshipResource, "/users/<username>/friendship")
 
 
 def run_app(local=True, external_server=False):

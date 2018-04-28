@@ -18,9 +18,9 @@ class MyAccountResource(Resource):
             token = self._get_token_from_header()
 
             # identify with token
-            callee_user = Token.identify(token)
+            caller_user = Token.identify(token)
 
-            if callee_user != username:
+            if caller_user != username:
                 return ResponseBuilder.build_error_response("Username is not own", 403)
 
             # get user data
