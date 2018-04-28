@@ -1,13 +1,9 @@
-from flask import request
 from flask_restful import Resource
 from src.utils.response_builder import ResponseBuilder
-from src.utils.request_builder import RequestBuilder,MissingFieldException
-from src.model.user import User
+from src.utils.request_builder import RequestBuilder, MissingFieldException
+from src.model.user import User, UserNotFoundException
 from src.utils.logger_config import Logger
-from src.model.token import ExpiredTokenException,Token
-
-class UserNotFoundException(Exception):
-    pass
+from src.security.token import ExpiredTokenException, Token, InvalidTokenException
 
 
 class ProfileResource(Resource):
@@ -21,25 +17,30 @@ class ProfileResource(Resource):
             # get token from header
             token = self._get_token_from_header()
 
-            # validate username
-            if not Token.validate(token):
-                return ResponseBuilder.build_error_response("Invalid token", 404)  # check status code
-            # from now on it's a valid user
-            user = self._find_one_user({'username': username})
-            output = {'username': user['username']}
-            self.logger.info('User profile found: {}'.format(output))
-            response = {'result': output}
-            return ResponseBuilder.build_response(response)
-        except UserNotFoundException:
-            status_code = 404
+            # identify with token
+            callee_user = Token.identify(token)
+
+            # get profile info from user username
+            profile = User.get_profile(username)
+
+            # generate response
+            self.logger.info('User profile found for: {}'.format(username))
+            output = profile
+
+            # return response
+            return ResponseBuilder.build_response(output)
+
+        except UserNotFoundException as e:
             err_msg = "No user found with that name"
             self.logger.error(err_msg)
-            return ResponseBuilder.build_error_response(err_msg, status_code)
-        except ExpiredTokenException:
-            return ResponseBuilder.build_error_response("Session has expired", 400)  # check status code
+            return ResponseBuilder.build_error_response(err_msg, e.error_code)
+        except ExpiredTokenException as e:
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
         except MissingFieldException as e:
-            return ResponseBuilder.build_error_response(e.args, 400)
-
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
+        except InvalidTokenException as e:
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
+        
     # deprecated until user has more info than username and password
     """
     def put(self, username):
@@ -64,6 +65,8 @@ class ProfileResource(Resource):
         return request.json['age']
     """
 
+    """
+    DEPRECATED
     def delete(self, username):
         # search one by username and delete
         user = User.delete_one(username)
@@ -75,12 +78,7 @@ class ProfileResource(Resource):
             self.logger.info('No user was found to delete for username: {}'.format(username))
         response = {'result': output}
         return ResponseBuilder.build_response(response)
-
-    def _find_one_user(self, query):
-        user = User.get_one(query)
-        if not user:
-            raise UserNotFoundException("No user found matching criteria")
-        return user
+    """
 
     def _get_token_from_header(self):
         return RequestBuilder.get_field_from_header('token')

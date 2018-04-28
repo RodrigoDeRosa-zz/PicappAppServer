@@ -3,7 +3,12 @@ from src.utils.logger_config import Logger
 
 
 class MissingFieldException(Exception):
-    pass
+    def __init__(self, key):
+        self.message = "Missing field " + key
+        self.error_code = 400
+
+    def __str__(self):
+        return self.message
 
 
 class RequestBuilder(object):
@@ -14,7 +19,7 @@ class RequestBuilder(object):
             return request.json[key]
         except Exception:
             Logger(__name__).error("Missing field: {}".format(key))
-            raise MissingFieldException("Missing field " + key)
+            raise MissingFieldException(key)
 
     @staticmethod
     def get_field_from_header(key):
@@ -22,4 +27,4 @@ class RequestBuilder(object):
             return request.headers[key]
         except Exception:
             Logger(__name__).error("Missing field: {}".format(key))
-            raise MissingFieldException("Missing field " + key)
+            raise MissingFieldException(key)
