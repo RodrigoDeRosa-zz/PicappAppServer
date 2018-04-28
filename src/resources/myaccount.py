@@ -24,10 +24,10 @@ class MyAccountResource(Resource):
                 return ResponseBuilder.build_error_response("Username is not own", 403)
 
             # get user data
-            user = User.get_one({'username': username})
+            account_info = User.get_account_info(username)
 
             # generate response
-            output = {'username': user['username']}  # fetch data
+            output = account_info
             self.logger.info('User account retrieved. ({})'.format(output))
 
             # return response
@@ -36,9 +36,9 @@ class MyAccountResource(Resource):
         except MissingFieldException as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
         except ExpiredTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)  # check status code
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
         except InvalidTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)  # check status code
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
 
     def _get_token_from_header(self):
         return RequestBuilder.get_field_from_header('token')

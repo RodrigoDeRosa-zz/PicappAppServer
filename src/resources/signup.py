@@ -10,6 +10,7 @@ from src.utils.logger_config import Logger
 
 import hashlib
 
+
 class SignUpResource(Resource):
 
     def __init__(self):
@@ -18,7 +19,7 @@ class SignUpResource(Resource):
 
     def post(self):
         try:
-            # get all data from request
+            # get data from request
             user_data = {}
             user_data['username'] = self._get_username_from_request()
             user_data['password'] = self._get_password_from_request()
@@ -32,18 +33,21 @@ class SignUpResource(Resource):
             shared_server_request['_rev'] = 0
             shared_server_request['applicationOwner'] = "steelsoft"
 
-            # ask shared server for register
+            # ask shared server for register service
             output_dict = self.shared_server_service.create_user(shared_server_request)
             self.logger.info("User {} successfully registered in shared server".format(output_dict['username']))
 
-            # register new user in own DB:
-            pw = user_data.pop('password')    # dont save the password
-            new_user_id = User.insert_one(user_data)
+            # register at application server
+            pw = user_data.pop('password')    # don't save the password
+            new_user_id = User.save_new(user_data)
             self.logger.info('User ({}) added to DB with id {}'.format(user_data, new_user_id))
 
-            # return response
+            # generate response
             response = {'username': output_dict['username'], 'password': pw}
+
+            # return response
             return ResponseBuilder.build_response(response)
+
         except MissingFieldException as mfe:
             return ResponseBuilder.build_error_response(str(mfe), 400)  # check status_code
         except InvalidDataException as ide:
@@ -54,7 +58,6 @@ class SignUpResource(Resource):
             return ResponseBuilder.build_error_response(str(uee), 500)  # check status_code
         except ConnectionFailException as cfe:
             return ResponseBuilder.build_error_response(str(cfe), 500)  # check status_code
-
 
     def _get_username_from_request(self):
         return RequestBuilder.get_field_from_request('username')

@@ -14,7 +14,7 @@ class UserResource(Resource):
     def get(self):
         output = []
         # for each user in DB
-        for user in User.get_all():
+        for user in User._get_all():
             output.append({'username': user['username']})
         # formatting
         self.logger.info('User list fetched. ({})'.format(output))
@@ -44,7 +44,7 @@ class UserResource(Resource):
 
     def delete(self):
         # delete all
-        delete_result = User.delete_all()
+        delete_result = User._delete_all()
         self.logger.info('All users were deleted from DB.')
         # return amount of users deleted
         output = str(delete_result.deleted_count) + " users were deleted"
