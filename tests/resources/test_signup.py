@@ -17,7 +17,8 @@ class SignUpResourceTestCase(unittest.TestCase):
         service._get_password_from_request = mock.MagicMock(return_value=user_info_mock['password'])
         service._get_username_from_request = mock.MagicMock(return_value=user_info_mock['username'])
         service.shared_server_service.create_user = mock.MagicMock(return_value=post_user_response_mock['user'])
-        User.save_new = mock.MagicMock(return_value=object_id_mock)
+        User._get_one = mock.MagicMock(return_value=None)
+        User._insert_one = mock.MagicMock(return_value=object_id_mock)
         ResponseBuilder.build_response = lambda response, status_code = 200: response
         self.assertEqual(service.post(), user_info_mock)
 
