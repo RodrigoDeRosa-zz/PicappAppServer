@@ -70,7 +70,7 @@ class User(object):
 
         # init the blank ones
         new_user['profile_pic'] = None
-        new_user['friends'] = []
+        new_user['friends'] = {}
         new_user['stories'] = []
 
         # return the new profile
