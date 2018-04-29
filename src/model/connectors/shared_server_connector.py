@@ -11,7 +11,7 @@ BASE_PATH = "/api"
 SERVER_TOKEN = '1713908341'
 NEW_TOKEN_PATH = '/token'
 NEW_USER_PATH = '/user'
-
+DELETE_USER_BASE_PATH = '/users/'
 
 class SharedServerConnector(object):
 
@@ -72,6 +72,18 @@ class SharedServerConnector(object):
         # Return object
         return token
 
+    def delete_user(self, username):
+        """Deletes given user at shared server"""
+        # Generate uri
+        uri = self.host + BASE_PATH + DELETE_USER_BASE_PATH + str(username)
+        self.logger.info('HTTP Delete to URI {}'.format(uri))
+        # Get response
+        response = requests.delete(uri)
+        self.logger.info('Response received with code {}. ({})'.format(response.status_code, response.text))
+        # Handle error codes
+        if response.status_code not in self.success_codes:
+            handle_error(response)
+        return username
 
 def handle_error(response):
     """Handles request error and raises necessary exception."""

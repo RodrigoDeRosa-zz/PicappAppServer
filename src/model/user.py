@@ -57,7 +57,7 @@ class User(object):
     @staticmethod
     def _delete_one(username):
         Logger(__name__).info('Deleting user {}.'.format(username))
-        return User._get_users_db().find_one_and_delete({'name': username})
+        return User._get_users_db().find_one_and_delete({'username': username})
 
     @staticmethod
     def _make_new_user(new_user_data):
@@ -137,6 +137,7 @@ class User(object):
 
     @staticmethod
     def get_account_info(username):
+        """Gets account information related to username"""
         user = User._get_one({'username': username})
         if user is None:
             raise UserNotFoundException
@@ -144,3 +145,29 @@ class User(object):
         Logger(__name__).info("Account info for user {} was retrieved".format(username))
         return account_info
 
+    @staticmethod
+    def delete_user(username):
+        """Deletes user from the Application Server or raises a UserNotFoundException"""
+        user = User._get_one({'username': username})
+        if user is None:
+            raise UserNotFoundException
+        deleted_name = User._safe_delete_user(user)
+        Logger(__name__).info("Account for user {} was deleted at User".format(deleted_name))
+        return deleted_name
+
+    @staticmethod
+    def _safe_delete_user(user):
+        # delete from every friend
+        username = user['username']
+        for friend_name in user['friends']:
+            friend_user = User._get_one({'username': friend_name})
+            # if for any reason user didn't exist anymore, continue silently
+            if friend_user is None:
+                continue
+            friend_user['friends'].pop(username)
+        # delete every owned Story and related Reactions and Comments
+        # TODO: ADD WHEN STORIES ARE SUPPORTED
+
+        # now that the user is isolated, delete it
+        User._delete_one(username)
+        return username

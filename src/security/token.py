@@ -45,6 +45,11 @@ class Token(object):
         return Token._get_tokens_db().insert({'token': token, 'expiresAt': expiration_epochs, 'username': username})
 
     @staticmethod
+    def log_out(username):
+        """Nullifies all tokens related to user."""
+        return Token._get_tokens_db().remove({'username': username})
+
+    @staticmethod
     def identify(token):
         """Receives a token and looks for it in the database, returning the username of the owner or
         raising an exception if it was not found or had expired"""
