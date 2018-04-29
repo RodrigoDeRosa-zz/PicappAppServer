@@ -84,7 +84,7 @@ class FriendshipResourceTestCase(unittest.TestCase):
         self.assertNotIn(tgt_usr['username'], src_usr['friends'])
         self.assertNotIn(src_usr['username'], tgt_usr['friends'])
 
-    def test_delete_not_friends(self):
+    def test_delete_request_sent(self):
         src_usr = dict(users_mock_sent['source'])
         tgt_usr = dict(users_mock_sent['target'])
         service = FriendshipResource()
