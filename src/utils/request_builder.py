@@ -28,3 +28,11 @@ class RequestBuilder(object):
         except Exception:
             Logger(__name__).error("Missing field: {}".format(key))
             raise MissingFieldException(key)
+
+    @staticmethod
+    def get_field_from_request_or_default(key, default_value):
+        try:
+            return RequestBuilder.get_field_from_request(key)
+        except MissingFieldException:
+            Logger(__name__).error("Default value returned: {}".format(str(default_value)))
+            return default_value

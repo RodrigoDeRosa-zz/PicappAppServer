@@ -3,7 +3,7 @@ from src.utils.response_builder import ResponseBuilder
 from src.utils.request_builder import RequestBuilder, MissingFieldException
 from src.utils.logger_config import Logger
 from src.security.token import Token, ExpiredTokenException, InvalidTokenException
-from src.model.friendship import Friendship, FriendshipState, AlreadyFriendsException, UserNotFoundException, \
+from src.model.friendship import Friendship, AlreadyFriendsException, UserNotFoundException, \
     NotFriendsException
 
 
@@ -33,16 +33,10 @@ class FriendshipResource(Resource):
             # return response
             return ResponseBuilder.build_response(output)
 
-        except MissingFieldException as e:
+        except (MissingFieldException, ExpiredTokenException, InvalidTokenException,
+                AlreadyFriendsException, UserNotFoundException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except ExpiredTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except InvalidTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except AlreadyFriendsException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except UserNotFoundException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
+
 
     def _get_token_from_header(self):
         return RequestBuilder.get_field_from_header('token')
@@ -65,13 +59,6 @@ class FriendshipResource(Resource):
             # return response
             return ResponseBuilder.build_response(output)
 
-        except MissingFieldException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except ExpiredTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except InvalidTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except UserNotFoundException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except NotFriendsException as e:
+        except (MissingFieldException, ExpiredTokenException, InvalidTokenException,
+                UserNotFoundException, NotFriendsException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
