@@ -22,7 +22,7 @@ class StoryTestCase(unittest.TestCase):
     def test_successful_save_new(self):
         with patch.object(User, "_get_one") as mocked_user_get, \
              patch.object(Story, "_insert_one") as mocked_story_insert, \
-            patch.object(Story, "_add_story_id_to_user") as mocked_story_add_to_user:
+             patch.object(Story, "_add_story_id_to_user") as mocked_story_add_to_user:
             mocked_story_insert.side_effect = self.mocked_story_insert_one
             mocked_user_get.side_effect = self.mocked_user_get_one
             mocked_story_add_to_user.side_effect = self.mocked_add_story_to_user
@@ -32,14 +32,12 @@ class StoryTestCase(unittest.TestCase):
 
             self.assertEqual(Story.save_new(story_data), object_id_mock)
 
-
-
     def test_save_new_user_not_found(self):
         with patch.object(User, "_get_one") as mocked_user_get, \
              patch.object(Story, "_insert_one") as mocked_story_insert, \
              self.assertRaises(UserNotFoundException):
             mocked_story_insert.side_effect = self.mocked_story_insert_one
-            mocked_user_get.side_effect = MagicMock(side_effect=UserNotFoundException)
+            mocked_user_get.side_effect = MagicMock(return_value=None)
 
             story_data = dict(story_data_mock_with_title_and_description)
             story_data['username'] = "pedro"

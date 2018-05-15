@@ -1,10 +1,9 @@
-import pprint
-
 from src.model.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 from src.model.user import User, UserNotFoundException, _user
 from bson.objectid import ObjectId
+
 
 class Story(object):
 
