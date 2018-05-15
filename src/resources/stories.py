@@ -50,13 +50,8 @@ class StoriesResource(Resource):
             # return response
             return ResponseBuilder.build_response(response)
 
-        except MissingFieldException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except InvalidTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except ExpiredTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except InvalidFormatException as e:
+        except (MissingFieldException, InvalidTokenException, ExpiredTokenException,
+                InvalidFormatException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
 
     def _get_media_from_request(self):

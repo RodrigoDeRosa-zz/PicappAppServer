@@ -61,6 +61,13 @@ class User(object):
                                                   return_document=ReturnDocument.AFTER)
 
     @staticmethod
+    def _push_to_user_by_username(username, pushed_param_dict):
+        Logger(__name__).info('Pushing to user {} with value {}'.format(username, pushed_param_dict))
+        return mongo.db.users.find_one_and_update(filter={'username': username},
+                                                  update={"$push": pushed_param_dict},
+                                                  return_document=ReturnDocument.AFTER)
+
+    @staticmethod
     def _delete_field_by_username(username, deleted_param_dict):
         Logger(__name__).info('Deleting fields of user {} with value {}'.format(username, deleted_param_dict))
         return mongo.db.users.find_one_and_update(filter={'username': username},

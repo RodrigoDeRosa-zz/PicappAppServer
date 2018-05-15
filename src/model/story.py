@@ -1,8 +1,10 @@
+import pprint
+
 from src.model.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
-from src.model.user import User, UserNotFoundException
-
+from src.model.user import User, UserNotFoundException, _user
+from bson.objectid import ObjectId
 
 class Story(object):
 
@@ -21,6 +23,10 @@ class Story(object):
         return Story._get_stories_db().find_one(query)
 
     @staticmethod
+    def _get_one_by_id(story_id):
+        return Story._get_one({'_id': ObjectId(story_id)})
+
+    @staticmethod
     def _insert_one(new_story):
         Logger(__name__).info('Inserting story with query {}.'.format(new_story))
         return Story._get_stories_db().insert(new_story)
@@ -33,8 +39,15 @@ class Story(object):
     @staticmethod
     def _update_story(story_id, updated_param_dict):
         Logger(__name__).info('Updating story {} with value {}'.format(story_id, updated_param_dict))
-        return mongo.db.stories.find_one_and_update(filter={'_id': story_id},
+        return mongo.db.stories.find_one_and_update(filter={'_id': ObjectId(story_id)},
                                                     update={"$set": updated_param_dict},
+                                                    return_document=ReturnDocument.AFTER)
+
+    @staticmethod
+    def _add_item_to_story(story_id, pushed_param_dict):
+        Logger(__name__).info('Pushing to story {} with value {}'.format(story_id, pushed_param_dict))
+        return mongo.db.stories.find_one_and_update(filter={'_id': ObjectId(story_id)},
+                                                    update={"$push": pushed_param_dict},
                                                     return_document=ReturnDocument.AFTER)
 
     @staticmethod
@@ -85,23 +98,21 @@ class Story(object):
         new_story = Story._make_new_story(story_data)
 
         # save into DB
-        new_story_id = Story._insert_one(new_story)
+        new_story_id_obj = Story._insert_one(new_story)
+        new_story_id = str(new_story_id_obj)
+
         Logger(__name__).info('New story {} by user {} was saved.'.format(new_story_id,
                                                                           username))
 
-        Story._add_story_id_to_user(user, new_story_id)
+        Story._add_story_id_to_user(username, new_story_id)
 
-        Logger(__name__).info("Story_id {} was added to user {}.".format(str(new_story_id), username))
+        Logger(__name__).info("Story_id {} was added to user {}.".format(new_story_id, username))
 
         # return the id
         return new_story_id
 
     @staticmethod
-    def _add_story_id_to_user(user, story_id):
-        orig_len = len(user['stories'])
-
+    def _add_story_id_to_user(username, story_id):
         # add it to the array
-        user['stories'].append(story_id)  # TODO SEE IF THIS WORKS OR NEEDS ._UPDATE
-
-        actual_len = len(user['stories'])
-        assert actual_len == orig_len+1
+        # user['stories'].append(story_id)
+        User._push_to_user_by_username(username, {'stories': story_id})
