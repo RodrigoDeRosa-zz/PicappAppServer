@@ -61,8 +61,6 @@ class MyAccountResource(Resource):
             # ask shared server for account deletion service
             result = self.shared_server_service.delete_user(username)
 
-            assert result == username
-
             # delete user data at app server
             User.delete_user(username)
 
@@ -75,17 +73,13 @@ class MyAccountResource(Resource):
             # return response
             return ResponseBuilder.build_response(output)
 
-        except MissingFieldException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except ExpiredTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except InvalidTokenException as e:
+        except (MissingFieldException, ExpiredTokenException, InvalidTokenException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
         except InvalidDataException as ide:
-            return ResponseBuilder.build_error_response(str(ide), 400)  # check status_code
+            return ResponseBuilder.build_error_response(str(ide), 400)
         except NoServerException as nse:
-            return ResponseBuilder.build_error_response(str(nse), 500)  # check status_code
+            return ResponseBuilder.build_error_response(str(nse), 500)
         except UnexpectedErrorException as uee:
-            return ResponseBuilder.build_error_response(str(uee), 500)  # check status_code
+            return ResponseBuilder.build_error_response(str(uee), 500)
         except ConnectionFailException as cfe:
-            return ResponseBuilder.build_error_response(str(cfe), 500)  # check status_code
+            return ResponseBuilder.build_error_response(str(cfe), 500)

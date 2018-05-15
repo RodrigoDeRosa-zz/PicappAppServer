@@ -32,5 +32,7 @@ class InputSanitizerTestCase(unittest.TestCase):
 
     def test_failed_sanitize_integer(self):
         data_input = "not_an_integer"
-        with self.assertRaises(InvalidFormatException):
+        with self.assertRaises(InvalidFormatException) as context:
             InputSanitizer.sanitize_integer(data_input)
+        exception = context.exception
+        self.assertEqual(exception.error_code, 400)
