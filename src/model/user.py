@@ -21,6 +21,12 @@ class UserNotFoundException(Exception):
         return self.message
 
 
+def _user(username):
+    """Silently returns the current user referencing the username, used to prevent using old versions of
+    documents. Should only be used internally when editing documents."""
+    return User._get_users_db().find_one({'username': username})
+
+
 class User(object):
 
     @staticmethod
@@ -48,10 +54,24 @@ class User(object):
         return User._get_users_db().delete_many({})
 
     @staticmethod
-    def _update_profile(username, updated_param_dict):
+    def _update_user_by_username(username, updated_param_dict):
         Logger(__name__).info('Updating user {} with value {}'.format(username, updated_param_dict))
-        return mongo.db.users.find_one_and_update(filter={'name': username},
+        return mongo.db.users.find_one_and_update(filter={'username': username},
                                                   update={"$set": updated_param_dict},
+                                                  return_document=ReturnDocument.AFTER)
+
+    @staticmethod
+    def _push_to_user_by_username(username, pushed_param_dict):
+        Logger(__name__).info('Pushing to user {} with value {}'.format(username, pushed_param_dict))
+        return mongo.db.users.find_one_and_update(filter={'username': username},
+                                                  update={"$push": pushed_param_dict},
+                                                  return_document=ReturnDocument.AFTER)
+
+    @staticmethod
+    def _delete_field_by_username(username, deleted_param_dict):
+        Logger(__name__).info('Deleting fields of user {} with value {}'.format(username, deleted_param_dict))
+        return mongo.db.users.find_one_and_update(filter={'username': username},
+                                                  update={"$unset": deleted_param_dict},
                                                   return_document=ReturnDocument.AFTER)
 
     @staticmethod
@@ -164,7 +184,9 @@ class User(object):
             # if for any reason user didn't exist anymore, continue silently
             if friend_user is None:
                 continue
-            friend_user['friends'].pop(username)
+            # friend_user['friends'].pop(username)
+            entry = 'friends.'+username
+            User._delete_field_by_username(friend_user['username'], {entry: ""})
         # delete every owned Story and related Reactions and Comments
         # TODO: ADD WHEN STORIES ARE SUPPORTED
 
