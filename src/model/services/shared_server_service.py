@@ -52,3 +52,21 @@ class SharedServerService(object):
             raise ConnectionFailException()
         # Return new token
         return token
+
+    def delete_user(self, username):
+        """Asks the shared server for deletion of a user related to user_info."""
+        try:
+            result = self.connector.delete_user(username)
+            self.logger.info('User {} successfully deleted from Shared Server'.format(result))
+            return result
+        except (BadRequestException, NotFoundException) as e:
+            # Request fail
+            self.logger.error(str(e))
+            raise InvalidDataException(e.message)
+        except InternalServerErrorException as isee:
+            # External error
+            self.logger.error(str(isee))
+            raise UnexpectedErrorException(isee.message)
+        except ConnectionError as ce:
+            self.logger.error(str(ce))
+            raise ConnectionFailException()

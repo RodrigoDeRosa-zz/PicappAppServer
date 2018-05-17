@@ -14,8 +14,12 @@ class UserResource(Resource):
     def get(self):
         output = []
         # for each user in DB
-        for user in User.get_all():
-            output.append({'username': user['username']})
+        all_users = User._get_all()
+        for user in all_users:
+            if 'username' in user:
+                output.append({'username': user['username']})
+            else:   # wacky - hacky - not nice
+                output.append([(str(i), str(user[i])) for i in user])
         # formatting
         self.logger.info('User list fetched. ({})'.format(output))
         response = {'result': output}
@@ -44,7 +48,7 @@ class UserResource(Resource):
 
     def delete(self):
         # delete all
-        delete_result = User.delete_all()
+        delete_result = User._delete_all()
         self.logger.info('All users were deleted from DB.')
         # return amount of users deleted
         output = str(delete_result.deleted_count) + " users were deleted"
@@ -53,8 +57,3 @@ class UserResource(Resource):
 
     def _get_user_username_from_request(self):
         return request.json['username']
-
-    """
-    def _get_user_age_from_request(self):
-        return request.json['age']
-    """
