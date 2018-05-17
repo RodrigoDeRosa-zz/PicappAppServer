@@ -88,10 +88,11 @@ class User(object):
             assert(field in new_user_data)
             new_user[field] = new_user_data[field]
 
-        # init the blank ones
+        # init the blank/default ones
         new_user['profile_pic'] = None
         new_user['friends'] = {}
         new_user['stories'] = []
+        new_user['name'] = new_user['username']
 
         # return the new profile
         return new_user
@@ -100,7 +101,7 @@ class User(object):
     def _build_profile_from_user(user_data):
         profile = {}
         # retrieve all info fields (the ones that are just plain info)
-        retrieved_info_fields = ['username', 'profile_pic']
+        retrieved_info_fields = ['username', 'profile_pic', 'name']
         for field in retrieved_info_fields:
             profile[field] = user_data[field]
         profile['number of friends'] = len(user_data['friends'])
@@ -120,7 +121,7 @@ class User(object):
         account_info = {}
 
         # retrieve relevant fields
-        retrieved_info_fields = ['username', 'profile_pic']
+        retrieved_info_fields = ['username', 'profile_pic', 'name']
         for field in retrieved_info_fields:
             account_info[field] = user[field]
         # TODO: anything else?
@@ -193,3 +194,12 @@ class User(object):
         # now that the user is isolated, delete it
         User._delete_one(username)
         return username
+
+    @staticmethod
+    def change_account_info(username, new_data):
+        User._update_user_by_username(username, new_data)
+        new_user_data = {}
+        updated_user = _user(username)
+        for field in new_data.keys():
+            new_user_data[field] = updated_user[field]
+        return new_user_data

@@ -18,7 +18,10 @@ class MyAccountTestCase(unittest.TestCase):
     def mocked_build_error_response(self,output,status_code):
         return status_code
 
-    def test_get_myaccount(self):
+    def mocked_change_acc_info(self,username,new_acc_data):
+        return new_acc_data
+
+    def test_get_myaccount_successful(self):
         with patch.object(Token, "identify") as mocked_token_identify,\
              patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
             mocked_builder_response.side_effect = self.mocked_build_response
@@ -130,3 +133,34 @@ class MyAccountTestCase(unittest.TestCase):
             service._get_token_from_header = MagicMock(return_value=token_mock)
             service.shared_server_service.delete_user = MagicMock(return_value=username)
             self.assertEqual(service.delete(username)['username'], username)
+
+    def test_edit_myaccount_missing_field(self):
+        with patch.object(Token, "identify") as mocked_token_identify, \
+             patch.object(ResponseBuilder, "build_response") as mocked_builder_response,\
+             patch.object(User, "change_account_info") as mocked_user_change_acc_info:
+            mocked_builder_response.side_effect = self.mocked_build_error_response
+            username = user_mock_without_stories_or_friends['username']
+            mocked_token_identify.side_effect = MagicMock(return_value=username)
+            mocked_user_change_acc_info.side_effect = MagicMock(return_value=account_info_mock_without_stories_or_friends)
+
+            service = MyAccountResource()
+            service._get_token_from_header = MagicMock(return_value=token_mock)
+            service._get_profile_pic_from_request = MagicMock(return_value=user_mock_without_stories_or_friends['profile_pic'])
+            service._get_name_from_request = MagicMock(side_effect=MissingFieldException("name"))
+            self.assertEqual(service.put(username), 400)
+
+    def test_edit_myaccount_successful(self):
+        with patch.object(Token, "identify") as mocked_token_identify, \
+             patch.object(ResponseBuilder, "build_response") as mocked_builder_response,\
+             patch.object(User, "change_account_info") as mocked_user_change_acc_info:
+            mocked_builder_response.side_effect = lambda output, status_code=200: status_code
+            username = user_mock_without_stories_or_friends['username']
+            mocked_token_identify.side_effect = MagicMock(return_value=username)
+            mocked_user_change_acc_info.side_effect = self.mocked_change_acc_info
+
+            service = MyAccountResource()
+            service._get_token_from_header = MagicMock(return_value=token_mock)
+            service._get_profile_pic_from_request = MagicMock(return_value=account_info_mock_without_stories_or_friends['profile_pic'])
+            service._get_name_from_request = MagicMock(return_value=account_info_mock_without_stories_or_friends['name'])
+
+            self.assertEqual(service.put(username), 200)

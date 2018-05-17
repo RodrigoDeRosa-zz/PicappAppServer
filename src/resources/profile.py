@@ -34,11 +34,7 @@ class ProfileResource(Resource):
             err_msg = "No user found with that name"
             self.logger.error(err_msg)
             return ResponseBuilder.build_error_response(err_msg, e.error_code)
-        except ExpiredTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except MissingFieldException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except InvalidTokenException as e:
+        except (ExpiredTokenException, MissingFieldException, InvalidTokenException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
         
     # deprecated until user has more info than username and password
@@ -57,25 +53,6 @@ class ProfileResource(Resource):
             output = "No user found with that name"
             self.logger.info('No user was found to update for username: {}'.format(username))
         # formatting
-        response = {'result': output}
-        return ResponseBuilder.build_response(response)
-    """
-    """
-    def _get_age_from_request(self):
-        return request.json['age']
-    """
-
-    """
-    DEPRECATED
-    def delete(self, username):
-        # search one by username and delete
-        user = User.delete_one(username)
-        if user:  # match found
-            output = {'username': user['username']}
-            self.logger.info('User profile deleted. ({})'.format(output))
-        else:  # no matches
-            output = "No user found with that name"
-            self.logger.info('No user was found to delete for username: {}'.format(username))
         response = {'result': output}
         return ResponseBuilder.build_response(response)
     """

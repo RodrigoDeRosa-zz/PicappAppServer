@@ -57,8 +57,3 @@ class UserResource(Resource):
 
     def _get_user_username_from_request(self):
         return request.json['username']
-
-    """
-    def _get_user_age_from_request(self):
-        return request.json['age']
-    """
