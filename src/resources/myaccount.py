@@ -37,11 +37,7 @@ class MyAccountResource(Resource):
             # return response
             return ResponseBuilder.build_response(output)
 
-        except MissingFieldException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except ExpiredTokenException as e:
-            return ResponseBuilder.build_error_response(e.message, e.error_code)
-        except InvalidTokenException as e:
+        except (MissingFieldException, ExpiredTokenException, InvalidTokenException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
 
     def _get_token_from_header(self):
@@ -83,3 +79,38 @@ class MyAccountResource(Resource):
             return ResponseBuilder.build_error_response(str(uee), 500)
         except ConnectionFailException as cfe:
             return ResponseBuilder.build_error_response(str(cfe), 500)
+
+    def put(self, username):
+        try:
+            # get token from header
+            token = self._get_token_from_header()
+
+            # identify with token
+            caller_user = Token.identify(token)
+
+            if caller_user != username:
+                return ResponseBuilder.build_error_response("Username is not own", 403)
+
+            # get edit data from request
+            new_data = {}
+            new_data['profile_pic'] = self._get_profile_pic_from_request()
+            new_data['name'] = self._get_name_from_request()
+
+            # set the new data in DB
+
+            new_user_data = User.change_account_info(username, new_data)
+
+            # generate response
+            output = {}
+
+            # return response
+            return ResponseBuilder.build_response(output)
+
+        except (MissingFieldException, InvalidTokenException, ExpiredTokenException) as e:
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
+
+    def _get_profile_pic_from_request(self):
+        return RequestBuilder.get_field_from_request("profile_pic")
+
+    def _get_name_from_request(self):
+        return RequestBuilder.get_field_from_request("name")
