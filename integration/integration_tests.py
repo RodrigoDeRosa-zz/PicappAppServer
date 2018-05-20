@@ -140,3 +140,35 @@ class IntegrationTestCase(unittest.TestCase):
         expected = expected_delete_account_response_ok
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+    def test_ping(self):
+        """STEP 1: ping OK"""
+        raise NotImplementedError()
+
+    def test_user_RU(self):
+        """STEP 0a: signup
+        STEP 0b: login
+        STEP 1: get account info
+        STEP 2: edit account info
+        STEP Xa: delete account"""
+        raise NotImplementedError()
+
+    def test_friendship(self):
+        """STEP 0a: signup user 1
+        STEP 0b: signup user 2
+        STEP 0c: login user 1
+        STEP 0d: login user 2
+        STEP 1: send friendship YES from 1 to 2 FAILED(wrong token)
+        STEP 2: send friendship YES from 1 to non-existant FAILED (not found)
+        STEP 3: send friendship YES from 1 to 2 OK
+        STEP 4: send friendship NO from 2 to 1 OK
+        STEP 5: send friendship YES from 2 to 1 OK
+        STEP 6: send friendship YES from 1 to 2 OK
+        STEP 7: send friendship YES from 1 to 2 FAILED (already friends)
+        STEP 8: send friendship YES from 2 to 1 FAILED (already friends)
+        STEP 9: send friendship NO from 1 to 2 OK
+        STEP 10: send friendship NO from 1 to 2 FAILED (wrong token)
+        STEP 11: send friendship NO from 1 to 2 FAILED (not friends)
+        STEP Xa: delete user 1
+        STEP Xb: delete user 2"""
+        raise NotImplementedError()
