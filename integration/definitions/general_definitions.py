@@ -25,7 +25,7 @@ def expected_response(body, status_code, headers=None):
 
 
 test_user1 = {
-    "username": "integration_user8",
+    "username": "integration_user10",
     "password": "password1"
 }
 

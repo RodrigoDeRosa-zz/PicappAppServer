@@ -34,3 +34,18 @@ expected_delete_account_response_wrong_user = expected_response(unauthorized_res
 expected_delete_account_response_ok = expected_response({
     "username": test_user1['username']
 }, 200)
+
+expected_get_account_info_failed = expected_response(unauthorized_response_body, 403)
+
+expected_get_account_info_ok = expected_response({
+    "username": test_user1["username"],
+    "name": test_user1["username"],
+    "profile_pic": None
+}, 200)
+
+edit_info_body_ok = {
+    "name": "new_name",
+    "profile_pic": "new_profile_pic"
+}
+
+expected_edit_account_info_ok = expected_response({}, 200)
