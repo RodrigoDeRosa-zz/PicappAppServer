@@ -24,13 +24,20 @@ def expected_response(body, status_code, headers=None):
     return {'body': body, 'status_code': status_code, 'headers': headers}
 
 
+def expected_error_response(status_code):
+    return expected_response({
+        "status_code": status_code,
+        "message": NotNonePlaceholder()
+    }, status_code)
+
+
 test_user1 = {
-    "username": "integration_user10",
+    "username": "integration_user14",
     "password": "password1"
 }
 
 test_user2 = {
-    "username": "integration_test_usr810",
+    "username": "integration_test_usr2_4",
     "password": "password2"
 }
 
@@ -43,3 +50,5 @@ unauthorized_response_body = {
     "status_code": 403,
     "message": NotNonePlaceholder()
 }
+
+

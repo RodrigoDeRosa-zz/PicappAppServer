@@ -9,6 +9,7 @@ import json
 from pprint import pprint
 
 from integration.definitions.user_crud import *
+from integration.definitions.user_friendships import *
 
 HOST = "heroku"
 DEBUG_MODE = True
@@ -192,7 +193,7 @@ class IntegrationTestCase(unittest.TestCase):
         username = login_body_ok['username']
         wrong_username = username + "asd"
 
-        uri = self.root_uri + "/users/"+wrong_username+"/myaccount"
+        uri = self.root_uri + "/users/{}/myaccount".format(wrong_username)
 
         b = json.dumps({})
         r = requests.get(uri,
@@ -206,7 +207,8 @@ class IntegrationTestCase(unittest.TestCase):
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 2: successfully get account info from own user (get account info OK)
-        uri = self.root_uri + "/users/" + username + "/myaccount"
+        uri = self.root_uri + "/users/{}/myaccount".format(username)
+
 
         b = json.dumps({})
         r = requests.get(uri,
@@ -220,7 +222,7 @@ class IntegrationTestCase(unittest.TestCase):
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 3: successfully edit account info (edit account info OK)
-        uri = self.root_uri + "/users/" + username + "/myaccount"
+        uri = self.root_uri + "/users/{}/myaccount".format(username)
 
         b = json.dumps(edit_info_body_ok)
         r = requests.put(uri,
@@ -246,6 +248,28 @@ class IntegrationTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
+    def send_friend_YES(self, source_token, target_username):
+        """Util for test_friendship"""
+        uri = self.root_uri + "/users/{}/friendship".format(target_username)
+        b = json.dumps({})
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json',
+                                   'token': source_token},
+                          timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def send_friend_NO(self, source_token, target_username):
+        """Util for test_friendship"""
+        uri = self.root_uri + "/users/{}/friendship".format(target_username)
+        b = json.dumps({})
+        r = requests.delete(uri,
+                            data=b,
+                            headers={'Content-Type': 'Application/json',
+                                     'token': source_token},
+                            timeout=STANDARD_TIMEOUT)
+        return b, r
+
     def test_friendship(self):
         """STEP 0a: signup user 1
         STEP 0b: signup user 2
@@ -264,4 +288,192 @@ class IntegrationTestCase(unittest.TestCase):
         STEP 11: send friendship NO from 1 to 2 FAILED (not friends)
         STEP Xa: delete user 1
         STEP Xb: delete user 2"""
-        raise NotImplementedError()
+
+        # STEP 0a: signup with user 1
+        uri = self.root_uri + "/users/signup"
+        b = json.dumps(friendship_signup_body_1)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json'},
+                          timeout=STANDARD_TIMEOUT)
+
+        expected = friendship_expected_signup_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0b: signup with user 2
+        uri = self.root_uri + "/users/signup"
+        b = json.dumps(friendship_signup_body_2)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json'},
+                          timeout=STANDARD_TIMEOUT)
+
+        expected = friendship_expected_signup_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0c: log in with user 1
+        uri = self.root_uri + "/users/login"
+        b = json.dumps(friendship_login_body_1)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json'},
+                          timeout=STANDARD_TIMEOUT)
+
+        expected = friendship_expected_login_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username1 = friendship_login_body_1["username"]
+        token1 = str(r.json()['token']['token'])
+
+        # STEP 0d: log in with user 2
+        uri = self.root_uri + "/users/login"
+        b = json.dumps(friendship_login_body_2)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json'},
+                          timeout=STANDARD_TIMEOUT)
+
+        expected = friendship_expected_login_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username2 = friendship_login_body_2["username"]
+        token2 = str(r.json()['token']['token'])
+
+        # STEP 1: send friendship YES from 1 to 2 FAILED (wrong token)
+        target_username = username2
+        source_token = token1+"1"
+
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_send_friend_request_failed_wrong_token
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 2: try to send friendship to non-existent user (YES from 1 to non-existent FAILED)
+        target_username = username2+"asdsda"
+        source_token = token1
+
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_send_friend_request_failed_not_found
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 3: successfully send friendship request (YES from 1 to 2 OK)
+        target_username = username2
+        source_token = token1
+
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_send_friend_request_ok_1_to_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 4: successfully reject friendship request (NO from 2 to 1 OK)
+        target_username = username1
+        source_token = token2
+
+        b, r = self.send_friend_NO(source_token, target_username)
+
+        expected = expected_reject_friend_request_ok_2_to_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 5: successfully send friendship request (YES from 2 to 1 OK)
+        target_username = username1
+        source_token = token2
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_send_friend_request_ok_2_to_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 6: successfully accept friendship request (YES from 1 to 2 OK)
+        target_username = username2
+        source_token = token1
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_accept_friend_request_ok_1_to_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 7: trying to become friends with a friend fails (YES from 1 to 2 FAILED)
+        target_username = username2
+        source_token = token1
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_accept_friend_request_failed
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 8: trying to become friends with a friend fails (YES from 2 to 1 FAILED)
+        target_username = username1
+        source_token = token2
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_accept_friend_request_failed
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 9: successfully dissolve friendship (NO from 1 to 2 OK)
+        target_username = username2
+        source_token = token1
+
+        b, r = self.send_friend_NO(source_token, target_username)
+
+        expected = expected_dissolve_friend_request_ok_1_to_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 10: try to dissolve friendship from 1 to 2 FAILED (wrong token)
+        target_username = username2
+        source_token = token1+"2"
+
+        b, r = self.send_friend_NO(source_token, target_username)
+
+        expected = expected_send_friend_request_failed_wrong_token
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 11: try to dissolve friendship but not friends (NO from 1 to 2 FAILED)
+        target_username = username2
+        source_token = token1
+
+        b, r = self.send_friend_NO(source_token, target_username)
+
+        expected = expected_send_friend_request_failed_not_friends
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Xa: delete user1
+        uri = self.root_uri + "/users/{}/myaccount".format(username1)
+        b = json.dumps(friendship_delete_myaccount_body_ok_1)
+        r = requests.delete(uri,
+                            data=b,
+                            headers={'Content-Type': 'Application/json',
+                                     'token': token1},
+                            timeout=STANDARD_TIMEOUT)
+
+        expected = friendship_expected_delete_account_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Xb: delete user2
+        uri = self.root_uri + "/users/{}/myaccount".format(username2)
+        b = json.dumps(friendship_delete_myaccount_body_ok_2)
+        r = requests.delete(uri,
+                            data=b,
+                            headers={'Content-Type': 'Application/json',
+                                     'token': token2},
+                            timeout=STANDARD_TIMEOUT)
+
+        expected = friendship_expected_delete_account_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
