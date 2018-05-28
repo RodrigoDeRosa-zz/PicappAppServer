@@ -43,6 +43,37 @@ class IntegrationTestCase(unittest.TestCase):
         self.root_uri = get_uri_from_host()
         print("root uri is: "+self.root_uri)
 
+    def sign_up_user(self, body):
+        """util for almost all tests"""
+        uri = self.root_uri + "/users/signup"
+        b = json.dumps(body)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json'},
+                          timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def log_in_user(self, body):
+        """util for almost all tests"""
+        uri = self.root_uri + "/users/login"
+        b = json.dumps(body)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json'},
+                          timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def delete_user(self, username, body, token):
+        """util for almost all tests"""
+        uri = self.root_uri + "/users/{}/myaccount".format(username)
+        b = json.dumps(body)
+        r = requests.delete(uri,
+                            data=b,
+                            headers={'Content-Type': 'Application/json',
+                                     'token': token},
+                            timeout=STANDARD_TIMEOUT)
+        return b, r
+
     def test_user_CD(self):
         """STEP 1: signup OK
         STEP 2: signup FAILED(user taken)
@@ -53,47 +84,29 @@ class IntegrationTestCase(unittest.TestCase):
         STEP 7: delete account OK"""
 
         # STEP 1: sign up with new valid user (signup OK)
-        uri = self.root_uri + "/users/signup"
-        b = json.dumps(signup_body)
-        r = requests.post(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+
+        b, r = self.sign_up_user(signup_body)
 
         expected = expected_signup_response_ok
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 2: sign up with taken user (signup FAILED(taken))
-        uri = self.root_uri + "/users/signup"
-        r = requests.post(uri,
-                          data=json.dumps(signup_body),
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+        b, r = self.sign_up_user(signup_body)
 
         expected = expected_signup_response_already_taken
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 3: login with non existant user (login FAILED(not found))
-        uri = self.root_uri + "/users/login"
-        b = json.dumps(login_body_not_found)
-        r = requests.post(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+        b, r = self.log_in_user(login_body_not_found)
 
         expected = expected_login_response_not_found
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 4: login with valid user (login OK)
-        uri = self.root_uri + "/users/login"
-        b = json.dumps(login_body_ok)
-        r = requests.post(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+        b, r = self.log_in_user(login_body_ok)
 
         expected = expected_login_response_ok
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
@@ -103,40 +116,21 @@ class IntegrationTestCase(unittest.TestCase):
         token = str(r.json()['token']['token'])
 
         # STEP 5: try to delete account but wrong token (delete account FAILED(wrong token))
-        uri = self.root_uri + "/users/{}/myaccount".format(login_body_ok['username'])
-        print("uri is "+uri+"\n")
-        b = json.dumps(delete_myaccount_body_ok)
-        r = requests.delete(uri,
-                            data=b,
-                            headers={'Content-Type': 'Application/json',
-                                     'token': str(int(token)+1)},
-                            timeout=STANDARD_TIMEOUT)
+        b, r = self.delete_user(login_body_ok['username'], delete_myaccount_body_ok, token+"1")
 
         expected = expected_delete_account_response_wrong_token
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 6: delete account FAILED (wrong user)
-        uri = self.root_uri + "/users/{}/myaccount".format(login_body_ok['username']+"asd")
-        b = json.dumps(delete_myaccount_body_ok)
-        r = requests.delete(uri,
-                            data=b,
-                            headers={'Content-Type': 'Application/json',
-                                     'token': token},
-                            timeout=STANDARD_TIMEOUT)
+        b, r = self.delete_user(login_body_ok['username'] + "asd", delete_myaccount_body_ok, token)
 
         expected = expected_delete_account_response_wrong_user
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 7: successfully delete account (delete account OK)
-        uri = self.root_uri + "/users/{}/myaccount".format(login_body_ok['username'])
-        b = json.dumps(delete_myaccount_body_ok)
-        r = requests.delete(uri,
-                            data=b,
-                            headers={'Content-Type': 'Application/json',
-                                     'token': token},
-                            timeout=STANDARD_TIMEOUT)
+        b, r = self.delete_user(login_body_ok['username'], delete_myaccount_body_ok, token)
 
         expected = expected_delete_account_response_ok
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
@@ -163,24 +157,14 @@ class IntegrationTestCase(unittest.TestCase):
         STEP Xa: delete account"""
 
         # STEP 0a: sign up with an account
-        uri = self.root_uri + "/users/signup"
-        b = json.dumps(signup_body)
-        r = requests.post(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+        b, r = self.sign_up_user(signup_body)
 
         expected = expected_signup_response_ok
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 0b: login with that account
-        uri = self.root_uri + "/users/login"
-        b = json.dumps(login_body_ok)
-        r = requests.post(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+        b, r = self.log_in_user(login_body_ok)
 
         expected = expected_login_response_ok
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
@@ -236,13 +220,7 @@ class IntegrationTestCase(unittest.TestCase):
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP Xa: delete account
-        uri = self.root_uri + "/users/{}/myaccount".format(login_body_ok['username'])
-        b = json.dumps(delete_myaccount_body_ok)
-        r = requests.delete(uri,
-                            data=b,
-                            headers={'Content-Type': 'Application/json',
-                                     'token': token},
-                            timeout=STANDARD_TIMEOUT)
+        b, r = self.delete_user(login_body_ok['username'], delete_myaccount_body_ok, token)
 
         expected = expected_delete_account_response_ok
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
@@ -290,36 +268,21 @@ class IntegrationTestCase(unittest.TestCase):
         STEP Xb: delete user 2"""
 
         # STEP 0a: signup with user 1
-        uri = self.root_uri + "/users/signup"
-        b = json.dumps(friendship_signup_body_1)
-        r = requests.post(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+        b, r = self.sign_up_user(friendship_signup_body_1)
 
         expected = friendship_expected_signup_response_ok_1
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 0b: signup with user 2
-        uri = self.root_uri + "/users/signup"
-        b = json.dumps(friendship_signup_body_2)
-        r = requests.post(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+        b, r = self.sign_up_user(friendship_signup_body_2)
 
         expected = friendship_expected_signup_response_ok_2
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP 0c: log in with user 1
-        uri = self.root_uri + "/users/login"
-        b = json.dumps(friendship_login_body_1)
-        r = requests.post(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+        b, r = self.log_in_user(friendship_login_body_1)
 
         expected = friendship_expected_login_response_ok_1
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
@@ -330,12 +293,7 @@ class IntegrationTestCase(unittest.TestCase):
         token1 = str(r.json()['token']['token'])
 
         # STEP 0d: log in with user 2
-        uri = self.root_uri + "/users/login"
-        b = json.dumps(friendship_login_body_2)
-        r = requests.post(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+        b, r = self.log_in_user(friendship_login_body_2)
 
         expected = friendship_expected_login_response_ok_2
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
@@ -452,26 +410,14 @@ class IntegrationTestCase(unittest.TestCase):
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP Xa: delete user1
-        uri = self.root_uri + "/users/{}/myaccount".format(username1)
-        b = json.dumps(friendship_delete_myaccount_body_ok_1)
-        r = requests.delete(uri,
-                            data=b,
-                            headers={'Content-Type': 'Application/json',
-                                     'token': token1},
-                            timeout=STANDARD_TIMEOUT)
+        b, r = self.delete_user(username1, friendship_delete_myaccount_body_ok_1, token1)
 
         expected = friendship_expected_delete_account_response_ok_1
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP Xb: delete user2
-        uri = self.root_uri + "/users/{}/myaccount".format(username2)
-        b = json.dumps(friendship_delete_myaccount_body_ok_2)
-        r = requests.delete(uri,
-                            data=b,
-                            headers={'Content-Type': 'Application/json',
-                                     'token': token2},
-                            timeout=STANDARD_TIMEOUT)
+        b, r = self.delete_user(username2, friendship_delete_myaccount_body_ok_2, token2)
 
         expected = friendship_expected_delete_account_response_ok_2
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))

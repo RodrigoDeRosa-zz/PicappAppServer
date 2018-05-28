@@ -32,12 +32,12 @@ def expected_error_response(status_code):
 
 
 test_user1 = {
-    "username": "integration_user14",
+    "username": "integration_user15",
     "password": "password1"
 }
 
 test_user2 = {
-    "username": "integration_test_usr2_4",
+    "username": "integration_test_usr2_5",
     "password": "password2"
 }
 
