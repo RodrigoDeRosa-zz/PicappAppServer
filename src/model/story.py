@@ -5,6 +5,12 @@ from src.model.user import User, UserNotFoundException, _user
 from bson.objectid import ObjectId
 
 
+class StoryNotFoundException(Exception):
+    def __init__(self):
+        self.message = "Story was not found"
+        self.error_code = 404
+
+
 class Story(object):
 
     @staticmethod
@@ -58,7 +64,7 @@ class Story(object):
     def _make_new_story(new_story_data):
         new_story = {}
         # define the required fields
-        required_fields = ['username', 'timestamp', 'is_private', 'location']
+        required_fields = ['username', 'timestamp', 'is_private', 'location', 'media']
         optional_fields = ['title', 'description']
         default_optional_values = {'title': "", 'description': ""}
 
@@ -115,3 +121,26 @@ class Story(object):
         # add it to the array
         # user['stories'].append(story_id)
         User._push_to_user_by_username(username, {'stories': story_id})
+
+    @staticmethod
+    def get_story(story_id):
+        """Get story represented by story_id formatted to be JSON serializable, or raise
+         StoryNotFound exception if no story was found"""
+        story = Story._get_one_by_id(story_id)
+        if story is None:
+            raise StoryNotFoundException
+        return Story._serialize_to_dict(story)
+
+    @staticmethod
+    def _serialize_to_dict(story_obj):
+        # _make_new_story can be abused to make a new dict from an obj rather than data
+        serialized = Story._make_new_story(story_obj)
+
+        # patch booleans
+        for k, v in serialized.items():
+            if k in ['is_private']:
+                serialized[k] = "true" if v else "false"
+
+        # TODO: convert reactions and comments to something "understandable"
+
+        return serialized
