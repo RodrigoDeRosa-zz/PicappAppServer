@@ -346,6 +346,7 @@ class IntegrationTestCase(unittest.TestCase):
         # STEP 5: successfully send friendship request (YES from 2 to 1 OK)
         target_username = username1
         source_token = token2
+        
         b, r = self.send_friend_YES(source_token, target_username)
 
         expected = expected_send_friend_request_ok_2_to_1
@@ -355,6 +356,7 @@ class IntegrationTestCase(unittest.TestCase):
         # STEP 6: successfully accept friendship request (YES from 1 to 2 OK)
         target_username = username2
         source_token = token1
+
         b, r = self.send_friend_YES(source_token, target_username)
 
         expected = expected_accept_friend_request_ok_1_to_2
@@ -364,6 +366,7 @@ class IntegrationTestCase(unittest.TestCase):
         # STEP 7: trying to become friends with a friend fails (YES from 1 to 2 FAILED)
         target_username = username2
         source_token = token1
+
         b, r = self.send_friend_YES(source_token, target_username)
 
         expected = expected_accept_friend_request_failed
@@ -373,6 +376,7 @@ class IntegrationTestCase(unittest.TestCase):
         # STEP 8: trying to become friends with a friend fails (YES from 2 to 1 FAILED)
         target_username = username1
         source_token = token2
+
         b, r = self.send_friend_YES(source_token, target_username)
 
         expected = expected_accept_friend_request_failed
