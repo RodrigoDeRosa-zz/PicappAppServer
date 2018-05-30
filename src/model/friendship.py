@@ -70,7 +70,8 @@ class Friendship(object):
     def _are_friends(username1, username2):
         Logger(__name__).info('Evaluating whether users {} and {} are friends.'.format(username1,
                                                                                        username2))
-        if _user(username1)['friends'][username2] == FRIENDSHIP_STATE_FRIENDS:
+        if username2 in _user(username1)['friends'] and \
+                _user(username1)['friends'][username2] == FRIENDSHIP_STATE_FRIENDS:
             return True
         return False
 
@@ -167,3 +168,7 @@ class Friendship(object):
             Friendship._had_sent_request(destiny_username, origin_username)
 
         return Friendship._reject_friendship(origin_username, destiny_username)
+
+    @staticmethod
+    def are_friends(username1, username2):
+        return Friendship._are_friends(username1, username2)
