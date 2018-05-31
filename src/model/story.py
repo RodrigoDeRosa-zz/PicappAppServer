@@ -144,3 +144,10 @@ class Story(object):
         # TODO: convert reactions and comments to something "understandable"
 
         return serialized
+
+    @staticmethod
+    def react_to_story(story_id, username, sanitized_reaction):
+        """React to story represented by story_id as username, with reaction 'reaction'"""
+        updated_story = Story._update_story(story_id, {"reactions."+username: sanitized_reaction})
+        Logger(__name__).info("User {} has reacted {} to Story_id {}.".format(username, sanitized_reaction, story_id))
+        return updated_story["reactions"][username]

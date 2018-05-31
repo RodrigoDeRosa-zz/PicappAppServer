@@ -6,8 +6,7 @@ from src.model.story import Story, User, UserNotFoundException, StoryNotFoundExc
 from tests.mocks.user_mock import user_mock_without_stories_or_friends
 from tests.mocks.object_id_mock import object_id_mock
 from tests.mocks.story_data_mock import story_data_mock_with_title_and_description
-from tests.mocks.story_mock import story_mock_public_without_comments_or_reactions, \
-    story_mock_private_without_comments_or_reactions
+from tests.mocks.story_mock import *
 
 
 class StoryTestCase(unittest.TestCase):
@@ -84,3 +83,14 @@ class StoryTestCase(unittest.TestCase):
             mocked_story_id = object_id_mock
 
             self.assertEqual(Story.get_story(mocked_story_id), aux)
+
+    def test_successful_post_reaction(self):
+        with patch.object(Story, "_update_story") as mocked_story_update:
+            aux = story_mock_private_with_reaction.copy()
+            mocked_story_update.side_effect = MagicMock(return_value=story_mock_private_with_reaction)
+
+            mocked_story_id = object_id_mock
+            mocked_username, mocked_reaction = [(k,v) for k,v in aux["reactions"].items()][0]
+
+            self.assertEqual(Story.react_to_story(mocked_story_id, mocked_username, mocked_reaction),
+                             mocked_reaction)

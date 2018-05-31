@@ -13,6 +13,7 @@ from src.resources.cleaner import CleanerResource
 from src.resources.friendship import FriendshipResource
 from src.resources.stories import StoriesResource
 from src.resources.story import StoryResource
+from src.resources.story_reaction import StoryReactionResource
 
 LOCAL_MONGO = 'mongodb://localhost:27017/restdb'
 CLOUD_MONGO = 'mongodb://heroku_lw3s78tf:dhk2glio3fs16ket6aapjc2867@ds229549.mlab.com:29549/heroku_lw3s78tf'
@@ -33,6 +34,7 @@ api.add_resource(CleanerResource, "/admin/clean")
 api.add_resource(FriendshipResource, "/users/<username>/friendship")
 api.add_resource(StoriesResource, "/stories")
 api.add_resource(StoryResource, "/stories/<story_id>")
+api.add_resource(StoryReactionResource, "/stories/<story_id>/reactions")
 
 
 def run_app(local=True, external_server=False):
