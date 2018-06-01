@@ -1,12 +1,16 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.model.story import Story, User, UserNotFoundException, StoryNotFoundException
+from src.model.story import Story, User, UserNotFoundException, StoryNotFoundException, StoryReactionNotFoundException
 
 from tests.mocks.user_mock import user_mock_without_stories_or_friends
 from tests.mocks.object_id_mock import object_id_mock
 from tests.mocks.story_data_mock import story_data_mock_with_title_and_description
 from tests.mocks.story_mock import *
+
+
+def first_item_of_dict(dicc):
+    return [(k, v) for k, v in dicc.items()][0]
 
 
 class StoryTestCase(unittest.TestCase):
@@ -90,7 +94,27 @@ class StoryTestCase(unittest.TestCase):
             mocked_story_update.side_effect = MagicMock(return_value=story_mock_private_with_reaction)
 
             mocked_story_id = object_id_mock
-            mocked_username, mocked_reaction = [(k,v) for k,v in aux["reactions"].items()][0]
+            mocked_username, mocked_reaction = first_item_of_dict(aux["reactions"])
 
             self.assertEqual(Story.react_to_story(mocked_story_id, mocked_username, mocked_reaction),
                              mocked_reaction)
+
+    def test_delete_successful_delete_reaction(self):
+        with patch.object(Story, "_delete_field_on_story") as mocked_delete_reaction:
+            mocked_delete_reaction.side_effect = MagicMock(return_value=story_mock_private_with_reaction)
+
+            mocked_username, mocked_reaction = first_item_of_dict(story_mock_private_with_reaction["reactions"])
+
+            self.assertEqual(Story.delete_reaction(object_id_mock, mocked_username), mocked_reaction)
+
+    def test_delete_delete_reaction_not_found(self):
+        with patch.object(Story, "_delete_field_on_story") as mocked_delete_reaction,\
+             self.assertRaises(StoryReactionNotFoundException) as context:
+            mocked_delete_reaction.side_effect = MagicMock(return_value=None)
+
+            mocked_username, mocked_reaction = first_item_of_dict(story_mock_private_with_reaction)
+
+            Story.delete_reaction(object_id_mock, "pedro")
+        exc = context.exception
+        self.assertEqual(exc.error_code, 404)
+        self.assertEqual(exc.message, "Story reaction was not found")

@@ -12,6 +12,7 @@ from tests.mocks.user_info_mock import user_info_mock
 from tests.mocks.object_id_mock import object_id_mock
 from tests.mocks.story_reaction_mock import story_reaction_mock_like
 
+
 class StoryReactionResourceTestCase(unittest.TestCase):
 
     def mocked_identify(self, token):

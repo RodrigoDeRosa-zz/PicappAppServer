@@ -10,6 +10,10 @@ class StoryNotFoundException(Exception):
         self.message = "Story was not found"
         self.error_code = 404
 
+class StoryReactionNotFoundException(Exception):
+    def __init__(self):
+        self.message = "Story reaction was not found"
+        self.error_code = 404
 
 class Story(object):
 
@@ -59,6 +63,19 @@ class Story(object):
     def _delete_one(story_id):
         Logger(__name__).info('Deleting story {}.'.format(story_id))
         return Story._get_stories_db().find_one_and_delete({'username': story_id})
+
+    @staticmethod
+    def _delete_field_on_story(story_id, deleted_field_dict):
+        Logger(__name__).info('Deleting field {} on story {}'.format(deleted_field_dict, story_id))
+        return mongo.db.stories.find_one_and_update(filter={'_id': ObjectId(story_id)},
+                                                    update={"unset": deleted_field_dict})
+
+    @staticmethod
+    def _pull_array_item_from_story(story_id, pulled_field_dict):
+        Logger(__name__).info('Pulling array item {} from story {}'.format(pulled_field_dict, story_id))
+        return mongo.db.stories.find_one_and_update(filter={'_id': ObjectId(story_id)},
+                                                    update={"pull": pulled_field_dict},
+                                                    return_document=ReturnDocument.AFTER)
 
     @staticmethod
     def _make_new_story(new_story_data):
@@ -150,4 +167,12 @@ class Story(object):
         """React to story represented by story_id as username, with reaction 'reaction'"""
         updated_story = Story._update_story(story_id, {"reactions."+username: sanitized_reaction})
         Logger(__name__).info("User {} has reacted {} to Story_id {}.".format(username, sanitized_reaction, story_id))
+        return updated_story["reactions"][username]
+
+    @staticmethod
+    def delete_reaction(story_id, username):
+        """Delete username's reaction on the story represented by story_id."""
+        updated_story = Story._delete_field_on_story(story_id, {"reactions."+username: ""})
+        if updated_story is None:
+            raise StoryReactionNotFoundException
         return updated_story["reactions"][username]
