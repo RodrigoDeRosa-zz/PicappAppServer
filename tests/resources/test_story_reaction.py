@@ -2,7 +2,6 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from src.resources.story_reaction import StoryReactionResource, Story, MissingFieldException, StoryNotFoundException
-from src.security.input_sanitizer import InputSanitizer, InvalidFormatException
 from src.security.token import Token
 from src.utils.response_builder import ResponseBuilder
 from src.model.story_reaction_types import *

@@ -75,6 +75,13 @@ class User(object):
                                                   return_document=ReturnDocument.AFTER)
 
     @staticmethod
+    def _pull_array_item_from_user(username, pulled_field_dict):
+        Logger(__name__).info('Pulling array item {} from user {}'.format(pulled_field_dict, username))
+        return mongo.db.users.find_one_and_update(filter={'username': username},
+                                                    update={"$pull": pulled_field_dict},
+                                                    return_document=ReturnDocument.AFTER)
+
+    @staticmethod
     def _delete_one(username):
         Logger(__name__).info('Deleting user {}.'.format(username))
         return User._get_users_db().find_one_and_delete({'username': username})
@@ -188,7 +195,7 @@ class User(object):
             # friend_user['friends'].pop(username)
             entry = 'friends.'+username
             User._delete_field_by_username(friend_user['username'], {entry: ""})
-        # delete every owned Story and related Reactions and Comments
+        # delete every owned Story and (related Reactions and Comments? should they be deleted?)
         # TODO: ADD WHEN STORIES ARE SUPPORTED
 
         # now that the user is isolated, delete it

@@ -6,7 +6,6 @@
 import requests
 import unittest
 import json
-from pprint import pprint
 
 from integration.definitions.user_crud import *
 from integration.definitions.user_friendships import *

@@ -45,3 +45,33 @@ class StoryResource(Resource):
         except (InvalidTokenException, MissingFieldException, ExpiredTokenException,
                 StoryNotFoundException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
+
+    def delete(self, story_id):
+        try:
+            # get token from header
+            token = self._get_token_from_header()
+
+            # identify with token
+            username = Token.identify(token)
+
+            # get story by story_id
+            story = Story.get_story(story_id)
+
+            # if username is not the uploader return 403
+            story_uploader = story["username"]
+            if username != story_uploader:
+                return ResponseBuilder.build_error_response("Story is not own", 403)
+
+            # delete story
+            deleted_story_obj = Story.delete_story(story_id)
+            deleted_story_id = str(deleted_story_obj)
+
+            # generate response
+            output = {"target_story_id": deleted_story_id}
+
+            # return response
+            return ResponseBuilder.build_response(output)
+
+        except (InvalidTokenException, ExpiredTokenException,
+                StoryNotFoundException,MissingFieldException) as e:
+            return ResponseBuilder.build_error_response(e.message, e.error_code)

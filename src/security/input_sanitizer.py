@@ -43,3 +43,10 @@ class InputSanitizer(object):
             return input_data
         Logger(__name__).info('Input {} not recognized as a story reaction.'.format(str(input_data)))
         raise InvalidFormatException(input_data, "story reaction")
+
+    @staticmethod
+    def sanitize_positive_integer(input_data, accepts_0=False):
+        aux = InputSanitizer.sanitize_integer(input_data)
+        if aux < 0 or (aux == 0 and not accepts_0):
+            raise InvalidFormatException(input_data, "positive integer")
+        return aux
