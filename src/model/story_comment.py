@@ -22,6 +22,11 @@ class StoryComment(object):
         return StoryComment._get_comments_db().find()
 
     @staticmethod
+    def _get_many(query):
+        Logger(__name__).info('Retrieving all story comments matching query {}.'.format(query))
+        return StoryComment._get_comments_db().find(query)
+
+    @staticmethod
     def _get_one(query):
         Logger(__name__).info('Retrieving story comment with query {}.'.format(query))
         return StoryComment._get_comments_db().find_one(query)
@@ -39,6 +44,11 @@ class StoryComment(object):
     def _delete_all():
         Logger(__name__).info('Deleting all story comments.')
         return StoryComment._get_comments_db().delete_many({})
+
+    @staticmethod
+    def _delete_many(query):
+        Logger(__name__).info('Deleting all story comments matching query {}.'.format(query))
+        return StoryComment._get_comments_db().delete_many(query)
 
     @staticmethod
     def _update_story(comment_id, updated_param_dict):
@@ -119,3 +129,22 @@ class StoryComment(object):
     def _serialize_comment(comment_obj):
         return {"timestamp": comment_obj["timestamp"], "commenting_user_id": comment_obj["username"],
                 "comment": comment_obj["comment"]}
+
+    @staticmethod
+    def get_comments_on_story(story_id):
+        """Get all comments for story_id, sorted by timestamp in ascending order."""
+        # get all comments matching story_id
+        serialized_comments = [StoryComment._serialize_comment(comment_obj) for
+                               comment_obj in StoryComment._get_many({'story_id': story_id})]
+
+        # sort inplace in ascending order by timestamp
+        serialized_comments.sort(key=lambda srz_comment: srz_comment["timestamp"])
+
+        # return sorted list
+        return serialized_comments
+
+    @staticmethod
+    def delete_comments_on_story(story_id):
+        """Delete all comments on story_id"""
+        StoryComment._delete_many({'story_id': story_id})
+

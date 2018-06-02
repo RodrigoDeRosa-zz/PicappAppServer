@@ -163,12 +163,8 @@ class Story(object):
         serialized["reactions"] = story_obj["reactions"]
 
         # comments
-        """
-        # TODO: make conversion of comments readable for humans (replace with _serialize_comment?)
-        serialized["comments"] = [x for x in mongo.db.story_comments.find({'story_id': str(story_obj['_id'])})]
-        for elem in serialized["comments"]:
-            elem.pop("_id")
-        """
+        serialized["comments"] = StoryComment.get_comments_on_story(str(story_obj['_id']))
+
         return serialized
 
     @staticmethod
@@ -206,6 +202,7 @@ class Story(object):
     @staticmethod
     def _safe_delete_story(story_id):
         # delete reactions and comments, and possible links to them
+        StoryComment.delete_comments_on_story(story_id)
 
         # delete the story itself
         deleted_story = Story._delete_one(story_id)

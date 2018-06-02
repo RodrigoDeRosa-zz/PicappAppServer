@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.model.story import Story, User, UserNotFoundException, StoryNotFoundException, StoryReactionNotFoundException
+from src.model.story import Story, User, UserNotFoundException, StoryNotFoundException, StoryReactionNotFoundException, StoryComment
 
 from tests.mocks.user_mock import user_mock_without_stories_or_friends
 from tests.mocks.object_id_mock import object_id_mock
@@ -63,28 +63,34 @@ class StoryTestCase(unittest.TestCase):
         self.assertEqual(exc.error_code, 404)
 
     def test_successful_get_story_public(self):
-        with patch.object(Story, "_get_one_by_id") as mocked_story_get:
+        with patch.object(Story, "_get_one_by_id") as mocked_story_get,\
+             patch.object(StoryComment, "get_comments_on_story") as mocked_get_comments:
             # prepare special mock
             aux = story_mock_public_without_comments_or_reactions
             internal_story_mock = dict(aux)
             internal_story_mock["is_private"] = False
             internal_story_mock["timestamp"] = 1615456
+            internal_story_mock["_id"] = object_id_mock
 
             mocked_story_get.side_effect = MagicMock(return_value=internal_story_mock)
             mocked_story_id = object_id_mock
+            mocked_get_comments.side_effect = MagicMock(return_value=[])
 
             self.assertEqual(Story.get_story(mocked_story_id), aux)
 
     def test_successful_get_story_private(self):
-        with patch.object(Story, "_get_one_by_id") as mocked_story_get:
+        with patch.object(Story, "_get_one_by_id") as mocked_story_get,\
+             patch.object(StoryComment, "get_comments_on_story") as mocked_get_comments:
             # prepare special mock
             aux = story_mock_private_without_comments_or_reactions
             internal_story_mock = dict(aux)
             internal_story_mock["is_private"] = True
             internal_story_mock["timestamp"] = 1615456
+            internal_story_mock["_id"] = object_id_mock
 
             mocked_story_get.side_effect = MagicMock(return_value=internal_story_mock)
             mocked_story_id = object_id_mock
+            mocked_get_comments.side_effect = MagicMock(return_value=[])
 
             self.assertEqual(Story.get_story(mocked_story_id), aux)
 
@@ -124,26 +130,30 @@ class StoryTestCase(unittest.TestCase):
 
     def test_successful_delete_story(self):
         with patch.object(Story, "_delete_one") as mocked_delete_one,\
-             patch.object(User, "_pull_array_item_from_user") as mocked_pull_from_user:
+             patch.object(User, "_pull_array_item_from_user") as mocked_pull_from_user,\
+             patch.object(StoryComment, "delete_comments_on_story") as mocked_delete_comments:
 
             mocked_internal_story = dict(story_mock_private_with_reaction)
             mocked_internal_story["_id"] = object_id_mock
 
             mocked_delete_one.side_effect = MagicMock(return_value=mocked_internal_story)
-            mocked_pull_from_user.side_effect = lambda x, y: x  # actually do nothing
+            mocked_pull_from_user.side_effect = MagicMock()  # do nothing
+            mocked_delete_comments.side_effect = MagicMock()  # do nothing
 
             self.assertEqual(Story.delete_story(object_id_mock), object_id_mock)
 
     def test_delete_story_not_found(self):
         with patch.object(Story, "_delete_one") as mocked_delete_one,\
              patch.object(User, "_pull_array_item_from_user") as mocked_pull_from_user,\
-             self.assertRaises(StoryNotFoundException) as context:
+             self.assertRaises(StoryNotFoundException) as context,\
+             patch.object(StoryComment, "delete_comments_on_story") as mocked_delete_comments:
 
             mocked_internal_story = dict(story_mock_private_with_reaction)
             mocked_internal_story["_id"] = object_id_mock
 
             mocked_delete_one.side_effect = MagicMock(return_value=None)
-            mocked_pull_from_user.side_effect = lambda x, y: x  # actually do nothing
+            mocked_pull_from_user.side_effect = MagicMock()  # do nothing
+            mocked_delete_comments.side_effect = MagicMock()  # do nothing
 
             Story.delete_story(object_id_mock)
         exc = context.exception

@@ -73,5 +73,5 @@ class StoryResource(Resource):
             return ResponseBuilder.build_response(output)
 
         except (InvalidTokenException, ExpiredTokenException,
-                StoryNotFoundException,MissingFieldException) as e:
+                StoryNotFoundException, MissingFieldException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)

@@ -131,7 +131,6 @@ class User(object):
         retrieved_info_fields = ['username', 'profile_pic', 'name']
         for field in retrieved_info_fields:
             account_info[field] = user[field]
-        # TODO: anything else?
 
         # return the info
         return account_info
