@@ -118,3 +118,61 @@ class StoryResourceTestCase(unittest.TestCase):
             service._get_token_from_header = MagicMock(return_value=token_mock['token'])
 
             self.assertEqual(service.get(object_id_mock), 403)
+
+    def test_failed_delete_story_not_own(self):
+        with patch.object(Token, "identify") as mocked_token, \
+                patch.object(Story, "get_story") as mocked_get_story, \
+                patch.object(ResponseBuilder, "build_response")as mocked_response_builder,\
+                patch.object(Story, "delete_story") as mocked_delete_story:
+
+            aux = dict(story_mock_private_without_comments_or_reactions)
+            aux['username'] = self.mocked_identify("")+"asd"  # make it so that uploader is NOT the one requesting
+
+            mocked_token.side_effect = self.mocked_identify
+            mocked_get_story.side_effect = MagicMock(return_value=aux)
+            mocked_response_builder.side_effect = self.mocked_build_error_response
+            mocked_delete_story.side_effect = MagicMock(return_value=aux)
+
+            service = StoryResource()
+            service._get_token_from_header = MagicMock(return_value=token_mock['token'])
+
+            self.assertEqual(service.delete(object_id_mock), 403)
+
+    def test_failed_delete_story_not_found(self):
+        with patch.object(Token, "identify") as mocked_token, \
+                patch.object(Story, "get_story") as mocked_get_story, \
+                patch.object(ResponseBuilder, "build_response")as mocked_response_builder,\
+                patch.object(Story, "delete_story") as mocked_delete_story:
+
+            aux = story_mock_private_without_comments_or_reactions
+
+            mocked_token.side_effect = self.mocked_identify
+            mocked_get_story.side_effect = MagicMock(side_effect=StoryNotFoundException)
+            mocked_response_builder.side_effect = self.mocked_build_error_response
+            mocked_delete_story.side_effect = MagicMock(return_value=aux)
+
+            service = StoryResource()
+            service._get_token_from_header = MagicMock(return_value=token_mock['token'])
+
+            self.assertEqual(service.delete(object_id_mock), 404)
+
+    def test_successful_delete_story(self):
+        with patch.object(Token, "identify") as mocked_token, \
+                patch.object(Story, "get_story") as mocked_get_story, \
+                patch.object(ResponseBuilder, "build_response")as mocked_response_builder, \
+                patch.object(Story, "delete_story") as mocked_delete_story:
+
+            aux = story_mock_public_without_comments_or_reactions
+
+            internal_story_mock = dict(aux)
+            internal_story_mock['_id'] = object_id_mock
+
+            mocked_token.side_effect = self.mocked_identify
+            mocked_get_story.side_effect = MagicMock(return_value=aux)
+            mocked_response_builder.side_effect = self.mocked_build_response
+            mocked_delete_story.side_effect = MagicMock(return_value=object_id_mock)
+
+            service = StoryResource()
+            service._get_token_from_header = MagicMock(return_value=token_mock["token"])
+
+            self.assertEqual(service.delete(object_id_mock)["target_story_id"], object_id_mock)

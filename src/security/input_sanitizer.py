@@ -1,4 +1,5 @@
 from src.utils.logger_config import Logger
+from src.model.story_reaction_types import ALLOWED_STORY_REACTIONS
 
 
 class InvalidFormatException(Exception):
@@ -33,3 +34,19 @@ class InputSanitizer(object):
         except ValueError:
             Logger(__name__).info('Input {} not recognized as an integer.'.format(str(input_data)))
             raise InvalidFormatException(input_data, "integer")
+
+    @staticmethod
+    def sanitize_story_reaction(input_data):
+        input_data = input_data.lower()
+        if input_data in ALLOWED_STORY_REACTIONS:
+            Logger(__name__).info('Input {} successfully recognized as a story reaction.'.format(str(input_data)))
+            return input_data
+        Logger(__name__).info('Input {} not recognized as a story reaction.'.format(str(input_data)))
+        raise InvalidFormatException(input_data, "story reaction")
+
+    @staticmethod
+    def sanitize_positive_integer(input_data, accepts_0=False):
+        aux = InputSanitizer.sanitize_integer(input_data)
+        if aux < 0 or (aux == 0 and not accepts_0):
+            raise InvalidFormatException(input_data, "positive integer")
+        return aux

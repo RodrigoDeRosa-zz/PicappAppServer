@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 
 # usage: pytest integration/integration_tests.py
-# TODO: add environments other than heroku
 
 import requests
 import unittest
 import json
-from pprint import pprint
 
 from integration.definitions.user_crud import *
 from integration.definitions.user_friendships import *
+from integration.definitions.story_crud import *
 
-HOST = "heroku"
+HOST = "local"
 DEBUG_MODE = True
 STANDARD_TIMEOUT = 999  # seconds
 
@@ -19,10 +18,10 @@ STANDARD_TIMEOUT = 999  # seconds
 def get_uri_from_host():
     target_roots = {"heroku": 'https://picapp-app-server.herokuapp.com',
                     "docker": 'localhost:5000',
-                    "local": 'localhost:8000'}
+                    "local": 'http://localhost:8000'}
 
-    # TODO:for now only heroku is supported
-    assert HOST == "heroku"
+    # TODO:for now only heroku and local are supported
+    assert HOST in ["heroku", "local"]
 
     # get the host root
     return target_roots[HOST]
@@ -427,3 +426,392 @@ class IntegrationTestCase(unittest.TestCase):
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
+        """STEP 0a: signup user 1
+        STEP 0b: signup user 2
+        STEP 0c: login user 1
+        STEP 0d: login user 2
+        STEP Xa: delete user 1
+        STEP Xb: delete user 2"""
+
+    def post_story(self, body, token):
+        """Util for tests on stories"""
+        uri = self.root_uri + "/stories"
+        b = json.dumps(body)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json',
+                                   'token': token},
+                          timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def get_story(self, story_id, token):
+        """Util for tests on stories"""
+        uri = self.root_uri + "/stories/{}".format(story_id)
+        b = json.dumps({})
+        r = requests.get(uri,
+                         data=b,
+                         headers={'Content-Type': 'Application/json',
+                                  'token': token},
+                         timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def delete_story(self, story_id, token):
+        """Util for tests on stories"""
+        uri = self.root_uri + "/stories/{}".format(story_id)
+        b = json.dumps({})
+        r = requests.delete(uri,
+                            data=b,
+                            headers={'Content-Type': 'Application/json',
+                                     'token': token},
+                            timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def react_to_story(self, body, story_id, token):
+        """Util for tests on stories"""
+        uri = self.root_uri + "/stories/{}/reactions".format(story_id)
+        b = json.dumps(body)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json',
+                                   'token': token},
+                          timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def comment_on_story(self, body, story_id, token):
+        """Util for tests on stories"""
+        uri = self.root_uri + "/stories/{}/comments".format(story_id)
+        b = json.dumps(body)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json',
+                                   'token': token},
+                          timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def test_private_story_CRD(self):
+        """STEP 0a: signup user 1
+        STEP 0b: signup user 2
+        STEP 0c: login user 1
+        STEP 0d: login user 2
+        STEP 1: post story as user 1 FAILED (missing a field)
+        STEP 2: post story as user 1 FAILED (timestamp is not integer)
+        STEP 3: post story as user 1 FAILED (is_private is not boolean)
+        STEP 4: post story as user 1 OK
+        STEP 5: get story as user 1 OK
+        STEP 6: get story as user 2 FAILED (not friends)
+        STEP Ma: send FRIENDSHIP YES from 1 to 2
+        STEP Mb: send FRIENDSHIP YES from 2 to 1 (become friends)
+        STEP 7: get story as user 2 OK
+        STEP 8 delete story as user 2 FAILED (not own)
+        STEP 9: delete story as user 1 OK
+        STEP 10: get story as use 1 FAILED (not found)
+        STEP Xa: delete user 1
+        STEP Xb: delete user 2"""
+
+        # STEP 0a: signup with user 1
+        b, r = self.sign_up_user(friendship_signup_body_1)
+
+        expected = friendship_expected_signup_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0b: signup with user 2
+        b, r = self.sign_up_user(friendship_signup_body_2)
+
+        expected = friendship_expected_signup_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0c: log in with user 1
+        b, r = self.log_in_user(friendship_login_body_1)
+
+        expected = friendship_expected_login_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username1 = friendship_login_body_1["username"]
+        token1 = str(r.json()['token']['token'])
+
+        # STEP 0d: log in with user 2
+        b, r = self.log_in_user(friendship_login_body_2)
+
+        expected = friendship_expected_login_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username2 = friendship_login_body_2["username"]
+        token2 = str(r.json()['token']['token'])
+
+        # STEP 1: post story as user 1 FAILED (missing a field)
+        b, r = self.post_story(post_story_login_body_missing_media, token1)
+
+        expected = expected_post_story_missing_media
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 2: post story as user 1 FAILED (timestamp is not integer)
+        b, r = self.post_story(post_story_login_body_timestamp_not_integer, token1)
+
+        expected = expected_post_story_invalid_format
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 3: post story as user 1 FAILED (is_private is not boolean)
+        b, r = self.post_story(post_story_login_body_privacy_not_boolean, token1)
+
+        expected = expected_post_story_invalid_format
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 4: post story as user 1 OK
+        b, r = self.post_story(post_private_story_body_ok, token1)
+
+        expected = expected_private_post_story_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: keep the story_id
+        story_id1 = str(r.json()["story_id"])
+
+        # STEP 5: get story as user 1 OK
+        b, r = self.get_story(story_id1, token1)
+
+        expected = expected_get_story_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 6: get story as user 2 FAILED (not friends)
+        b, r = self.get_story(story_id1, token2)
+
+        expected = expected_get_story_not_friends
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Ma: send FRIENDSHIP YES from 1 to 2 (step 5 of test_friendship)
+        target_username = username1
+        source_token = token2
+
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_send_friend_request_ok_2_to_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Mb: send FRIENDSHIP YES from 2 to 1 (become friends) (step 6 of test_friendship)
+        target_username = username2
+        source_token = token1
+
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_accept_friend_request_ok_1_to_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 7: get story as user 2 OK
+        b, r = self.get_story(story_id1, token2)
+
+        expected = expected_get_story_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 8 delete story as user 2 FAILED (not own)
+        b, r = self.delete_story(story_id1, token2)
+
+        expected = expected_delete_story_not_own
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 9: delete story as user 1 OK
+        b, r = self.delete_story(story_id1, token1)
+
+        expected = expected_delete_story_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 10: get story as use 1 FAILED (not found)
+        b, r = self.get_story(story_id1, token2)
+
+        expected = expected_get_story_not_found
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Xa: delete user1
+        b, r = self.delete_user(username1, friendship_delete_myaccount_body_ok_1, token1)
+
+        expected = friendship_expected_delete_account_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Xb: delete user2
+        b, r = self.delete_user(username2, friendship_delete_myaccount_body_ok_2, token2)
+
+        expected = friendship_expected_delete_account_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+    def test_story_reactions_and_comments(self):
+        """STEP 0a: signup user 1
+        STEP 0b: signup user 2
+        STEP 0c: login user 1
+        STEP 0d: login user 2
+        STEP 0e: post public story as user 1
+        STEP 1: react to story as user 2 FAILED (missing reaction)
+        STEP 2: react to story as user 2 OK (funny)
+        STEP 3: react to story as user 1 OK (like)
+        STEP 4: comment on story as user 1 FAILED (missing field)
+        STEP 5: comment on story as user 1 OK (timestamp t_1)
+        STEP 6: comment on story as user 1 OK (timestamp t_2 > t_1)
+        STEP 7: comment on story as user 2 OK (timestamp t_3 < t_1)
+        STEP 8: get story as user 1 OK (should show both reactions and correct order of comments)
+        STEP 9: react to story as user 1 OK (dislike)
+        STEP 10: react to story as user 2 OK (boring)
+        STEP 11: get story as user 2 OK (should show change in reactions)
+        STEP Xa: delete story
+        STEP Xb: delete user 1
+        STEP Xc: delete user 2"""
+
+        # STEP 0a: signup with user 1
+        b, r = self.sign_up_user(friendship_signup_body_1)
+
+        expected = friendship_expected_signup_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0b: signup with user 2
+        b, r = self.sign_up_user(friendship_signup_body_2)
+
+        expected = friendship_expected_signup_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0c: log in with user 1
+        b, r = self.log_in_user(friendship_login_body_1)
+
+        expected = friendship_expected_login_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username1 = friendship_login_body_1["username"]
+        token1 = str(r.json()['token']['token'])
+
+        # STEP 0d: log in with user 2
+        b, r = self.log_in_user(friendship_login_body_2)
+
+        expected = friendship_expected_login_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username2 = friendship_login_body_2["username"]
+        token2 = str(r.json()['token']['token'])
+
+        # STEP 0e: post public story as user 1 OK
+        b, r = self.post_story(post_public_story_body_ok, token1)
+
+        expected = expected_public_post_story_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: keep the story_id
+        story_id1 = str(r.json()["story_id"])
+
+        # STEP 1: react to story as user 2 FAILED (missing reaction)
+        b, r = self.react_to_story(reaction_body_missing_reaction, story_id1, token2)
+
+        expected = expected_reaction_missing_reaction
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 2: react to story as user 2 OK (funny)
+        b, r = self.react_to_story(reaction_body_funny, story_id1, token2)
+
+        expected = expected_reaction_ok_user_2_funny
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 3: react to story as user 1 OK (like)
+        b, r = self.react_to_story(reaction_body_like, story_id1, token1)
+
+        expected = expected_reaction_ok_user_1_like
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 4: comment on story as user 1 FAILED (missing field)
+        b, r = self.comment_on_story(comment_body_missing_field, story_id1, token1)
+
+        expected = expected_comment_missing_field
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 5: comment on story as user 1 OK (timestamp t_1)
+        b, r = self.comment_on_story(comment_body_ok_1, story_id1, token1)
+
+        expected = expected_comment_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 6: comment on story as user 1 OK (timestamp t_2 > t_1)
+        b, r = self.comment_on_story(comment_body_ok_2, story_id1, token1)
+
+        expected = expected_comment_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 7: comment on story as user 2 OK (timestamp t_3 < t_1)
+        b, r = self.comment_on_story(comment_body_ok_3, story_id1, token2)
+
+        expected = expected_comment_ok_3
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 8: get story as user 1 OK (should show both reactions and correct order of comments)
+        b, r = self.get_story(story_id1, token1)
+
+        expected = expected_get_public_story_public_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 9: react to story as user 1 OK (dislike)
+        b, r = self.react_to_story(reaction_body_dislike, story_id1, token1)
+
+        expected = expected_reaction_ok_user_1_dislike
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 10: react to story as user 2 OK (boring)
+        b, r = self.react_to_story(reaction_body_boring, story_id1, token2)
+
+        expected = expected_reaction_ok_user_2_boring
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 11: get story as user 2 OK (should show change in reactions)
+        b, r = self.get_story(story_id1, token2)
+
+        expected = expected_get_public_story_public_ok_changed
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Xa: delete story as user 1 OK
+        b, r = self.delete_story(story_id1, token1)
+
+        expected = expected_delete_story_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Xb: delete user1
+        b, r = self.delete_user(username1, friendship_delete_myaccount_body_ok_1, token1)
+
+        expected = friendship_expected_delete_account_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Xc: delete user2
+        b, r = self.delete_user(username2, friendship_delete_myaccount_body_ok_2, token2)
+
+        expected = friendship_expected_delete_account_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
