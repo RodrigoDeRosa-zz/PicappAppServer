@@ -1,6 +1,7 @@
 from src.model.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
+from src.model.story import Story
 
 
 class UserAlreadyExistsException(Exception):
@@ -78,8 +79,8 @@ class User(object):
     def _pull_array_item_from_user(username, pulled_field_dict):
         Logger(__name__).info('Pulling array item {} from user {}'.format(pulled_field_dict, username))
         return mongo.db.users.find_one_and_update(filter={'username': username},
-                                                    update={"$pull": pulled_field_dict},
-                                                    return_document=ReturnDocument.AFTER)
+                                                  update={"$pull": pulled_field_dict},
+                                                  return_document=ReturnDocument.AFTER)
 
     @staticmethod
     def _delete_one(username):
@@ -98,7 +99,6 @@ class User(object):
         # init the blank/default ones
         new_user['profile_pic'] = None
         new_user['friends'] = {}
-        new_user['stories'] = []
         new_user['name'] = new_user['username']
 
         # return the new profile
@@ -106,22 +106,21 @@ class User(object):
 
     @staticmethod
     def _build_profile_from_user(user_data):
-        profile = {}
-        # retrieve all info fields (the ones that are just plain info)
-        retrieved_info_fields = ['username', 'profile_pic', 'name']
-        for field in retrieved_info_fields:
-            profile[field] = user_data[field]
-        profile['number of friends'] = len(user_data['friends'])
-        profile['number of stories'] = len(user_data['stories'])
-        """
-#ACTIVATE ON STORIES RELEASE
-        # retrieve a preview for every story
-        profile['stories'] = []
-        for story_id in user_data['stories']:
-            profile['stories'].append(Stories.make_preview(story_id))
-        """
+        # retrieve all stories uploaded by username
+        stories = Story.get_stories_by_username(user_data["username"])
+
         # return the profile
-        return profile
+        return {
+            # general data
+            'username': user_data['username'],
+            'profile_pic': user_data['profile_pic'],
+            'name': user_data['name'],
+            # stories uploaded
+            'stories': stories,
+            # interesting numbers
+            'number of friends': len(user_data['friends']),
+            'number of stories': len(stories)
+        }
 
     @staticmethod
     def _make_account_info_from_user(user):
@@ -195,8 +194,7 @@ class User(object):
             entry = 'friends.'+username
             User._delete_field_by_username(friend_user['username'], {entry: ""})
         # delete every owned Story and (related Reactions and Comments? should they be deleted?)
-        # TODO: ADD WHEN STORIES ARE SUPPORTED
-        mongo.db.stories.delete_many({"username": username})  # FIXME: refactor
+        Story.delete_stories_from_user(username)
 
         # now that the user is isolated, delete it
         User._delete_one(username)
@@ -210,3 +208,12 @@ class User(object):
         for field in new_data.keys():
             new_user_data[field] = updated_user[field]
         return new_user_data
+
+    @staticmethod
+    def save_new_story(story_data):
+        """Facade for Story.save_new, also checks that user indeed exists"""
+        # check user exists
+        user = User._get_one({'username': story_data['username']})
+        if user is None:
+            raise UserNotFoundException
+        return Story.save_new(story_data)

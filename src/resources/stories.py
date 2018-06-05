@@ -3,7 +3,7 @@ from flask_restful import Resource
 
 from src.utils.response_builder import ResponseBuilder
 from src.utils.request_builder import RequestBuilder, MissingFieldException
-from src.model.story import Story
+from src.model.user import User
 from src.utils.logger_config import Logger
 from src.security.token import Token, InvalidTokenException, ExpiredTokenException
 from src.security.input_sanitizer import InvalidFormatException, InputSanitizer
@@ -42,7 +42,7 @@ class StoriesResource(Resource):
             # ask SS for storage service?
 
             # save new Story at AS
-            new_story_id = Story.save_new(story_data)
+            new_story_id = User.save_new_story(story_data)
 
             # generate response
             response = dict(story_data)
