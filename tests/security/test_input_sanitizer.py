@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 from src.security.input_sanitizer import InvalidFormatException, InputSanitizer
-
+from src.model.story_reaction_types import ALLOWED_STORY_REACTIONS
 
 class InputSanitizerTestCase(unittest.TestCase):
 
@@ -34,5 +34,50 @@ class InputSanitizerTestCase(unittest.TestCase):
         data_input = "not_an_integer"
         with self.assertRaises(InvalidFormatException) as context:
             InputSanitizer.sanitize_integer(data_input)
+        exception = context.exception
+        self.assertEqual(exception.error_code, 400)
+
+    def test_successful_sanitize_story_reaction(self):
+        for n in ALLOWED_STORY_REACTIONS:
+            data_input = n.upper()
+            self.assertEqual(InputSanitizer.sanitize_story_reaction(data_input), n)
+
+    def test_failed_sanitize_story_reaction(self):
+        data_input = "not_a_story_reaction"
+        assert data_input not in ALLOWED_STORY_REACTIONS
+
+        with self.assertRaises(InvalidFormatException) as context:
+            InputSanitizer.sanitize_integer(data_input)
+        exception = context.exception
+        self.assertEqual(exception.error_code, 400)
+
+    def test_successful_sanitize_positive_integer_excluding_0(self):
+        data_input = "13212"
+        expected_output = 13212
+        self.assertEqual(InputSanitizer.sanitize_positive_integer(data_input),expected_output)
+
+    def test_successful_sanitize_positive_integer_including_0(self):
+        data_input= "0"
+        expected_output = 0
+        self.assertEqual(InputSanitizer.sanitize_positive_integer(data_input,True), expected_output)
+
+    def test_failed_sanitize_positive_integer_excluding_0_with_0(self):
+        data_input = "0"
+        with self.assertRaises(InvalidFormatException) as context:
+            InputSanitizer.sanitize_positive_integer(data_input)
+        exception = context.exception
+        self.assertEqual(exception.error_code, 400)
+
+    def test_failed_sanitize_positive_integer_excluding_0_with_negative(self):
+        data_input = "-2"
+        with self.assertRaises(InvalidFormatException) as context:
+            InputSanitizer.sanitize_positive_integer(data_input)
+        exception = context.exception
+        self.assertEqual(exception.error_code, 400)
+
+    def test_failed_sanitize_positive_integer_including_0(self):
+        data_input = "-2"
+        with self.assertRaises(InvalidFormatException) as context:
+            InputSanitizer.sanitize_positive_integer(data_input, True)
         exception = context.exception
         self.assertEqual(exception.error_code, 400)

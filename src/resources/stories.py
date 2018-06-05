@@ -45,7 +45,8 @@ class StoriesResource(Resource):
             new_story_id = Story.save_new(story_data)
 
             # generate response
-            response = {'story_id': new_story_id}
+            response = dict(story_data)
+            response['story_id'] = new_story_id
 
             # return response
             return ResponseBuilder.build_response(response)
