@@ -14,3 +14,5 @@ omit =
     integration/*
     src/main.py
     src/model/index_creation.py
+    src/resources/cleaner.py
+    src/resources/user.py
