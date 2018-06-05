@@ -3,6 +3,7 @@ from flask_restful import Api
 from configparser import ConfigParser
 from src.utils.logger_config import Logger
 from src.model.database import mongo
+from src.model.index_creation import create_indexes
 from src.resources.user import UserResource
 from src.resources.profile import ProfileResource
 from src.resources.ping import PingResource
@@ -61,6 +62,9 @@ def run_app(local=True, external_server=False):
         parser.write(file)
         file.close()
     mongo.init_app(app)
+    # creation of indexes
+    with app.app_context():
+        create_indexes()
     logger.info('Database initialized.')
     return app
 

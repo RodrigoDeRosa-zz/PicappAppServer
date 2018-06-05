@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.resources.stories import StoriesResource, Story
+from src.resources.stories import StoriesResource, User
 from src.security.token import Token
 from src.utils.response_builder import ResponseBuilder
 from src.utils.request_builder import MissingFieldException
@@ -27,7 +27,7 @@ class StoriesResourceTestCase(unittest.TestCase):
 
     def test_successful_post_with_optional_fields(self):
         with patch.object(Token, "identify") as mocked_token, \
-                patch.object(Story, "save_new") as mocked_story,\
+                patch.object(User, "save_new_story") as mocked_story,\
                 patch.object(ResponseBuilder, "build_response")as mocked_response_builder:
             mocked_token.side_effect = self.mocked_identify
             mocked_story.side_effect = self.mocked_save_new
@@ -47,7 +47,7 @@ class StoriesResourceTestCase(unittest.TestCase):
 
     def test_missing_required_field(self):
         with patch.object(Token, "identify") as mocked_token, \
-                patch.object(Story, "save_new") as mocked_story,\
+                patch.object(User, "save_new_story") as mocked_story,\
                 patch.object(ResponseBuilder, "build_error_response")as mocked_response_builder:
             mocked_token.side_effect = self.mocked_identify
             mocked_story.side_effect = self.mocked_save_new
@@ -68,7 +68,7 @@ class StoriesResourceTestCase(unittest.TestCase):
 
     def test_successful_post_without_optional_fields(self):
         with patch.object(Token, "identify") as mocked_token, \
-                patch.object(Story, "save_new") as mocked_story,\
+                patch.object(User, "save_new_story") as mocked_story,\
                 patch.object(ResponseBuilder, "build_response")as mocked_response_builder:
             mocked_token.side_effect = self.mocked_identify
             mocked_story.side_effect = self.mocked_save_new

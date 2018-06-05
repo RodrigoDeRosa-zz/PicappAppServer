@@ -1,6 +1,7 @@
 from src.model.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
+from src.model.story import Story
 
 
 class UserAlreadyExistsException(Exception):
@@ -98,7 +99,6 @@ class User(object):
         # init the blank/default ones
         new_user['profile_pic'] = None
         new_user['friends'] = {}
-        new_user['stories'] = []
         new_user['name'] = new_user['username']
 
         # return the new profile
@@ -112,7 +112,9 @@ class User(object):
         for field in retrieved_info_fields:
             profile[field] = user_data[field]
         profile['number of friends'] = len(user_data['friends'])
-        profile['number of stories'] = len(user_data['stories'])
+
+        # FIXME: retrieve all stories from username, sort descending by timestamp and count len of list
+        profile['number of stories'] = 0  #len(user_data['stories'])
         """
 #ACTIVATE ON STORIES RELEASE
         # retrieve a preview for every story
@@ -195,8 +197,7 @@ class User(object):
             entry = 'friends.'+username
             User._delete_field_by_username(friend_user['username'], {entry: ""})
         # delete every owned Story and (related Reactions and Comments? should they be deleted?)
-        # TODO: ADD WHEN STORIES ARE SUPPORTED
-        mongo.db.stories.delete_many({"username": username})  # FIXME: refactor
+        Story.delete_stories_from_user(username)
 
         # now that the user is isolated, delete it
         User._delete_one(username)
@@ -210,3 +211,12 @@ class User(object):
         for field in new_data.keys():
             new_user_data[field] = updated_user[field]
         return new_user_data
+
+    @staticmethod
+    def save_new_story(story_data):
+        """Facade for Story.save_new, also checks that user indeed exists"""
+        # check user exists
+        user = User._get_one({'username': story_data['username']})
+        if user is None:
+            raise UserNotFoundException
+        return Story.save_new(story_data)

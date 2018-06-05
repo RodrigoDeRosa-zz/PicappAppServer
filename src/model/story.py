@@ -1,8 +1,7 @@
 from src.model.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
-from src.model.user import User, UserNotFoundException, _user
-from src.model.story_comment import StoryComment, StoryCommentNotFoundException
+from src.model.story_comment import StoryComment
 from bson.objectid import ObjectId
 
 
@@ -37,6 +36,11 @@ class Story(object):
     @staticmethod
     def _get_one_by_id(story_id):
         return Story._get_one({'_id': ObjectId(story_id)})
+
+    @staticmethod
+    def _get_many(query):
+        Logger(__name__).info('Retrieving all stories matching query {}.'.format(query))
+        return Story._get_stories_db().find(query)
 
     @staticmethod
     def _insert_one(new_story):
@@ -115,9 +119,6 @@ class Story(object):
         """Saves a new story from story_data containing [username,] and returns its _id identifier"""
         # aux username reference
         username = story_data['username']
-        user = User._get_one({'username': username})
-        if user is None:
-            raise UserNotFoundException
 
         # create new story
         new_story = Story._make_new_story(story_data)
@@ -129,18 +130,10 @@ class Story(object):
         Logger(__name__).info('New story {} by user {} was saved.'.format(new_story_id,
                                                                           username))
 
-        Story._add_story_id_to_user(username, new_story_id)
-
         Logger(__name__).info("Story_id {} was added to user {}.".format(new_story_id, username))
 
         # return the id
         return new_story_id
-
-    @staticmethod
-    def _add_story_id_to_user(username, story_id):
-        # add it to the array
-        # user['stories'].append(story_id)
-        User._push_to_user_by_username(username, {'stories': story_id})
 
     @staticmethod
     def get_story(story_id):
@@ -211,7 +204,16 @@ class Story(object):
         if deleted_story is None:
             raise StoryNotFoundException
 
-        # delete reference from user
-        User._pull_array_item_from_user(deleted_story["username"], {"stories": story_id})
-
         return deleted_story['_id']
+
+    @staticmethod
+    def delete_stories_from_user(username):
+        """Safely delete all stories uploaded by username and return a list of their ids"""
+        Logger(__name__).info("Deleting all stories from user {}.".format(username))
+        story_ids = [str(story_obj['_id']) for story_obj in Story._get_many({'username': username})]
+
+        deleted_ids = []
+        for story_id in story_ids:
+            deleted_ids.append(Story._safe_delete_story(story_id))
+
+        return deleted_ids

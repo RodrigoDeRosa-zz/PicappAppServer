@@ -13,3 +13,4 @@ omit =
     tests/*
     integration/*
     src/main.py
+    src/model/index_creation.py

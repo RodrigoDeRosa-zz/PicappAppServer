@@ -25,7 +25,8 @@ class FriendshipResource(Resource):
             action_performed = Friendship.wants_to_be_friends_with(caller_username, username)
 
             # tell username about request/confirmation
-            # TODO if action_performed == FriendshipState.friends: ... elif .request_sent ...
+            # if action_performed == FriendshipState.friends: ... elif .request_sent ...
+            # => done at Firebase
 
             # generate response
             output = {"target_user_id": username}
