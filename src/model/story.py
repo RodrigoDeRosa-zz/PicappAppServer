@@ -11,10 +11,12 @@ class StoryNotFoundException(Exception):
         self.message = "Story was not found"
         self.error_code = 404
 
+
 class StoryReactionNotFoundException(Exception):
     def __init__(self):
         self.message = "Story reaction was not found"
         self.error_code = 404
+
 
 class Story(object):
 

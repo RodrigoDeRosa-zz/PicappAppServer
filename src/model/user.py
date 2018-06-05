@@ -196,6 +196,7 @@ class User(object):
             User._delete_field_by_username(friend_user['username'], {entry: ""})
         # delete every owned Story and (related Reactions and Comments? should they be deleted?)
         # TODO: ADD WHEN STORIES ARE SUPPORTED
+        mongo.db.stories.delete_many({"username": username})  # FIXME: refactor
 
         # now that the user is isolated, delete it
         User._delete_one(username)
