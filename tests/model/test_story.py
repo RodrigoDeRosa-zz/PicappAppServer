@@ -134,3 +134,34 @@ class StoryTestCase(unittest.TestCase):
         exc = context.exception
         self.assertEqual(exc.error_code, 404)
         self.assertEqual(exc.message, "Story was not found")
+
+    def test_get_stories_by_username_empty(self):
+        with patch.object(Story, "_get_many") as mocked_get_many:
+            mocked_get_many.side_effect = MagicMock(return_value=[])
+
+            self.assertEqual(Story.get_stories_by_username("pepe"), [])
+
+    def test_get_stories_by_username_not_empty(self):
+        with patch.object(Story, "_get_many") as mocked_get_many,\
+             patch.object(StoryComment, "get_comments_on_story") as mocked_get_comments,\
+             patch.object(Story, "_serialize_story") as mocked_serialize:
+
+            aux_timestamp = 123123
+            aux_story1 = dict(story_mock_private_with_reaction)
+            aux_story1["timestamp"] = aux_timestamp
+            aux_story1["_id"] = object_id_mock
+
+            aux_story2 = dict(aux_story1)
+            aux_story2["timestamp"] = aux_timestamp + 1
+
+            aux_story3 = dict(aux_story1)
+            aux_story3["timestamp"] = aux_timestamp + 2
+
+            unsorted_stories = [aux_story1, aux_story3, aux_story2]
+            sorted_stories = [aux_story3, aux_story2, aux_story1]
+
+            mocked_get_many.side_effect = MagicMock(return_value=unsorted_stories)
+            mocked_get_comments.side_effect = MagicMock(return_value=[])
+            mocked_serialize.side_effect = lambda x: x
+
+            self.assertEqual(Story.get_stories_by_username("pepe"), sorted_stories)

@@ -142,10 +142,10 @@ class Story(object):
         story = Story._get_one_by_id(story_id)
         if story is None:
             raise StoryNotFoundException
-        return Story._serialize_to_dict(story)
+        return Story._serialize_story(story)
 
     @staticmethod
-    def _serialize_to_dict(story_obj):
+    def _serialize_story(story_obj):
         # _make_new_story can be abused to make a new dict from an obj rather than data
         serialized = Story._make_new_story(story_obj)
 
@@ -217,3 +217,16 @@ class Story(object):
             deleted_ids.append(Story._safe_delete_story(story_id))
 
         return deleted_ids
+
+    @staticmethod
+    def get_stories_by_username(username):
+        """Get all stories uploaded by username, sorted by timestamp in descending order"""
+        # get all stories matching username
+        serialized_stories = [Story._serialize_story(story_obj) for
+                              story_obj in Story._get_many({'username': username})]
+
+        # sort inplace in descending order by timestamp
+        serialized_stories.sort(key=lambda srz_story: srz_story["timestamp"], reverse=True)
+
+        # return sorted list
+        return serialized_stories
