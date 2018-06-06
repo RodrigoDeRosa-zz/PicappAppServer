@@ -142,9 +142,9 @@ class IntegrationTestCase(unittest.TestCase):
         uri = self.root_uri + "/ping"
         b = json.dumps({})
         r = requests.get(uri,
-                          data=b,
-                          headers={'Content-Type': 'Application/json'},
-                          timeout=STANDARD_TIMEOUT)
+                         data=b,
+                         headers={'Content-Type': 'Application/json'},
+                         timeout=STANDARD_TIMEOUT)
         self.assertEqual(r.status_code, 200, get_msg(b, r))
 
     def test_user_RU(self):
