@@ -156,8 +156,8 @@ class Story(object):
 
         
 	# story_id
-        story_id = str(story_obj['_id'])   
-        serialized["story_id"] = story_id
+        #story_id = str(story_obj['_id'])   
+        #serialized["story_id"] = story_id
                 
         # reactions
         serialized["reactions"] = story_obj["reactions"]
