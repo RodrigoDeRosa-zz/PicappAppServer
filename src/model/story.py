@@ -154,7 +154,8 @@ class Story(object):
             if k in ['is_private']:
                 serialized[k] = "true" if v else "false"
 
-        # story_id
+        
+	# story_id
         story_id = str(story_obj['_id'])   
         serialized["story_id"] = story_id
                 
