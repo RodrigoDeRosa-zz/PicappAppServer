@@ -51,10 +51,10 @@ class StoryTestCase(unittest.TestCase):
             internal_story_mock = dict(aux)
             internal_story_mock["is_private"] = False
             internal_story_mock["timestamp"] = 1615456
-            internal_story_mock["_id"] = object_id_mock
+            internal_story_mock["_id"] = aux['story_id']
 
             mocked_story_get.side_effect = MagicMock(return_value=internal_story_mock)
-            mocked_story_id = object_id_mock
+            mocked_story_id = aux['story_id']
             mocked_get_comments.side_effect = MagicMock(return_value=[])
 
             self.assertEqual(Story.get_story(mocked_story_id), aux)
@@ -67,10 +67,10 @@ class StoryTestCase(unittest.TestCase):
             internal_story_mock = dict(aux)
             internal_story_mock["is_private"] = True
             internal_story_mock["timestamp"] = 1615456
-            internal_story_mock["_id"] = object_id_mock
+            internal_story_mock["_id"] = aux['story_id']
 
             mocked_story_get.side_effect = MagicMock(return_value=internal_story_mock)
-            mocked_story_id = object_id_mock
+            mocked_story_id = aux['story_id']
             mocked_get_comments.side_effect = MagicMock(return_value=[])
 
             self.assertEqual(Story.get_story(mocked_story_id), aux)

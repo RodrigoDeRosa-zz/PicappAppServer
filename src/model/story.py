@@ -154,16 +154,16 @@ class Story(object):
             if k in ['is_private']:
                 serialized[k] = "true" if v else "false"
 
-        
-	# story_id
-        #story_id = str(story_obj['_id'])   
-        #serialized["story_id"] = story_id
-                
+
+        # story_id
+        story_id = str(story_obj['_id'])
+        serialized["story_id"] = story_id
+
         # reactions
         serialized["reactions"] = story_obj["reactions"]
 
         # comments
-        serialized["comments"] = StoryComment.get_comments_on_story(str(story_obj['_id']))
+        serialized["comments"] = StoryComment.get_comments_on_story(story_id)
 
         return serialized
 

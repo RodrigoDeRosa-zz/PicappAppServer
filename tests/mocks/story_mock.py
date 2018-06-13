@@ -8,7 +8,8 @@ story_mock_public_without_comments_or_reactions = {'media': "some_uri",
                                                    'description': "some description",
                                                    'comments': [],
                                                    'username': "martin.errazquin",
-                                                   'reactions': {}}
+                                                   'reactions': {},
+                                                   'story_id': 'as123da2as3dadas'}
 
 story_mock_private_without_comments_or_reactions = {'media': "some_uri",
                                                     'location': "some_magic_maps_location",
@@ -18,7 +19,8 @@ story_mock_private_without_comments_or_reactions = {'media': "some_uri",
                                                     'description': "some description",
                                                     'username': "martin.errazquin",
                                                     'comments': [],
-                                                    'reactions': {}}
+                                                    'reactions': {},
+                                                    'story_id': 'as123da2as3dadas'}
 
 story_mock_private_with_reaction = {'media': "some_uri",
                                     'location': "some_magic_maps_location",
@@ -30,4 +32,5 @@ story_mock_private_with_reaction = {'media': "some_uri",
                                     'comments': [],
                                     'reactions': {
                                         "fercho.steel": STORY_REACTION_BORING
-                                    }}
+                                    },
+                                    'story_id': 'as123da2as3dadas'}
