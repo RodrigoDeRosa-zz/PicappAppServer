@@ -217,3 +217,26 @@ class User(object):
         if user is None:
             raise UserNotFoundException
         return Story.save_new(story_data)
+
+    @staticmethod
+    def get_stories_feed_data(username):
+        """Formats stories uploaded by this user for easier use of the Feed Builder."""
+        # TODO: test me!
+        # get all stories feed data from username
+        story_feed_blocks = Story.get_stories_feed_data_by_username(username)
+
+        # get user specific feed data
+        user_feed_data = User._get_user_feed_data(username, len(story_feed_blocks))
+
+        return [story_feed_block.update(user_feed_data) for
+                story_feed_block in story_feed_blocks]
+
+    @staticmethod
+    def _get_user_feed_data(username, number_of_stories):
+        # TODO: test me!
+        user_obj = _user(username)
+        return {
+            "friend_ids": user_obj["friends"],
+            "number of friends": len(user_obj["friends"]),
+            "number of stories": number_of_stories
+        }

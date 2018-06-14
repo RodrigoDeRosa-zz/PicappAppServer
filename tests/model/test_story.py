@@ -165,3 +165,29 @@ class StoryTestCase(unittest.TestCase):
             mocked_serialize.side_effect = lambda x: x
 
             self.assertEqual(Story.get_stories_by_username("pepe"), sorted_stories)
+
+    def test_get_feed_data_from_one_story_object(self):
+        with patch.object(StoryComment, "get_comments_on_story") as mocked_get_comments:
+            mocked_get_comments.side_effect = MagicMock(return_value=[])
+
+            aux_story = dict(story_mock_private_with_reaction)
+            aux_story["_id"] = object_id_mock
+
+            reactions = [x for x in aux_story["reactions"].values()]
+
+            expected_feed_data = {
+                "story_id": object_id_mock,
+                "title": aux_story['title'],
+                "description": aux_story['description'],
+                "likes": reactions.count(STORY_REACTION_LIKE),
+                "dislikes": reactions.count(STORY_REACTION_DISLIKE),
+                "funnies": reactions.count(STORY_REACTION_FUNNY),
+                "borings": reactions.count(STORY_REACTION_BORING),
+                "comments": len(aux_story['comments']),
+                "location": aux_story['location'],
+                "timestamp": aux_story['timestamp'],
+                "is_private": aux_story['is_private'],
+                "uploader": aux_story["username"]
+            }
+
+            self.assertEqual(Story._get_feed_story_data(aux_story), expected_feed_data)
