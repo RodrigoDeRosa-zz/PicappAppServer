@@ -3,6 +3,7 @@ from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 from src.model.story_comment import StoryComment
 from bson.objectid import ObjectId
+from src.model.story_reaction_types import *
 
 
 class StoryNotFoundException(Exception):
@@ -235,3 +236,37 @@ class Story(object):
 
         # return sorted list
         return serialized_stories
+
+    @staticmethod
+    def get_stories_feed_data_by_username(username):
+        """Get all stories uploaded by username, formatted for easier use of Feed Builder"""
+        # get all stories matching username
+        story_feed_blocks = [Story._get_feed_story_data(story_obj) for
+                             story_obj in Story._get_many({'username': username})]
+
+        return story_feed_blocks
+
+    @staticmethod
+    def _get_feed_story_data(story_obj):
+        reactions = [reaction for reaction in story_obj["reactions"].values()]
+        comments = StoryComment.get_comments_on_story(str(story_obj['_id']))
+        return {
+            "story_id": str(story_obj['_id']),
+            "title": story_obj['title'],
+            "description": story_obj['description'],
+            "likes": reactions.count(STORY_REACTION_LIKE),
+            "dislikes": reactions.count(STORY_REACTION_DISLIKE),
+            "funnies": reactions.count(STORY_REACTION_FUNNY),
+            "borings": reactions.count(STORY_REACTION_BORING),
+            "comments": len(comments),
+            "location": story_obj['location'],
+            "timestamp": story_obj['timestamp'],
+            "is_private": story_obj['is_private'],
+            "uploader": story_obj["username"]
+        }
+
+    # TODO: delete me when User-level feed data is used at FeedBuilder
+    @staticmethod
+    def get_all_stories_as_feed_data():
+        """Temporary utility until appropiate, User-level feed data is implemented"""
+        return [Story._get_feed_story_data(story_obj) for story_obj in Story._get_all()]
