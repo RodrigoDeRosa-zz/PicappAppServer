@@ -7,9 +7,7 @@ from business_rules.variables import (BaseVariables,
                                       numeric_rule_variable,
                                       string_rule_variable)
 from src.model.user import User
-
-# TODO: take out this import when User-level feed data use is implemented
-from src.model.story import Story
+from src.model.story import Story, StoryNotFoundException
 
 
 INITIAL_SCORE = 10
@@ -23,23 +21,32 @@ class FeedBuilder(object):
 
     @staticmethod
     def get_feed_for_username(username):
-        """
-        USE SOMETHING LIKE THIS WHEN USERNAMES ARE BEING ITERATED ACCORDINGLY
 
         # get all stories by iterating over usernames, use username to filter private, non-friend ones
+        stories_feed_data = User.get_feed_data(username)
 
-        stories_feed_data = User.get_stories_feed_data(username)
+        # TODO: DISPOSE BELOW IF ABOVE WORKS CORRECTLY ON PRODUCTION
         """
-
         # <ugly> feed, not using User-level data for rules
         stories_feed_data = Story.get_all_stories_as_feed_data()
         # </ugly>
+        """
 
         # calculate priorities
-        prioritized_stories = stories_feed_data  # FIXME: add priorities
+        prioritized_stories = [story_feed_data['story_id'] for story_feed_data in stories_feed_data]  # FIXME: add priorities
 
-        # return stories in according order
-        return [Story.get_story(story_id) for story_id in prioritized_stories]
+        # get stories in according order, add feed-specific fields of user's name and profile pic
+        return [FeedBuilder._format_feed_story(story_id) for story_id in prioritized_stories]
+
+    @staticmethod
+    def _format_feed_story(story_id):
+        serialized_story = Story.get_story(story_id)
+        uploader = serialized_story['username']
+        profile_preview = User.get_profile_preview(uploader)
+
+        serialized_story['name'] = profile_preview['name']
+        serialized_story['profile_pic'] = profile_preview['profile_pic']
+        return serialized_story
 
 
 def epochs_as_days(epochs):
