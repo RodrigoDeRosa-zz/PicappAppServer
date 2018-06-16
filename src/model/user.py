@@ -217,3 +217,49 @@ class User(object):
         if user is None:
             raise UserNotFoundException
         return Story.save_new(story_data)
+
+    @staticmethod
+    def _get_stories_feed_data(username):
+        """Formats stories uploaded by this user for easier use of the Feed Builder."""
+        # get all stories feed data from username
+        story_feed_blocks = Story.get_stories_feed_data_by_username(username)
+
+        # get user specific feed data
+        user_feed_data = User._get_user_feed_data(username, len(story_feed_blocks))
+
+        return [story_feed_block.update(user_feed_data) for
+                story_feed_block in story_feed_blocks]
+
+    @staticmethod
+    def _get_user_feed_data(username, number_of_stories):
+        user_obj = _user(username)
+        friend_ids = [friend_id for friend_id, friendship_state in user_obj["friends"].items()
+                      if friendship_state == "friends"]  # really ugly, TODO refactor this "friends"
+        return {
+            "friend_ids": set(friend_ids),
+            "number of friends": len(friend_ids),
+            "number of stories": number_of_stories
+        }
+
+    @staticmethod
+    def get_feed_data(username):
+        """Gets feed data from all users and all their stories for FeedBuilder usage"""
+        feed_data = []
+        for user_obj in User._get_all():
+            uploader_username = user_obj['username']
+            # TODO: if username is not in uploader's friend_ids delete private stories from the feed_data
+            feed_data_stories_from_this_user = User._get_stories_feed_data(uploader_username)
+            feed_data.extend(feed_data_stories_from_this_user)
+        return feed_data
+
+    @staticmethod
+    def get_profile_preview(username):
+        """Get profile preview for a given username, consisting of username plus profile pic and name"""
+        user = User._get_one({'username': username})
+        if user is None:
+            raise UserNotFoundException
+        return {
+            "username": username,
+            "profile_pic": user['profile_pic'],
+            "name": user['name']
+        }

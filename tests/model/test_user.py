@@ -4,7 +4,8 @@ from src.model.user import User, UserNotFoundException, Story
 from tests.mocks.object_id_mock import object_id_mock
 from tests.mocks.story_data_mock import story_data_mock_with_title_and_description
 from tests.mocks.story_mock import *
-from tests.mocks.user_mock import user_mock_without_stories_or_friends, profile_mock_without_stories_or_friends
+from tests.mocks.user_mock import user_mock_without_stories_or_friends, profile_mock_without_stories_or_friends, \
+    user_mock_without_stories_with_friends
 
 
 class UserTestCase(unittest.TestCase):
@@ -56,3 +57,39 @@ class UserTestCase(unittest.TestCase):
 
             self.assertEqual(User.get_profile("asd"), expected_profile)
 
+    def test_get_profile_preview_not_found(self):
+        with patch.object(User, "_get_one") as mocked_user_get, \
+             self.assertRaises(UserNotFoundException) as context:
+            mocked_user_get.side_effect = MagicMock(side_effect=UserNotFoundException)
+
+            User.get_profile_preview("pepe")
+
+        exc = context.exception
+        self.assertEqual(exc.error_code, 404)
+
+    def test_get_profile_preview_successful(self):
+        with patch.object(User, "_get_one") as mocked_user_get:
+
+            aux_user_obj = user_mock_without_stories_or_friends
+            aux_username = aux_user_obj['username']
+            expected_preview = {
+                "username": aux_user_obj['username'],
+                "profile_pic": aux_user_obj['profile_pic'],
+                "name": aux_user_obj['name']
+            }
+            mocked_user_get.side_effect = MagicMock(return_value=aux_user_obj)
+            self.assertEqual(User.get_profile_preview(aux_username), expected_preview)
+
+    def test_get_user_feed_data(self):
+        with patch('src.model.user._user') as mocked_user:
+
+            internal_user_mock = dict(user_mock_without_stories_with_friends)
+
+            expected_user_feed_data = {
+                "friend_ids": {"friend_id1", "friend_id2"},  # WARNING: hardcoded from the mock above
+                "number of friends": 2,
+                "number of stories": 5
+            }
+            mocked_user.side_effect = MagicMock(return_value=internal_user_mock)
+            self.assertEqual(User._get_user_feed_data("pepe", expected_user_feed_data["number of stories"]),
+                             expected_user_feed_data)

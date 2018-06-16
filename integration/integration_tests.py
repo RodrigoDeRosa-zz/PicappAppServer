@@ -10,7 +10,7 @@ from integration.definitions.user_crud import *
 from integration.definitions.user_friendships import *
 from integration.definitions.story_crud import *
 
-HOST = "local"
+HOST = "heroku"
 DEBUG_MODE = True
 STANDARD_TIMEOUT = 999  # seconds
 
