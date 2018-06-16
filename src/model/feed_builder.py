@@ -33,7 +33,9 @@ class FeedBuilder(object):
         """
 
         # calculate priorities
-        prioritized_stories = [story_feed_data['story_id'] for story_feed_data in stories_feed_data]  # FIXME: add priorities
+        # No clue how it could be None, but...
+        prioritized_stories = [story_feed_data['story_id'] for story_feed_data in stories_feed_data
+                               if story_feed_data is not None]  # FIXME: add priorities
 
         # get stories in according order, add feed-specific fields of user's name and profile pic
         return [FeedBuilder._format_feed_story(story_id) for story_id in prioritized_stories]
