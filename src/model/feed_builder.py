@@ -25,13 +25,6 @@ class FeedBuilder(object):
         # get all stories by iterating over usernames, use username to filter private, non-friend ones
         stories_feed_data = User.get_feed_data(username)
 
-        # TODO: DISPOSE BELOW IF ABOVE WORKS CORRECTLY ON PRODUCTION
-        """
-        # <ugly> feed, not using User-level data for rules
-        stories_feed_data = Story.get_all_stories_as_feed_data()
-        # </ugly>
-        """
-
         # calculate priorities
         # No clue how it could be None, but...
         prioritized_stories = [story_feed_data['story_id'] for story_feed_data in stories_feed_data
