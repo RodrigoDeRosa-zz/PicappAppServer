@@ -202,6 +202,7 @@ class User(object):
 
     @staticmethod
     def change_account_info(username, new_data):
+        Logger(__name__).info('Changing account info for user {}.'.format(username))
         User._update_user_by_username(username, new_data)
         new_user_data = {}
         updated_user = _user(username)
@@ -212,8 +213,10 @@ class User(object):
     @staticmethod
     def save_new_story(story_data):
         """Facade for Story.save_new, also checks that user indeed exists"""
+        username = story_data['username']
+        Logger(__name__).info('Trying to save new story for user {}.'.format(username))
         # check user exists
-        user = User._get_one({'username': story_data['username']})
+        user = User._get_one({'username': username})
         if user is None:
             raise UserNotFoundException
         return Story.save_new(story_data)
@@ -256,6 +259,7 @@ class User(object):
     @staticmethod
     def get_profile_preview(username):
         """Get profile preview for a given username, consisting of username plus profile pic and name"""
+        Logger(__name__).info('Getting profile preview of user {}.'.format(username))
         user = User._get_one({'username': username})
         if user is None:
             raise UserNotFoundException
