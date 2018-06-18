@@ -63,3 +63,25 @@ class FriendshipResource(Resource):
         except (MissingFieldException, ExpiredTokenException, InvalidTokenException,
                 UserNotFoundException, NotFriendsException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
+
+    def get(self, username):
+        """Get the friendship state between username and caller"""
+        try:
+            # get token from header
+            token = self._get_token_from_header()
+
+            # identify with token
+            caller_username = Token.identify(token)
+
+            # save intent to be friends from (user) to username
+            friendship_state = Friendship.get_friendship_state_from_to(caller_username, username)
+
+            # generate response
+            output = {"friendship_state": friendship_state}
+
+            # return response
+            return ResponseBuilder.build_response(output)
+
+        except (MissingFieldException, ExpiredTokenException, InvalidTokenException,
+                UserNotFoundException) as e:
+            return ResponseBuilder.build_error_response(e.message, e.error_code)

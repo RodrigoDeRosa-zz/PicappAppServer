@@ -23,6 +23,7 @@ class NotFriendsException(Exception):
 FRIENDSHIP_STATE_SENT = "sent"
 FRIENDSHIP_STATE_RECEIVED = "received"
 FRIENDSHIP_STATE_FRIENDS = "friends"
+FRIENDSHIP_STATE_NOT_FRIENDS = "not_friends"
 
 
 class Friendship(object):
@@ -172,3 +173,13 @@ class Friendship(object):
     @staticmethod
     def are_friends(username1, username2):
         return Friendship._are_friends(username1, username2)
+
+    @staticmethod
+    def get_friendship_state_from_to(origin_username, destiny_username):
+        """Returns one of the friendship states according to how origin sees the relationship."""
+        origin_user_obj = _user(origin_username)
+        if _user(destiny_username) is None:
+            raise UserNotFoundException
+        if destiny_username not in origin_user_obj['friends']:
+            return FRIENDSHIP_STATE_NOT_FRIENDS
+        return origin_user_obj['friends'][destiny_username]
