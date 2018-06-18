@@ -7,8 +7,8 @@ from business_rules.variables import (BaseVariables,
                                       numeric_rule_variable,
                                       string_rule_variable)
 from src.model.user import User
-from src.model.story import Story, StoryNotFoundException
-
+from src.model.story import Story
+from src.utils.logger_config import Logger
 
 INITIAL_SCORE = 10
 MANY_LIKES_BONUS = 2
@@ -21,15 +21,19 @@ class FeedBuilder(object):
 
     @staticmethod
     def get_feed_for_username(username):
+        Logger(__name__).info('Getting feed for user {}.'.format(username))
 
         # get all stories by iterating over usernames, use username to filter private, non-friend ones
         stories_feed_data = User.get_feed_data(username)
 
-        # calculate priorities
-        # No clue how it could be None, but...
-        prioritized_stories = [story_feed_data['story_id'] for story_feed_data in stories_feed_data
-                               if story_feed_data is not None]  # FIXME: add priorities
+        Logger(__name__).info('Prioritizing {} stories for user {}\'s feed.'.format(
+            len(stories_feed_data), username))
 
+        # calculate priorities
+        # FIXME: add priorities
+        prioritized_stories = [story_feed_data['story_id'] for story_feed_data in stories_feed_data]
+
+        Logger(__name__).info('Serving feed for user {}.'.format(username))
         # get stories in according order, add feed-specific fields of user's name and profile pic
         return [FeedBuilder._format_feed_story(story_id) for story_id in prioritized_stories]
 

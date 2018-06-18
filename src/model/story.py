@@ -140,6 +140,7 @@ class Story(object):
     def get_story(story_id):
         """Get story represented by story_id formatted to be JSON serializable, or raise
          StoryNotFound exception if no story was found"""
+        Logger(__name__).info('Looking for story {}.'.format(story_id))
         story = Story._get_one_by_id(story_id)
         if story is None:
             raise StoryNotFoundException
@@ -180,6 +181,7 @@ class Story(object):
     @staticmethod
     def delete_reaction(story_id, username):
         """Delete username's reaction on the story represented by story_id."""
+        Logger(__name__).info('Deleting reaction from user {} on story {}.'.format(username, story_id))
         updated_story = Story._delete_field_on_story(story_id, {"reactions."+username: ""})
         if updated_story is None:
             raise StoryReactionNotFoundException
@@ -188,6 +190,8 @@ class Story(object):
     @staticmethod
     def comment_on_story(story_id, username, comment_text, timestamp):
         """Comment on a story represented by story_id as username, with comment_text and at timestamp."""
+        Logger(__name__).info('Trying to set comment from user {} on story {} at timestamp {}.'.format(
+            username, story_id, timestamp))
         if Story._get_one_by_id(story_id) is None:
             raise StoryNotFoundException
         new_comment_id = StoryComment.make_new_comment(comment_text, username, timestamp, story_id)
@@ -227,6 +231,7 @@ class Story(object):
     @staticmethod
     def get_stories_by_username(username):
         """Get all stories uploaded by username, sorted by timestamp in descending order"""
+        Logger(__name__).info('Getting all stories from user {}.'.format(username))
         # get all stories matching username
         serialized_stories = [Story._serialize_story(story_obj) for
                               story_obj in Story._get_many({'username': username})]
@@ -241,6 +246,7 @@ class Story(object):
     def get_stories_feed_data_by_username(username):
         """Get all stories uploaded by username, formatted for easier use of Feed Builder"""
         # get all stories matching username
+        Logger(__name__).info('Getting feed data from stories for user {}.'.format(username))
         story_feed_blocks = [Story._get_feed_story_data(story_obj) for
                              story_obj in Story._get_many({'username': username})]
 
@@ -264,9 +270,3 @@ class Story(object):
             "is_private": story_obj['is_private'],
             "uploader": story_obj["username"]
         }
-
-    # TODO: delete me when User-level feed data is used at FeedBuilder
-    @staticmethod
-    def get_all_stories_as_feed_data():
-        """Temporary utility until appropiate, User-level feed data is implemented"""
-        return [Story._get_feed_story_data(story_obj) for story_obj in Story._get_all()]

@@ -61,7 +61,8 @@ expected_get_story_ok_body = {
     "is_private": "true",
     "username": test_user1["username"],
     'comments': [],
-    'reactions': {}
+    'reactions': {},
+    'story_id': NotNonePlaceholder()
 }
 
 expected_get_story_ok = expected_response(expected_get_story_ok_body, 200)
@@ -161,7 +162,8 @@ expected_get_public_story_ok_body = {
     'reactions': {
         test_user1["username"]: "like",
         test_user2["username"]: "funny"
-    }
+    },
+    'story_id': NotNonePlaceholder()
 }
 
 expected_get_public_story_public_ok = expected_response(expected_get_public_story_ok_body, 200)
@@ -192,7 +194,8 @@ expected_get_public_story_ok_changed_body = {
     'reactions': {
         test_user1["username"]: "dislike",
         test_user2["username"]: "boring"
-    }
+    },
+    'story_id': NotNonePlaceholder()
 }
 
 expected_get_public_story_public_ok_changed = expected_response(expected_get_public_story_ok_changed_body, 200)
