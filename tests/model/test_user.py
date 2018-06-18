@@ -60,7 +60,7 @@ class UserTestCase(unittest.TestCase):
     def test_get_profile_preview_not_found(self):
         with patch.object(User, "_get_one") as mocked_user_get, \
              self.assertRaises(UserNotFoundException) as context:
-            mocked_user_get.side_effect = MagicMock(side_effect=UserNotFoundException)
+            mocked_user_get.side_effect = MagicMock(return_value=None)
 
             User.get_profile_preview("pepe")
 

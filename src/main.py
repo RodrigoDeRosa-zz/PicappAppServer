@@ -17,6 +17,7 @@ from src.resources.story import StoryResource
 from src.resources.story_reaction import StoryReactionResource
 from src.resources.story_comment import StoryCommentResource
 from src.resources.feed import FeedResource
+from src.resources.profile_preview import ProfilePreviewResource
 
 
 LOCAL_MONGO = 'mongodb://localhost:27017/restdb'
@@ -41,6 +42,7 @@ api.add_resource(StoryResource, "/stories/<story_id>")
 api.add_resource(StoryReactionResource, "/stories/<story_id>/reactions")
 api.add_resource(StoryCommentResource, "/stories/<story_id>/comments")
 api.add_resource(FeedResource, "/feed")
+api.add_resource(ProfilePreviewResource, "/users/<username>/preview")
 
 
 def run_app(local=True, external_server=False):
