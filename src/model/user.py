@@ -227,8 +227,9 @@ class User(object):
         # get user specific feed data
         user_feed_data = User._get_user_feed_data(username, len(story_feed_blocks))
 
-        return [story_feed_block.update(user_feed_data) for
-                story_feed_block in story_feed_blocks]
+        # add them to story feed blocks
+        [story_feed_block.update(user_feed_data) for story_feed_block in story_feed_blocks]
+        return story_feed_blocks
 
     @staticmethod
     def _get_user_feed_data(username, number_of_stories):
