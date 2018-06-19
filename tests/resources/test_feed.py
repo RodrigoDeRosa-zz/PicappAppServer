@@ -1,18 +1,17 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from src.security.token import Token, ExpiredTokenException
+from src.security.token import Token
 from tests.mocks.token_mock import token_mock
 from src.resources.feed import FeedResource, FeedBuilder
 from src.utils.response_builder import ResponseBuilder
-from src.model.friendship import Friendship, UserNotFoundException, AlreadyFriendsException, FRIENDSHIP_STATE_SENT, FRIENDSHIP_STATE_RECEIVED, FRIENDSHIP_STATE_FRIENDS, NotFriendsException
 from src.utils.request_builder import RequestBuilder, MissingFieldException
 
 
 class FeedResourceTestCase(unittest.TestCase):
 
     def mocked_identify(self, token):
-        return
+        return token_mock
 
     def mocked_build_response(self, output, status_code=200):
         return output
