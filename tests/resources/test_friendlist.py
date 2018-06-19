@@ -30,7 +30,7 @@ class FriendListResourceTestCase(unittest.TestCase):
             service = FriendListResource()
             service._get_token_from_header = MagicMock(side_effect=MissingFieldException("token"))
 
-            self.assertEqual(service.get(), 400)
+            self.assertEqual(service.get(user_mock_without_stories_with_friends["username"]), 400)
 
     def test_get_friend_list_successful(self):
         with patch.object(Token, "identify") as mocked_token, \
@@ -45,4 +45,5 @@ class FriendListResourceTestCase(unittest.TestCase):
             service = FriendListResource()
             service._get_token_from_header = MagicMock(return_value=token_mock)
 
-            self.assertEqual(service.get()["friends"], expected_list)
+            self.assertEqual(service.get(user_mock_without_stories_with_friends["username"])["friends"],
+                             expected_list)

@@ -14,13 +14,13 @@ class FriendListResource(Resource):
     def _get_token_from_header(self):
         return RequestBuilder.get_field_from_header('token')
 
-    def get(self):
+    def get(self, username):
         try:
             # get token from header
             token = self._get_token_from_header()
 
             # identify with token
-            username = Token.identify(token)
+            caller_username = Token.identify(token)
 
             # get a list of friends as profile previews
             friend_list = Friendship.get_friends(username)
