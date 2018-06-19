@@ -183,3 +183,14 @@ class Friendship(object):
         if destiny_username not in origin_user_obj['friends']:
             return FRIENDSHIP_STATE_NOT_FRIENDS
         return origin_user_obj['friends'][destiny_username]
+
+    @staticmethod
+    def get_friends(username):
+        """Returns a list of username friends as profile previews, or raises UserNotFoundException
+        if none was found."""
+        user_obj = _user(username)
+        if user_obj is None:
+            raise UserNotFoundException
+        friend_ids = [friend_id for friend_id, friendship_state in user_obj["friends"].items()
+                      if friendship_state == "friends"]
+        return [User.get_profile_preview(friend_id) for friend_id in friend_ids]
