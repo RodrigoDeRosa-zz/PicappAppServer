@@ -108,7 +108,8 @@ class User(object):
     def _build_profile_from_user(user_data):
         # retrieve all stories uploaded by username
         stories = Story.get_stories_by_username(user_data["username"])
-
+        friend_ids = [friend_id for friend_id, friendship_state in user_data["friends"].items()
+                      if friendship_state == "friends"]
         # return the profile
         return {
             # general data
@@ -118,7 +119,7 @@ class User(object):
             # stories uploaded
             'stories': stories,
             # interesting numbers
-            'number of friends': len(user_data['friends']),
+            'number of friends': len(friend_ids),
             'number of stories': len(stories)
         }
 
