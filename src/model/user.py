@@ -2,7 +2,7 @@ from src.model.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 from src.model.story import Story
-
+from src.model.flash import Flash
 
 class UserAlreadyExistsException(Exception):
     def __init__(self):
@@ -269,3 +269,14 @@ class User(object):
             "profile_pic": user['profile_pic'],
             "name": user['name']
         }
+
+    @staticmethod
+    def save_new_flash(flash_data):
+        """Facade for Flash.save_new, also checks that user indeed exists"""
+        username = flash_data['username']
+        Logger(__name__).info('Trying to save new flash for user {}.'.format(username))
+        # check user exists
+        user = User._get_one({'username': username})
+        if user is None:
+            raise UserNotFoundException
+        return Flash.save_new(flash_data)
