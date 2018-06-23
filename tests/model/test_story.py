@@ -183,7 +183,7 @@ class StoryTestCase(unittest.TestCase):
                 "dislikes": reactions.count(STORY_REACTION_DISLIKE),
                 "funnies": reactions.count(STORY_REACTION_FUNNY),
                 "borings": reactions.count(STORY_REACTION_BORING),
-                "comments": len(aux_story['comments']),
+                "number of comments": len(aux_story['comments']),
                 "location": aux_story['location'],
                 "timestamp": aux_story['timestamp'],
                 "is_private": aux_story['is_private'],

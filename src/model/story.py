@@ -264,7 +264,7 @@ class Story(object):
             "dislikes": reactions.count(STORY_REACTION_DISLIKE),
             "funnies": reactions.count(STORY_REACTION_FUNNY),
             "borings": reactions.count(STORY_REACTION_BORING),
-            "comments": len(comments),
+            "number of comments": len(comments),
             "location": story_obj['location'],
             "timestamp": story_obj['timestamp'],
             "is_private": story_obj['is_private'],
