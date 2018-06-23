@@ -93,4 +93,16 @@ class Flash(object):
     def get_flash(flash_id):
         """Get flash represented by flash_id formatted to be JSON serializable, or raise
          FlashNotFoundException exception if no flash was found"""
-        raise NotImplementedError
+        Logger(__name__).info('Looking for flash {}.'.format(flash_id))
+        flash = Flash._get_one_by_id(flash_id)
+        if flash is None:
+            raise FlashNotFoundException
+        return Flash._serialize_story(flash)
+
+    @staticmethod
+    def _serialize_story(flash_obj):
+        srz_flash = Flash._make_new_flash(flash_obj)
+
+        # _id is an ObjectId so it has to be converted to string
+        srz_flash['flash_id'] = str(flash_obj['_id'])
+        return srz_flash

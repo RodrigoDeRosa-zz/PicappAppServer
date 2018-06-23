@@ -5,6 +5,8 @@ from src.model.flash import FlashNotFoundException, Flash
 from tests.mocks.object_id_mock import object_id_mock
 from tests.mocks.user_mock import user_mock_without_stories_or_friends
 from tests.mocks.flash_data_mocks import flash_data_mock_with_title_and_description
+from tests.mocks.flash_mock import flash_mock
+from bson.objectid import ObjectId
 
 
 class FlashTestCase(unittest.TestCase):
@@ -24,3 +26,25 @@ class FlashTestCase(unittest.TestCase):
             expected_output = object_id_mock
 
             self.assertEqual(Flash.save_new(flash_data_mock), expected_output)
+
+    def test_get_flash_not_found(self):
+        with patch.object(Flash, "_get_one_by_id") as mocked_flash_get, \
+             self.assertRaises(FlashNotFoundException) as context:
+            mocked_flash_get.side_effect = MagicMock(return_value=None)
+            mocked_story_id = object_id_mock
+
+            Flash.get_flash(mocked_story_id)
+
+        exc = context.exception
+        self.assertEqual(exc.error_code, 404)
+
+    def test_get_flash_successful(self):
+        with patch.object(Flash, "_get_one_by_id") as mocked_flash_get:
+
+            internal_flash_mock = dict(flash_mock)
+            internal_flash_mock['_id'] = ObjectId(internal_flash_mock.pop('flash_id'))
+            expected_flash = flash_mock
+
+            mocked_flash_get.side_effect = MagicMock(return_value=internal_flash_mock)
+
+            self.assertEqual(Flash.get_flash('asd'), expected_flash)
