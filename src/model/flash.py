@@ -88,3 +88,9 @@ class Flash(object):
 
         # retrieve required fields from flash_data
         return {k: flash_data[k] for k in required_fields}
+
+    @staticmethod
+    def get_flash(flash_id):
+        """Get flash represented by flash_id formatted to be JSON serializable, or raise
+         FlashNotFoundException exception if no flash was found"""
+        raise NotImplementedError
