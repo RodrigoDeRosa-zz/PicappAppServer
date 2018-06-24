@@ -105,7 +105,10 @@ class StoryVariables(BaseVariables):
     def like_dislike_rate(self):
         likes = self.story["likes"]
         dislikes = self.story["dislikes"]
-        return float(likes) / (likes+dislikes)
+        try:
+            return float(likes) / (likes+dislikes)
+        except ZeroDivisionError:
+            return 0.5
 
 
 class StoryActions(BaseActions):
