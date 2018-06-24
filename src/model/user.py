@@ -196,6 +196,7 @@ class User(object):
             User._delete_field_by_username(friend_user['username'], {entry: ""})
         # delete every owned Story and (related Reactions and Comments? should they be deleted?)
         Story.delete_stories_from_user(username)
+        Flash.delete_flashes_from_user(username)
 
         # now that the user is isolated, delete it
         User._delete_one(username)

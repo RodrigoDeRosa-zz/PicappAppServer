@@ -31,9 +31,9 @@ class FlashTestCase(unittest.TestCase):
         with patch.object(Flash, "_get_one_by_id") as mocked_flash_get, \
              self.assertRaises(FlashNotFoundException) as context:
             mocked_flash_get.side_effect = MagicMock(return_value=None)
-            mocked_story_id = object_id_mock
+            mocked_flash_id = object_id_mock
 
-            Flash.get_flash(mocked_story_id)
+            Flash.get_flash(mocked_flash_id)
 
         exc = context.exception
         self.assertEqual(exc.error_code, 404)
@@ -48,3 +48,24 @@ class FlashTestCase(unittest.TestCase):
             mocked_flash_get.side_effect = MagicMock(return_value=internal_flash_mock)
 
             self.assertEqual(Flash.get_flash('asd'), expected_flash)
+
+    def test_successful_delete_flash(self):
+        with patch.object(Flash, "_delete_one") as mocked_delete_one:
+
+            mocked_internal_flash = dict(flash_mock)
+            mocked_internal_flash["_id"] = ObjectId(mocked_internal_flash.pop('flash_id'))
+
+            mocked_delete_one.side_effect = MagicMock(return_value=mocked_internal_flash)
+
+            self.assertEqual(Flash.delete_flash(object_id_mock), object_id_mock)
+
+    def test_delete_flash_not_found(self):
+        with patch.object(Flash, "_delete_one") as mocked_delete_one,\
+             self.assertRaises(FlashNotFoundException) as context:
+
+            mocked_delete_one.side_effect = MagicMock(return_value=None)
+
+            Flash.delete_flash(object_id_mock)
+        exc = context.exception
+        self.assertEqual(exc.error_code, 404)
+        self.assertEqual(exc.message, "Flash was not found")

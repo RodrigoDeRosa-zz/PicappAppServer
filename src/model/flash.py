@@ -106,3 +106,26 @@ class Flash(object):
         # _id is an ObjectId so it has to be converted to string
         srz_flash['flash_id'] = str(flash_obj['_id'])
         return srz_flash
+
+    @staticmethod
+    def delete_flash(flash_id):
+        """Safely delete flash"""
+        Logger(__name__).info("Deleting flash_id {}.".format(flash_id))
+        # try to delete it
+        deleted_flash = Flash._delete_one(flash_id)
+        if deleted_flash is None:
+            raise FlashNotFoundException
+
+        return str(deleted_flash['_id'])
+
+    @staticmethod
+    def delete_flashes_from_user(username):
+        """Delete all flashes uploaded by user username"""
+        Logger(__name__).info("Deleting all flashes from user {}.".format(username))
+        flash_ids = [str(story_obj['_id']) for story_obj in Flash._get_many({'username': username})]
+
+        deleted_ids = []
+        for flash_id in flash_ids:
+            deleted_ids.append(Flash.delete_flash(flash_id))
+
+        return deleted_ids

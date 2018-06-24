@@ -24,7 +24,7 @@ class FlashResource(Resource):
             # identify with token
             username = Token.identify(token)
 
-            # get story by story_id
+            # get flash by flash_id
             flash = Flash.get_flash(flash_id)
 
             # if <username is not the uploader> and <uploader and username are not friends> return 403
@@ -37,4 +37,33 @@ class FlashResource(Resource):
 
         except (InvalidTokenException, MissingFieldException, ExpiredTokenException,
                 FlashNotFoundException) as e:
+            return ResponseBuilder.build_error_response(e.message, e.error_code)
+
+    def delete(self, flash_id):
+        try:
+            # get token from header
+            token = self._get_token_from_header()
+
+            # identify with token
+            username = Token.identify(token)
+
+            # get flash by flash_id
+            flash = Flash.get_flash(flash_id)
+
+            # if username is not the uploader return 403
+            flash_uploader = flash["username"]
+            if username != flash_uploader:
+                return ResponseBuilder.build_error_response("Flash is not own", 403)
+
+            # delete flash
+            deleted_flash_id = Flash.delete_flash(flash_id)
+
+            # generate response
+            output = {"target_flash_id": deleted_flash_id}
+
+            # return response
+            return ResponseBuilder.build_response(output)
+
+        except (InvalidTokenException, ExpiredTokenException,
+                FlashNotFoundException, MissingFieldException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
