@@ -9,8 +9,9 @@ import json
 from integration.definitions.user_crud import *
 from integration.definitions.user_friendships import *
 from integration.definitions.story_crud import *
+from integration.definitions.flash_crd import *
 
-HOST = "heroku"
+HOST = "local"
 DEBUG_MODE = True
 STANDARD_TIMEOUT = 999  # seconds
 
@@ -810,6 +811,221 @@ class IntegrationTestCase(unittest.TestCase):
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 
         # STEP Xc: delete user2
+        b, r = self.delete_user(username2, friendship_delete_myaccount_body_ok_2, token2)
+
+        expected = friendship_expected_delete_account_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+    def post_flash(self, body, token):
+        """Util for tests on flashes"""
+        uri = self.root_uri + "/flashes"
+        b = json.dumps(body)
+        r = requests.post(uri,
+                          data=b,
+                          headers={'Content-Type': 'Application/json',
+                                   'token': token},
+                          timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def get_flash(self, flash_id, token):
+        """Util for tests on flashes"""
+        uri = self.root_uri + "/flashes/{}".format(flash_id)
+        b = json.dumps({})
+        r = requests.get(uri,
+                         data=b,
+                         headers={'Content-Type': 'Application/json',
+                                  'token': token},
+                         timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def delete_flash(self, flash_id, token):
+        """Util for tests on flashes"""
+        uri = self.root_uri + "/flashes/{}".format(flash_id)
+        b = json.dumps({})
+        r = requests.delete(uri,
+                            data=b,
+                            headers={'Content-Type': 'Application/json',
+                                     'token': token},
+                            timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def test_flashes_crd(self):
+        """STEP 0a: signup user 1
+        STEP 0b: signup user 2
+        STEP 0c: login user 1
+        STEP 0d: login user 2
+        STEP 1: post flash as user 1 FAILED (missing a field)
+        STEP 2: post flash as user 1 FAILED (timestamp is not integer)
+        STEP 3: post flash as user 1 OK
+        STEP 4: get flash as user 1 OK
+        STEP 5: get flash as user 2 FAILED (not friends)
+        STEP Ma: send FRIENDSHIP YES from 1 to 2
+        STEP Mb: send FRIENDSHIP YES from 2 to 1 (become friends)
+        STEP 6: get flash as user 2 OK
+        STEP 7 delete flash as user 2 FAILED (not own)
+        STEP 8: delete flash as user 1 OK
+        STEP 9: get flash as user 1 FAILED (not found)
+        STEP 10: post flash as user 1 OK
+        STEP 11: get flash as user 2 OK
+        STEP Na: delete user 1
+        STEP 12: get flash as user 2 FAILED (not found)
+        STEP Xa: delete user 2"""
+
+        # STEP 0a: signup with user 1
+        b, r = self.sign_up_user(friendship_signup_body_1)
+
+        expected = friendship_expected_signup_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0b: signup with user 2
+        b, r = self.sign_up_user(friendship_signup_body_2)
+
+        expected = friendship_expected_signup_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0c: log in with user 1
+        b, r = self.log_in_user(friendship_login_body_1)
+
+        expected = friendship_expected_login_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username1 = friendship_login_body_1["username"]
+        token1 = str(r.json()['token']['token'])
+
+        # STEP 0d: log in with user 2
+        b, r = self.log_in_user(friendship_login_body_2)
+
+        expected = friendship_expected_login_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username2 = friendship_login_body_2["username"]
+        token2 = str(r.json()['token']['token'])
+
+        # STEP 1: post flash as user 1 FAILED (missing a field)
+        b, r = self.post_flash(post_flash_body_missing_location, token1)
+
+        expected = expected_post_flash_missing_location
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 2: post flash as user 1 FAILED (timestamp is not integer)
+        b, r = self.post_flash(post_flash_body_timestamp_not_integer, token1)
+
+        expected = expected_post_flash_timestamp_not_integer
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 3: post flash as user 1 OK
+        b, r = self.post_flash(post_flash_body_ok, token1)
+
+        expected = expected_post_flash_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: keep the flash_id
+        flash_id1 = str(r.json()["flash_id"])
+
+        # STEP 4: get flash as user 1 OK
+        b, r = self.get_flash(flash_id1, token1)
+
+        expected = expected_get_flash_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 5: get flash as user 2 FAILED (not friends)
+        b, r = self.get_flash(flash_id1, token2)
+
+        expected = expected_get_flash_not_friends
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Ma: send FRIENDSHIP YES from 1 to 2 (step 5 of test_friendship)
+        target_username = username1
+        source_token = token2
+
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_send_friend_request_ok_2_to_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Mb: send FRIENDSHIP YES from 2 to 1 (become friends) (step 6 of test_friendship)
+        target_username = username2
+        source_token = token1
+
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_accept_friend_request_ok_1_to_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 6: get flash as user 2 OK
+        b, r = self.get_flash(flash_id1, token2)
+
+        expected = expected_get_flash_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 7 delete flash as user 2 FAILED (not own)
+        b, r = self.delete_flash(flash_id1, token2)
+
+        expected = expected_delete_flash_not_own
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 8: delete flash as user 1 OK
+        b, r = self.delete_flash(flash_id1, token1)
+
+        expected = expected_delete_flash_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 9: get flash as user 1 FAILED (not found)
+        b, r = self.get_flash(flash_id1, token1)
+
+        expected = expected_get_flash_not_found
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 10: post flash as user 1 OK
+        b, r = self.post_flash(post_flash2_body_ok, token1)
+
+        expected = expected_post_flash2_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: keep the flash_id
+        flash_id2 = str(r.json()["flash_id"])
+
+        # STEP 11: get flash as user 2 OK
+        b, r = self.get_flash(flash_id2, token2)
+
+        expected = expected_get_flash2_ok
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Na: delete user 1
+        b, r = self.delete_user(username1, friendship_delete_myaccount_body_ok_1, token1)
+
+        expected = friendship_expected_delete_account_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 12: get flash as user 2 FAILED (not found)
+        b, r = self.get_flash(flash_id2, token2)
+
+        expected = expected_get_flash_not_found
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Xa: delete user2
         b, r = self.delete_user(username2, friendship_delete_myaccount_body_ok_2, token2)
 
         expected = friendship_expected_delete_account_response_ok_2

@@ -2,7 +2,7 @@ from src.model.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 from src.model.story import Story
-
+from src.model.flash import Flash
 
 class UserAlreadyExistsException(Exception):
     def __init__(self):
@@ -196,6 +196,7 @@ class User(object):
             User._delete_field_by_username(friend_user['username'], {entry: ""})
         # delete every owned Story and (related Reactions and Comments? should they be deleted?)
         Story.delete_stories_from_user(username)
+        Flash.delete_flashes_from_user(username)
 
         # now that the user is isolated, delete it
         User._delete_one(username)
@@ -269,3 +270,14 @@ class User(object):
             "profile_pic": user['profile_pic'],
             "name": user['name']
         }
+
+    @staticmethod
+    def save_new_flash(flash_data):
+        """Facade for Flash.save_new, also checks that user indeed exists"""
+        username = flash_data['username']
+        Logger(__name__).info('Trying to save new flash for user {}.'.format(username))
+        # check user exists
+        user = User._get_one({'username': username})
+        if user is None:
+            raise UserNotFoundException
+        return Flash.save_new(flash_data)
