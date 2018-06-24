@@ -45,19 +45,20 @@ By clicking on the badge, you can see the code coverage report.
 You can see the interface of this Application Server
 [here](https://app.swaggerhub.com/apis/SteelSoft/PicApp-AppServer-Checkpoint1.1/1.0.1.1).
 
-## Branch Status
+## Testing script
 
-The following list indicates the development status of each branch.
+First, execution permission must be given through:
 
- - feature_login -- *Done*
- - feature_myaccount_get -- *Done*
- - feature_token -- *Done*
- - feature_ping -- *Done*
- - feature_sharedserverservice -- *Done*
- 
-**REFERENCE:**
-    
-    WIP: Still being worked on.
-    On Develop: Work finished but on develop branch.
-    Done: Work finished and on main branch.
+    $ chmod +x tstthis
+
+Then it can be used this way:
+
+* **./tstthis unit** runs unit tests
+* **./tstthis api local** runs api (semi-e2e) tests against a local, running appserver
+* **./tstthis api heroku** runs api (semi-e2e) tests against the heroku-hosted appserver
+* **./tstthis db** runs database tests against a local, running appserver
+
+Note that API tests require the heroku-hosted shared server to be running, hence also need an internet connection.
+
+
 
