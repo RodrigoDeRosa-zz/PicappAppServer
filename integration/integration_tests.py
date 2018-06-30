@@ -11,6 +11,7 @@ from integration.definitions.user_crud import *
 from integration.definitions.user_friendships import *
 from integration.definitions.story_crud import *
 from integration.definitions.flash_crd import *
+from integration.definitions.flash_feed import *
 
 HOST = os.environ.get('INTEGRATION_TESTS_HOST', "heroku")
 DEBUG_MODE = True
@@ -1023,6 +1024,177 @@ class IntegrationTestCase(unittest.TestCase):
         b, r = self.get_flash(flash_id2, token2)
 
         expected = expected_get_flash_not_found
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Xa: delete user2
+        b, r = self.delete_user(username2, friendship_delete_myaccount_body_ok_2, token2)
+
+        expected = friendship_expected_delete_account_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+    def get_flashfeed(self, token):
+        """Util for tests on flash feed"""
+        uri = self.root_uri + "/flashfeed"
+        b = json.dumps({})
+        r = requests.get(uri,
+                         data=b,
+                         headers={'Content-Type': 'Application/json',
+                                  'token': token},
+                         timeout=STANDARD_TIMEOUT)
+        return b, r
+
+    def test_flash_feed(self):
+        """STEP 0a: signup user 1
+        STEP 0b: signup user 2
+        STEP 0c: login user 1
+        STEP 0d: login user 2
+        STEP 1: get flashfeed as user 1 (empty)
+        STEP La: post flash as user 2 OK ("post 2-1")
+        STEP Lb: post flash as user 1 OK ("post 1-1")
+        STEP Lc: post flash as user 2 OK ("post 2-2")
+        STEP Ld: post flash as user 2 PSEUDO-OK (timestamp is below threshold so it's not shown)
+        STEP 2: get flashfeed as user 1 (consisting of 1-1)
+        STEP 3: get flashfeed as user 2 (consisting of 2-2, 2-1 in order)
+        STEP Ma: send FRIENDSHIP YES from 1 to 2
+        STEP Mb: send FRIENDSHIP YES from 2 to 1 (become friends)
+        STEP 4: get flashfeed as user 1 (consisting of 2-2, 1-1, 2-1 in order)
+        STEP 5: get flashfeed as user 2 (consisting of 2-2, 1-1, 2-1 in order)
+        STEP Na: delete user 1
+        STEP 6: get flashfeed as user 2 (consisting of 2-2, 2-1 in order)
+        STEP Xa: delete user 2"""
+
+        # STEP 0a: signup with user 1
+        b, r = self.sign_up_user(friendship_signup_body_1)
+
+        expected = friendship_expected_signup_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0b: signup with user 2
+        b, r = self.sign_up_user(friendship_signup_body_2)
+
+        expected = friendship_expected_signup_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 0c: log in with user 1
+        b, r = self.log_in_user(friendship_login_body_1)
+
+        expected = friendship_expected_login_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username1 = friendship_login_body_1["username"]
+        token1 = str(r.json()['token']['token'])
+
+        # STEP 0d: log in with user 2
+        b, r = self.log_in_user(friendship_login_body_2)
+
+        expected = friendship_expected_login_response_ok_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # IMPORTANT: KEEP THE TOKEN
+        username2 = friendship_login_body_2["username"]
+        token2 = str(r.json()['token']['token'])
+
+        # STEP 1: get flashfeed as user 1 (empty)
+        b, r = self.get_flashfeed(token1)
+
+        expected = expected_get_flashfeed_empty
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP La: post flash as user 2 OK ("post 2-1")
+        b, r = self.post_flash(flashfeed_post_flash_body_2_1, token2)
+
+        expected = expected_flashfeed_post_flash_2_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Lb: post flash as user 1 OK ("post 1-1")
+        b, r = self.post_flash(flashfeed_post_flash_body_1_1, token1)
+
+        expected = expected_flashfeed_post_flash_1_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Lc: post flash as user 2 OK ("post 2-2")
+        b, r = self.post_flash(flashfeed_post_flash_body_2_2, token2)
+
+        expected = expected_flashfeed_post_flash_2_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Ld: post flash as user 2 PSEUDO-OK (timestamp is below threshold so it's not shown)
+        b, r = self.post_flash(flashfeed_post_flash_body_expired, token2)
+
+        expected = expected_flashfeed_post_flash_expired
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 2: get flashfeed as user 1 (consisting of 1-1)
+        b, r = self.get_flashfeed(token1)
+
+        expected = expected_get_flashfeed_11
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 3: get flashfeed as user 2 (consisting of 2-2, 2-1 in order)
+        b, r = self.get_flashfeed(token2)
+
+        expected = expected_get_flashfeed_22_21
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Ma: send FRIENDSHIP YES from 1 to 2 (step 5 of test_friendship)
+        target_username = username1
+        source_token = token2
+
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_send_friend_request_ok_2_to_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Mb: send FRIENDSHIP YES from 2 to 1 (become friends) (step 6 of test_friendship)
+        target_username = username2
+        source_token = token1
+
+        b, r = self.send_friend_YES(source_token, target_username)
+
+        expected = expected_accept_friend_request_ok_1_to_2
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 4: get flashfeed as user 1 (consisting of 2-2, 1-1, 2-1 in order)
+        b, r = self.get_flashfeed(token1)
+
+        expected = expected_get_flashfeed_22_11_21
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 5: get flashfeed as user 2 (consisting of 2-2, 1-1, 2-1 in order)
+        b, r = self.get_flashfeed(token2)
+
+        expected = expected_get_flashfeed_22_11_21
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP Na: delete user 1
+        b, r = self.delete_user(username1, friendship_delete_myaccount_body_ok_1, token1)
+
+        expected = friendship_expected_delete_account_response_ok_1
+        self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
+        self.assertEqual(r.json(), expected['body'], get_msg(b, r))
+
+        # STEP 6: get flashfeed as user 2 (consisting of 2-2, 2-1 in order)
+        b, r = self.get_flashfeed(token2)
+
+        expected = expected_get_flashfeed_22_21
         self.assertEqual(r.status_code, expected['status_code'], get_msg(b, r))
         self.assertEqual(r.json(), expected['body'], get_msg(b, r))
 

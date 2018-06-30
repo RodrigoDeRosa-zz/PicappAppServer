@@ -2,6 +2,9 @@ from src.model.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
+import time
+
+FLASH_LIFETIME_HOURS = 4
 
 
 class FlashNotFoundException(Exception):
@@ -18,22 +21,30 @@ class Flash(object):
 
     @staticmethod
     def _get_all():
+        # warning, does not filter out deprecated flashes, for internal use only
         Logger(__name__).info('Retrieving all flashes.')
         return Flash._get_flashes_db().find()
 
     @staticmethod
     def _get_one(query):
+        # warning, does not filter out deprecated flashes, for internal use only
         Logger(__name__).info('Retrieving flash with query {}.'.format(query))
         return Flash._get_flashes_db().find_one(query)
 
     @staticmethod
+    def _unsafe_get_many(query):
+        # warning, does not filter out deprecated flashes, for internal use only
+        Logger(__name__).info('Retrieving all flashes matching query {}.'.format(query))
+        return Flash._get_flashes_db().find(query)
+
+    @staticmethod
     def _get_one_by_id(flash_id):
-        return Flash._get_one({'_id': ObjectId(flash_id)})
+        flash_obj = Flash._get_one({'_id': ObjectId(flash_id)})
+        return None if Flash._flash_is_deprecated(flash_obj) else flash_obj
 
     @staticmethod
     def _get_many(query):
-        Logger(__name__).info('Retrieving all flashes matching query {}.'.format(query))
-        return Flash._get_flashes_db().find(query)
+        return Flash._filter_out_deprecated_flashes(Flash._unsafe_get_many(query))
 
     @staticmethod
     def _insert_one(new_flash):
@@ -143,3 +154,15 @@ class Flash(object):
 
         # return sorted list
         return serialized_flashes
+
+    @staticmethod
+    def _filter_out_deprecated_flashes(flash_objs):
+        return [flash_obj for flash_obj in flash_objs if not Flash._flash_is_deprecated(flash_obj)]
+
+    @staticmethod
+    def _flash_is_deprecated(flash_obj):
+        # right now - number of epochs in 1 hour * number of hours allowed is the minimum epochs allowed
+        if flash_obj is None:
+            return True
+        min_timestamp_allowed = time.time() - 3600 * FLASH_LIFETIME_HOURS
+        return flash_obj['timestamp'] <= min_timestamp_allowed
