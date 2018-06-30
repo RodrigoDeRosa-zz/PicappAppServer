@@ -105,11 +105,15 @@ class User(object):
         return new_user
 
     @staticmethod
-    def _build_profile_from_user(user_data):
+    def _build_profile_from_user(user_data, caller_username):
         # retrieve all stories uploaded by username
-        stories = Story.get_stories_by_username(user_data["username"])
         friend_ids = [friend_id for friend_id, friendship_state in user_data["friends"].items()
                       if friendship_state == "friends"]
+
+        # include privates only if caller username is a friend of target user or him/herself
+        target_ids = friend_ids + [user_data["username"]]
+        stories = Story.get_stories_by_username(user_data["username"], caller_username in target_ids)
+
         # return the profile
         return {
             # general data
@@ -153,12 +157,12 @@ class User(object):
         return new_user_id
 
     @staticmethod
-    def get_profile(username):
+    def get_profile(username, caller_username):
         """Returns username's profile or raises a UserNotFoundException"""
         user = User._get_one({'username': username})
         if user is None:
             raise UserNotFoundException
-        profile = User._build_profile_from_user(user)
+        profile = User._build_profile_from_user(user, caller_username)
         Logger(__name__).info("Profile for user {} was retrieved".format(username))
         return profile
 

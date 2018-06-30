@@ -21,7 +21,7 @@ class ProfileResource(Resource):
             callee_user = Token.identify(token)
 
             # get profile info from user username
-            profile = User.get_profile(username)
+            profile = User.get_profile(username, callee_user)
 
             # generate response
             self.logger.info('User profile found for: {}'.format(username))

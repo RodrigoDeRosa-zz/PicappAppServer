@@ -156,7 +156,6 @@ class Story(object):
             if k in ['is_private']:
                 serialized[k] = "true" if v else "false"
 
-
         # story_id
         story_id = str(story_obj['_id'])
         serialized["story_id"] = story_id
@@ -229,12 +228,16 @@ class Story(object):
         return deleted_ids
 
     @staticmethod
-    def get_stories_by_username(username):
+    def get_stories_by_username(username, include_privates=True):
         """Get all stories uploaded by username, sorted by timestamp in descending order"""
         Logger(__name__).info('Getting all stories from user {}.'.format(username))
         # get all stories matching username
         serialized_stories = [Story._serialize_story(story_obj) for
                               story_obj in Story._get_many({'username': username})]
+
+        # if not include_privates, take them out
+        if not include_privates:
+            serialized_stories = [story for story in serialized_stories if story["is_private"] == "false"]
 
         # sort inplace in descending order by timestamp
         serialized_stories.sort(key=lambda srz_story: srz_story["timestamp"], reverse=True)
@@ -243,7 +246,7 @@ class Story(object):
         return serialized_stories
 
     @staticmethod
-    def get_stories_feed_data_by_username(username, include_privates):
+    def get_stories_feed_data_by_username(username, include_privates=True):
         """Get all stories uploaded by username, formatted for easier use of Feed Builder"""
         # get all stories matching username
         Logger(__name__).info('Getting feed data from stories for user {}.'.format(username))
