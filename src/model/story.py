@@ -243,12 +243,16 @@ class Story(object):
         return serialized_stories
 
     @staticmethod
-    def get_stories_feed_data_by_username(username):
+    def get_stories_feed_data_by_username(username, include_privates):
         """Get all stories uploaded by username, formatted for easier use of Feed Builder"""
         # get all stories matching username
         Logger(__name__).info('Getting feed data from stories for user {}.'.format(username))
         story_feed_blocks = [Story._get_feed_story_data(story_obj) for
                              story_obj in Story._get_many({'username': username})]
+
+        # if not include_privates, take them out
+        if not include_privates:
+            story_feed_blocks = [block for block in story_feed_blocks if not block["is_private"]]
 
         return story_feed_blocks
 
