@@ -293,7 +293,7 @@ class User(object):
         target_ids = [friend_id for friend_id, friendship_state in user_obj["friends"].items()
                       if friendship_state == "friends"]  # really ugly, TODO refactor this "friends"
         target_ids.append(username)
-        
+
         for target_id in target_ids:
             # get flashes from username and take at most flashes_per_user
             target_flashes = Flash.get_flashes_from_username(target_id)[:flashes_per_user]

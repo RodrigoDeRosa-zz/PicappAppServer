@@ -162,5 +162,7 @@ class Flash(object):
     @staticmethod
     def _flash_is_deprecated(flash_obj):
         # right now - number of epochs in 1 hour * number of hours allowed is the minimum epochs allowed
+        if flash_obj is None:
+            return True
         min_timestamp_allowed = time.time() - 3600 * FLASH_LIFETIME_HOURS
         return flash_obj['timestamp'] <= min_timestamp_allowed

@@ -1,10 +1,13 @@
 from integration.definitions.general_definitions import test_user1, test_user2, bad_request_response_body, \
     NotNonePlaceholder, expected_response, expected_error_response, unauthorized_response_body
 
+import time
+now_timestamp = int(time.time())
+str_timestamp = str(now_timestamp)
 
 post_flash_body_ok = {
       "media": "some_magic_image_uri",
-      "timestamp": "1524157743",
+      "timestamp": str_timestamp,
       "location": "some_magic_maps_location",
       "description": "no caption needed",
       "title": "rip pacha"
@@ -12,7 +15,7 @@ post_flash_body_ok = {
 
 post_flash_body_missing_location = {
     "media": "some_magic_image_uri",
-    "timestamp": "1524157743",
+    "timestamp": str_timestamp,
     "description": "no caption needed",
     "title": "rip pacha"
 }
@@ -28,7 +31,7 @@ post_flash_body_timestamp_not_integer = {
 
 expected_post_flash_ok_body = {
     "media": "some_magic_image_uri",
-    "timestamp": 1524157743,
+    "timestamp": now_timestamp,
     "location": "some_magic_maps_location",
     "description": "no caption needed",
     "title": "rip pacha",
@@ -39,7 +42,7 @@ expected_post_flash_ok = expected_response(expected_post_flash_ok_body, 200)
 
 expected_get_flash_ok_body = {
     "media": "some_magic_image_uri",
-    "timestamp": 1524157743,
+    "timestamp": now_timestamp,
     "location": "some_magic_maps_location",
     "description": "no caption needed",
     "title": "rip pacha",
@@ -63,15 +66,16 @@ expected_delete_flash_not_own =  expected_error_response(403)
 
 expected_get_flash_not_found =  expected_error_response(404)
 
+
 post_flash2_body_ok = {
       "media": "some_magic_image_uri",
-      "timestamp": "1524157743",
+      "timestamp": str_timestamp,
       "location": "some_magic_maps_location",
 }
 
 expected_post_flash2_ok_body = {
     "media": "some_magic_image_uri",
-    "timestamp": 1524157743,
+    "timestamp": now_timestamp,
     "location": "some_magic_maps_location",
     "description": "",
     "title": "",
@@ -82,7 +86,7 @@ expected_post_flash2_ok = expected_response(expected_post_flash2_ok_body, 200)
 
 expected_get_flash2_ok_body = {
     "media": "some_magic_image_uri",
-    "timestamp": 1524157743,
+    "timestamp": now_timestamp,
     "location": "some_magic_maps_location",
     "description": "",
     "title": "",
