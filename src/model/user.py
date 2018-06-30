@@ -224,10 +224,10 @@ class User(object):
         return Story.save_new(story_data)
 
     @staticmethod
-    def _get_stories_feed_data(username):
+    def _get_stories_feed_data(username, include_privates=False):
         """Formats stories uploaded by this user for easier use of the Feed Builder."""
         # get all stories feed data from username
-        story_feed_blocks = Story.get_stories_feed_data_by_username(username)
+        story_feed_blocks = Story.get_stories_feed_data_by_username(username, include_privates)
 
         # get user specific feed data
         user_feed_data = User._get_user_feed_data(username, len(story_feed_blocks))
@@ -251,10 +251,17 @@ class User(object):
     def get_feed_data(username):
         """Gets feed data from all users and all their stories for FeedBuilder usage"""
         feed_data = []
+
+        # get target ids
+        target_ids = [friend_id for friend_id, friendship_state in _user(username)["friends"].items()
+                      if friendship_state == "friends"]  # really ugly, TODO refactor this "friends"
+        target_ids.append(username)
+
         for user_obj in User._get_all():
             uploader_username = user_obj['username']
             # TODO: if username is not in uploader's friend_ids delete private stories from the feed_data
-            feed_data_stories_from_this_user = User._get_stories_feed_data(uploader_username)
+            feed_data_stories_from_this_user = User._get_stories_feed_data(uploader_username,
+                                                                           uploader_username in target_ids)
             feed_data.extend(feed_data_stories_from_this_user)
         return feed_data
 
