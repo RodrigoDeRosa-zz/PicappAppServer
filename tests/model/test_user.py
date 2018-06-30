@@ -30,7 +30,7 @@ class UserTestCase(unittest.TestCase):
              self.assertRaises(UserNotFoundException) as context:
             mocked_user_get.side_effect = MagicMock(return_value=None)
 
-            User.get_profile("pedro")
+            User.get_profile("pedro", "asd")
 
         exc = context.exception
         self.assertEqual(exc.error_code, 404)
@@ -55,7 +55,7 @@ class UserTestCase(unittest.TestCase):
             mocked_user_get.side_effect = MagicMock(return_value=user_mock_without_stories_or_friends)
             mocked_story_get_stories.side_effect = MagicMock(return_value=expected_profile["stories"])
 
-            self.assertEqual(User.get_profile("asd"), expected_profile)
+            self.assertEqual(User.get_profile("asd", "asd"), expected_profile)
 
     def test_get_profile_preview_not_found(self):
         with patch.object(User, "_get_one") as mocked_user_get, \
