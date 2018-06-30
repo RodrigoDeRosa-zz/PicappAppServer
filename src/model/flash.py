@@ -97,10 +97,10 @@ class Flash(object):
         flash = Flash._get_one_by_id(flash_id)
         if flash is None:
             raise FlashNotFoundException
-        return Flash._serialize_story(flash)
+        return Flash._serialize_flash(flash)
 
     @staticmethod
-    def _serialize_story(flash_obj):
+    def _serialize_flash(flash_obj):
         srz_flash = Flash._make_new_flash(flash_obj)
 
         # _id is an ObjectId so it has to be converted to string
@@ -122,10 +122,24 @@ class Flash(object):
     def delete_flashes_from_user(username):
         """Delete all flashes uploaded by user username"""
         Logger(__name__).info("Deleting all flashes from user {}.".format(username))
-        flash_ids = [str(story_obj['_id']) for story_obj in Flash._get_many({'username': username})]
+        flash_ids = [str(flash_obj['_id']) for flash_obj in Flash._get_many({'username': username})]
 
         deleted_ids = []
         for flash_id in flash_ids:
             deleted_ids.append(Flash.delete_flash(flash_id))
 
         return deleted_ids
+
+    @staticmethod
+    def get_flashes_from_username(username):
+        """Get all flashes uploaded by username, sorted by timestamp in descending order"""
+        Logger(__name__).info('Getting all flashes from user {}.'.format(username))
+        # get all flashes matching username
+        serialized_flashes = [Flash._serialize_flash(flash_obj) for
+                              flash_obj in Flash._get_many({'username': username})]
+
+        # sort inplace in descending order by timestamp
+        serialized_flashes.sort(key=lambda srz_flash: srz_flash["timestamp"], reverse=True)
+
+        # return sorted list
+        return serialized_flashes

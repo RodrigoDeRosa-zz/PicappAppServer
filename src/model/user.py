@@ -281,3 +281,17 @@ class User(object):
         if user is None:
             raise UserNotFoundException
         return Flash.save_new(flash_data)
+
+    @staticmethod
+    def get_feed_flashes(username, flashes_per_friend):
+        """Gets a list with up to flashes_per_friend flashes from every friend of username"""
+        feed_flashes = []
+        user_obj = User._get_one({'username': username})
+        friend_ids = [friend_id for friend_id, friendship_state in user_obj["friends"].items()
+                      if friendship_state == "friends"]  # really ugly, TODO refactor this "friends"
+
+        for friend_id in friend_ids:
+            # get flashes from username and take at most flashes_per_friend
+            friend_flashes = Flash.get_flashes_from_username(friend_id)[:flashes_per_friend]
+            feed_flashes.extend(friend_flashes)
+        return feed_flashes

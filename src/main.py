@@ -21,6 +21,7 @@ from src.resources.profile_preview import ProfilePreviewResource
 from src.resources.friendlist import FriendListResource
 from src.resources.flashes import FlashesResource
 from src.resources.flash import FlashResource
+from src.resources.flash_feed import FlashFeedResource
 
 
 LOCAL_MONGO = 'mongodb://localhost:27017/restdb'
@@ -49,6 +50,7 @@ api.add_resource(ProfilePreviewResource, "/users/<username>/preview")
 api.add_resource(FriendListResource, "/users/<username>/friends")
 api.add_resource(FlashesResource, "/flashes")
 api.add_resource(FlashResource, "/flashes/<flash_id>")
+api.add_resource(FlashFeedResource, "/flashfeed")
 
 
 def run_app(local=True, external_server=False):
