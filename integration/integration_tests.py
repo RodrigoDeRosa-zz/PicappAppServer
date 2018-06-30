@@ -5,13 +5,14 @@
 import requests
 import unittest
 import json
+import os
 
 from integration.definitions.user_crud import *
 from integration.definitions.user_friendships import *
 from integration.definitions.story_crud import *
 from integration.definitions.flash_crd import *
 
-HOST = "heroku"
+HOST = os.environ.get('INTEGRATION_TESTS_HOST', "heroku")
 DEBUG_MODE = True
 STANDARD_TIMEOUT = 999  # seconds
 
