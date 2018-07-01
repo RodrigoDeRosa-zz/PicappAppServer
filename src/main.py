@@ -23,8 +23,6 @@ from src.resources.flashes import FlashesResource
 from src.resources.flash import FlashResource
 from src.resources.flash_feed import FlashFeedResource
 
-from src.resources.gettime import TimeResource  # DEBUG
-
 LOCAL_MONGO = 'mongodb://localhost:27017/restdb'
 CLOUD_MONGO = 'mongodb://heroku_lw3s78tf:dhk2glio3fs16ket6aapjc2867@ds229549.mlab.com:29549/heroku_lw3s78tf'
 app = Flask(__name__)
@@ -53,7 +51,6 @@ api.add_resource(FlashesResource, "/flashes")
 api.add_resource(FlashResource, "/flashes/<flash_id>")
 api.add_resource(FlashFeedResource, "/flashfeed")
 
-api.add_resource(TimeResource, "/dev/time")  # DEBUG
 
 def run_app(local=True, external_server=False):
     parser = ConfigParser()
