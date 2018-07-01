@@ -24,7 +24,7 @@ def make_feed_flash_from_expected(expected_body):
 
 # timestamps are not "now" and have differences just to make sure they do not evaluate to same number
 # not making better design because making this smooth is not the point
-now_timestamp = int(time.time())
+now_timestamp = int(time.time()) * 1000
 
 flashfeed_post_flash_body_2_1 = {
       "media": "some_magic_image_uri",
@@ -52,7 +52,7 @@ flashfeed_post_flash_body_2_2 = {
 
 flashfeed_post_flash_body_expired = {
       "media": "some_magic_image_uri",
-      "timestamp": now_timestamp - 80000,
+      "timestamp": now_timestamp - 80000000,
       "location": "some_magic_maps_location",
       "description": "no caption needed",
       "title": "expired"

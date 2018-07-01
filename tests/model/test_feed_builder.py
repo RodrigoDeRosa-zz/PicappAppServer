@@ -13,7 +13,7 @@ class FeedBuilderTestCase(unittest.TestCase):
         return [bad_story_feed_data_mock, good_story_feed_data_mock, hot_story_feed_data_mock]
 
     def mocked_get_epochs(self):
-        return current_epochs_mock
+        return current_epochs_mock/1000
 
     def test_format_story(self):
         with patch.object(Story, "get_story") as mocked_get_story,\
