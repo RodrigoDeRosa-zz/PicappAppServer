@@ -23,7 +23,6 @@ from src.resources.flashes import FlashesResource
 from src.resources.flash import FlashResource
 from src.resources.flash_feed import FlashFeedResource
 
-
 LOCAL_MONGO = 'mongodb://localhost:27017/restdb'
 CLOUD_MONGO = 'mongodb://heroku_lw3s78tf:dhk2glio3fs16ket6aapjc2867@ds229549.mlab.com:29549/heroku_lw3s78tf'
 app = Flask(__name__)

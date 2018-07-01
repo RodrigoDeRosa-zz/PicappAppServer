@@ -164,5 +164,6 @@ class Flash(object):
         # right now - number of epochs in 1 hour * number of hours allowed is the minimum epochs allowed
         if flash_obj is None:
             return True
-        min_timestamp_allowed = time.time() - 3600 * FLASH_LIFETIME_HOURS
-        return flash_obj['timestamp'] <= min_timestamp_allowed
+        min_timestamp_allowed = time.time() * 1000 - 3600 * FLASH_LIFETIME_HOURS
+        min_millisecs_allowed = min_timestamp_allowed * 1000
+        return flash_obj['timestamp'] <= min_millisecs_allowed
