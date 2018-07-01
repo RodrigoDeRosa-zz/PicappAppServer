@@ -95,12 +95,12 @@ class FlashTestCase(unittest.TestCase):
 
             fake_now = not_deprecated_flash1['timestamp'] + 100  # just so that it is not timestamp
 
-            deprecated_flash1['timestamp'] = fake_now - 30000  # surely below threshold
-            deprecated_flash2['timestamp'] = fake_now - 25000  # surely below threshold
+            deprecated_flash1['timestamp'] = fake_now - 30000000  # surely below threshold
+            deprecated_flash2['timestamp'] = fake_now - 25000000  # surely below threshold
 
             all_flashes_from_username = [not_deprecated_flash1, deprecated_flash1, deprecated_flash2]
 
-            mocked_get_time.side_effect = MagicMock(return_value=fake_now)
+            mocked_get_time.side_effect = MagicMock(return_value=fake_now / 1000)  # fake seconds instead of milli
             mocked_unsafe_get_many.side_effect = MagicMock(return_value=all_flashes_from_username)
 
             self.assertEqual(Flash._get_many({"some": "query"}), [not_deprecated_flash1])
