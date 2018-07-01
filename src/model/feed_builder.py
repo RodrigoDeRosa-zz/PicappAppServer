@@ -61,7 +61,7 @@ class FeedBuilder(object):
 
 def epochs_as_days(epochs):
     """Returns rounded number of days elapsed in number of epochs given"""
-    return round(epochs/86400)  # number of epochs in 1 day
+    return int(epochs/86400)  # number of epochs in 1 day
 
 
 def get_current_epochs():
@@ -95,7 +95,7 @@ class StoryVariables(BaseVariables):
 
     @numeric_rule_variable
     def days_since_post(self):
-        return epochs_as_days(get_current_epochs() - self.story["timestamp"]/1000.0)
+        return epochs_as_days(get_current_epochs() - self.story["timestamp"]/1000)
 
     @numeric_rule_variable
     def number_of_comments(self):

@@ -1,4 +1,4 @@
-current_epochs_mock = 1529779604
+current_epochs_mock = 1529779604000
 
 bad_story_feed_data_mock = {
     "story_id": 'badstory741a63a89a237e670',
@@ -10,7 +10,7 @@ bad_story_feed_data_mock = {
     "number of comments": 0,
     "borings": 0,
     "location": 'some_magic_maps_location',
-    "timestamp": 1434826001,
+    "timestamp": current_epochs_mock - 9999999999,
     "is_private": 'false',
     "uploader": 'martin.errazquin',
     "friend_ids": set(),
@@ -28,7 +28,7 @@ good_story_feed_data_mock = {
     "borings": 0,
     "number of comments": 4,
     "location": 'some_magic_maps_location',
-    "timestamp": 929520401,
+    "timestamp": current_epochs_mock - 259200000,
     "is_private": 'false',
     "uploader": 'martin.errazquin',
     "friend_ids": set(),
@@ -46,7 +46,7 @@ hot_story_feed_data_mock = {
     "borings": 0,
     "number of comments": 0,
     "location": 'some_magic_maps_location',
-    "timestamp": current_epochs_mock - 10,
+    "timestamp": current_epochs_mock - 4000,
     "is_private": 'false',
     "uploader": 'martin.errazquin',
     "friend_ids": set(),
