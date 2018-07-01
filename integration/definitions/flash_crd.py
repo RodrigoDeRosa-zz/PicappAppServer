@@ -2,7 +2,7 @@ from integration.definitions.general_definitions import test_user1, test_user2, 
     NotNonePlaceholder, expected_response, expected_error_response, unauthorized_response_body
 
 import time
-now_timestamp = int(time.time())
+now_timestamp = int(time.time()) * 1000
 str_timestamp = str(now_timestamp)
 
 post_flash_body_ok = {

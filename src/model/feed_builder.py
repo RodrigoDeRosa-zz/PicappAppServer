@@ -95,7 +95,7 @@ class StoryVariables(BaseVariables):
 
     @numeric_rule_variable
     def days_since_post(self):
-        return epochs_as_days(get_current_epochs() - self.story["timestamp"])
+        return epochs_as_days(get_current_epochs() - self.story["timestamp"]/1000.0)
 
     @numeric_rule_variable
     def number_of_comments(self):
