@@ -1,10 +1,10 @@
-from flask import request
 from flask_restful import Resource
 
 from src.utils.response_builder import ResponseBuilder
 from src.utils.request_builder import RequestBuilder, MissingFieldException
 from src.model.user import User
 from src.utils.logger_config import Logger
+from src.utils.stats import StatCollector
 from src.security.token import Token, InvalidTokenException, ExpiredTokenException
 from src.security.input_sanitizer import InvalidFormatException, InputSanitizer
 
@@ -47,6 +47,9 @@ class StoriesResource(Resource):
             # generate response
             response = dict(story_data)
             response['story_id'] = new_story_id
+
+            # save stat
+            StatCollector.save_event_story_post(story_data["timestamp"])
 
             # return response
             return ResponseBuilder.build_response(response)

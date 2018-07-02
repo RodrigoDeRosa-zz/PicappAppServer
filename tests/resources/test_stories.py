@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.resources.stories import StoriesResource, User
+from src.resources.stories import StoriesResource, User, StatCollector
 from src.security.token import Token
 from src.utils.response_builder import ResponseBuilder
 from src.utils.request_builder import MissingFieldException
@@ -28,10 +28,12 @@ class StoriesResourceTestCase(unittest.TestCase):
     def test_successful_post_with_optional_fields(self):
         with patch.object(Token, "identify") as mocked_token, \
                 patch.object(User, "save_new_story") as mocked_story,\
-                patch.object(ResponseBuilder, "build_response")as mocked_response_builder:
+                patch.object(ResponseBuilder, "build_response")as mocked_response_builder,\
+                patch.object(StatCollector, "save_event_story_post") as mocked_stats:
             mocked_token.side_effect = self.mocked_identify
             mocked_story.side_effect = self.mocked_save_new
             mocked_response_builder.side_effect = self.mocked_build_response
+            mocked_stats.side_effect = MagicMock(return_value=object_id_mock)
 
             aux = story_data_mock_with_title_and_description
 
@@ -69,10 +71,12 @@ class StoriesResourceTestCase(unittest.TestCase):
     def test_successful_post_without_optional_fields(self):
         with patch.object(Token, "identify") as mocked_token, \
                 patch.object(User, "save_new_story") as mocked_story,\
-                patch.object(ResponseBuilder, "build_response")as mocked_response_builder:
+                patch.object(ResponseBuilder, "build_response")as mocked_response_builder,\
+                patch.object(StatCollector, "save_event_story_post") as mocked_stats:
             mocked_token.side_effect = self.mocked_identify
             mocked_story.side_effect = self.mocked_save_new
             mocked_response_builder.side_effect = self.mocked_build_response
+            mocked_stats.side_effect = MagicMock(return_value=object_id_mock)
 
             aux = story_data_mock_without_title_or_description
 
