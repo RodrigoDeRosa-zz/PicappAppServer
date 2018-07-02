@@ -63,25 +63,27 @@ class StatCollectorTestCase(unittest.TestCase):
             aux_timestamp1 = 192193239
             aux_timestamp2 = 651453131
 
-            StatCollector.save_event_friendship_request_sent(aux_timestamp1)
-            StatCollector.save_event_friendship_request_sent(aux_timestamp2)
+            StatCollector.save_event_flash_post(aux_timestamp1)
+            StatCollector.save_event_flash_post(aux_timestamp2)
 
-            self.assertEqual(StatCollector.get_number_of_friendship_requests_sent(),
+            self.assertEqual(StatCollector.get_number_of_flashes_posted(),
                              [aux_timestamp1, aux_timestamp2])
 
     def test_get_flash_post_after_1_ok_2_other_returns_1(self):
         with patch.object(StatCollector, "_insert_into_db") as mocked_insert, \
-             patch.object(StatCollector, "_get_many") as mocked_get_many:
-
-            mocked_insert.side_effect = self.mock_insert
-            mocked_get_many.side_effect = self.mock_get_many
+             patch.object(StatCollector, "_get_many") as mocked_get_many,\
+             patch("src.utils.stats.get_time_in_millisec") as mocked_get_time_in_milli:
 
             aux_timestamp_wrong1 = 192193239
             aux_timestamp_wrong2 = 651453131
             aux_timestamp_ok = 135431581
 
-            StatCollector.save_event_friendship_request_sent(aux_timestamp_wrong1)
-            StatCollector.save_event_flash_post(aux_timestamp_ok)
+            mocked_insert.side_effect = self.mock_insert
+            mocked_get_many.side_effect = self.mock_get_many
+            mocked_get_time_in_milli.side_effect = MagicMock(return_value=aux_timestamp_ok)
+
+            StatCollector.save_event_friendship_request_sent()
+            StatCollector.save_event_flash_post(aux_timestamp_wrong1)
             StatCollector.save_event_story_post(aux_timestamp_wrong2)
 
-            self.assertEqual(StatCollector.get_number_of_flashes_posted(), [aux_timestamp_ok])
+            self.assertEqual(StatCollector.get_number_of_friendship_requests_sent(), [aux_timestamp_ok])

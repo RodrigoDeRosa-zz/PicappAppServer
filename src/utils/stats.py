@@ -1,5 +1,6 @@
 from src.model.database import mongo
 from src.utils.logger_config import Logger
+import time
 
 # types of events
 STORY_POST = "story_post"
@@ -11,6 +12,11 @@ def objects_to_timestamps(objs_iterable):
     """Receives an iterable of objects containing field 'timestamp' and returns a list of those
     timestamps"""
     return [obj["timestamp"] for obj in objs_iterable]
+
+
+def get_time_in_millisec():
+    """Get actual time in milliseconds"""
+    return int(time.time() * 1000)
 
 
 class StatCollector(object):
@@ -56,8 +62,8 @@ class StatCollector(object):
 
     # FRIENDSHIP INTENTS SENT
     @staticmethod
-    def save_event_friendship_request_sent(timestamp):
-        return StatCollector._save_new_event(FRIENDSHIP_REQUEST_SENT, timestamp)
+    def save_event_friendship_request_sent():
+        return StatCollector._save_new_event(FRIENDSHIP_REQUEST_SENT, get_time_in_millisec())
 
     @staticmethod
     def get_number_of_friendship_requests_sent():

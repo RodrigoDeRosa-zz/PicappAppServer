@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 from src.security.token import Token, ExpiredTokenException
 from tests.mocks.token_mock import token_mock
 from tests.mocks.user_friendship_mocks import users_mock_not_friends, users_mock_received, users_mock_friends, users_mock_sent
-from src.resources.friendship import FriendshipResource
+from src.resources.friendship import FriendshipResource, StatCollector
 from src.utils.response_builder import ResponseBuilder
 from src.model.friendship import Friendship, UserNotFoundException, AlreadyFriendsException, FRIENDSHIP_STATE_SENT, \
     FRIENDSHIP_STATE_RECEIVED, FRIENDSHIP_STATE_FRIENDS, NotFriendsException, FRIENDSHIP_STATE_NOT_FRIENDS
@@ -30,10 +30,13 @@ class FriendshipResourceTestCase(unittest.TestCase):
     def test_send_friendship_request_successful(self):
         with patch.object(Token, 'identify') as mocked_token,\
              patch.object(Friendship, 'wants_to_be_friends_with') as mocked_friendship,\
-             patch.object(ResponseBuilder, 'build_response') as mocked_response_builder:
+             patch.object(ResponseBuilder, 'build_response') as mocked_response_builder,\
+             patch.object(StatCollector,"save_event_friendship_request_sent") as mocked_stats:
+
             mocked_token.side_effect = self.mocked_identify
             mocked_friendship.side_effect = self.mocked_successful_wants_to_be_friends_with
             mocked_response_builder.side_effect = self.mocked_build_response
+            mocked_stats.side_effect = MagicMock(return_value="asdads")  # don't care about return value
 
             src_usr = dict(users_mock_not_friends['source'])
             tgt_usr = dict(users_mock_not_friends['target'])
@@ -46,10 +49,13 @@ class FriendshipResourceTestCase(unittest.TestCase):
     def test_send_friendship_request_already_friends(self):
         with patch.object(Token, 'identify') as mocked_token,\
              patch.object(Friendship, 'wants_to_be_friends_with') as mocked_friendship,\
-             patch.object(ResponseBuilder, 'build_error_response') as mocked_response_builder:
+             patch.object(ResponseBuilder, 'build_error_response') as mocked_response_builder, \
+             patch.object(StatCollector, "save_event_friendship_request_sent") as mocked_stats:
+
             mocked_token.side_effect = self.mocked_identify
             mocked_friendship.side_effect = MagicMock(side_effect=AlreadyFriendsException)
             mocked_response_builder.side_effect = self.mocked_build_error_response
+            mocked_stats.side_effect = MagicMock(return_value="asdads")  # don't care about return value
 
             src_usr = dict(users_mock_not_friends['source'])
             tgt_usr = dict(users_mock_not_friends['target'])
@@ -62,6 +68,7 @@ class FriendshipResourceTestCase(unittest.TestCase):
         with patch.object(Token, 'identify') as mocked_token,\
              patch.object(Friendship, 'wants_to_not_be_friends_with') as mocked_friendship,\
              patch.object(ResponseBuilder, 'build_response') as mocked_response_builder:
+
             mocked_token.side_effect = self.mocked_identify
             mocked_friendship.side_effect = self.mocked_successful_wants_to_not_be_friends_with
             mocked_response_builder.side_effect = self.mocked_build_response
@@ -78,6 +85,7 @@ class FriendshipResourceTestCase(unittest.TestCase):
         with patch.object(Token, 'identify') as mocked_token,\
              patch.object(Friendship, 'wants_to_not_be_friends_with') as mocked_friendship,\
              patch.object(ResponseBuilder, 'build_response') as mocked_response_builder:
+
             mocked_token.side_effect = self.mocked_identify
             mocked_friendship.side_effect = MagicMock(side_effect=NotFriendsException)
             mocked_response_builder.side_effect = self.mocked_build_error_response
@@ -94,6 +102,7 @@ class FriendshipResourceTestCase(unittest.TestCase):
         with patch.object(Token, 'identify') as mocked_token,\
              patch.object(Friendship, 'get_friendship_state_from_to') as mocked_get_friendship,\
              patch.object(ResponseBuilder, 'build_response') as mocked_response_builder:
+            
             mocked_token.side_effect = self.mocked_identify
             mocked_get_friendship.side_effect = MagicMock(side_effect=UserNotFoundException)
             mocked_response_builder.side_effect = self.mocked_build_error_response
