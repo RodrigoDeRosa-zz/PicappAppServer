@@ -38,6 +38,8 @@ class FlashesResource(Resource):
             flash_data['timestamp'] = InputSanitizer.sanitize_integer(timestamp)
 
             # save new flash at AS
+            self.logger.debug("At POST@/flashes got flash_data {}".format(flash_data))
+
             new_flash_id = User.save_new_flash(flash_data)
 
             # generate response

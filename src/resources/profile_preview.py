@@ -33,6 +33,5 @@ class ProfilePreviewResource(Resource):
                 InvalidTokenException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
 
-
     def _get_token_from_header(self):
         return RequestBuilder.get_field_from_header('token')

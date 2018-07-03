@@ -1,22 +1,28 @@
 import logging
 
+LOGGING_FILE_NAME = 'app_server.log'
+FORMATTING_STRING = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOGGING_LEVEL = logging.INFO
 
-class Logger:
+
+class Logger(object):
+
+    __initialized = False
+
+    @classmethod
+    def get_logger(cls, name):
+        if not cls.__initialized:
+            logging.basicConfig(
+                filename=LOGGING_FILE_NAME,
+                format=FORMATTING_STRING,
+                level=LOGGING_LEVEL
+            )
+            cls.__initialized = True
+            logging.getLogger("logger config").info("Logger has been configured")
+        return logging.getLogger(name)
 
     def __init__(self, name):
-        self._logger = logging.getLogger(name)
-        self._logger.setLevel(logging.INFO)
-
-        # create a file handler
-        handler = logging.FileHandler('app_server.log')
-        handler.setLevel(logging.INFO)
-
-        # create a logging format
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-
-        # add the handlers to the logger
-        self._logger.addHandler(handler)
+        self._logger = Logger.get_logger(name)
 
     def info(self, message):
         self._logger.info(message)
@@ -29,3 +35,4 @@ class Logger:
 
     def warning(self, message):
         self._logger.warning(message)
+

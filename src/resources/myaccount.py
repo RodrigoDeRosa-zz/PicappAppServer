@@ -24,6 +24,8 @@ class MyAccountResource(Resource):
             # identify with token
             caller_user = Token.identify(token)
 
+            self.logger.debug("At GET@/myaccount Caller is {} and username is {}".format(
+                caller_user, username))
             if caller_user != username:
                 return ResponseBuilder.build_error_response("Username is not own", 403)
 
@@ -51,6 +53,8 @@ class MyAccountResource(Resource):
             # identify with token
             caller_user = Token.identify(token)
 
+            self.logger.debug("At DELETE@/myaccountCaller is {} and username is {}".format(
+                caller_user, username))
             if caller_user != username:
                 return ResponseBuilder.build_error_response("Username is not own", 403)
 
@@ -88,6 +92,8 @@ class MyAccountResource(Resource):
             # identify with token
             caller_user = Token.identify(token)
 
+            self.logger.debug("At PUT@/myaccount Caller is {} and username is {}".format(
+                caller_user, username))
             if caller_user != username:
                 return ResponseBuilder.build_error_response("Username is not own", 403)
 

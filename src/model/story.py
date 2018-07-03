@@ -131,8 +131,6 @@ class Story(object):
         Logger(__name__).info('New story {} by user {} was saved.'.format(new_story_id,
                                                                           username))
 
-        Logger(__name__).info("Story_id {} was added to user {}.".format(new_story_id, username))
-
         # return the id
         return new_story_id
 
@@ -166,6 +164,7 @@ class Story(object):
         # comments
         serialized["comments"] = StoryComment.get_comments_on_story(story_id)
 
+        Logger(__name__).debug("Serialized story retrieved is {}".format(serialized))
         return serialized
 
     @staticmethod

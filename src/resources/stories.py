@@ -42,6 +42,7 @@ class StoriesResource(Resource):
             # ask SS for storage service?
 
             # save new Story at AS
+            self.logger.debug("At POST@/stories got story_data {}".format(story_data))
             new_story_id = User.save_new_story(story_data)
 
             # generate response

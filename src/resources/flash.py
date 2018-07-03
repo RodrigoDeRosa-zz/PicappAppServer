@@ -29,6 +29,10 @@ class FlashResource(Resource):
 
             # if <username is not the uploader> and <uploader and username are not friends> return 403
             uploader = flash["username"]
+
+            self.logger.debug("at GET@/flash/{} username requesting is {} and uploader is {}".format(
+                flash_id, username, uploader))
+
             if username != uploader and not Friendship.are_friends(username, uploader):
                 return ResponseBuilder.build_error_response("Flash is not from a friend", 403)
 
@@ -52,6 +56,10 @@ class FlashResource(Resource):
 
             # if username is not the uploader return 403
             flash_uploader = flash["username"]
+
+            self.logger.debug("at DELETE@/flash/{} username requesting is {} and uploader is {}".format(
+                flash_id, username, flash_uploader))
+
             if username != flash_uploader:
                 return ResponseBuilder.build_error_response("Flash is not own", 403)
 

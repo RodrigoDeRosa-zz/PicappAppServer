@@ -188,6 +188,7 @@ class Friendship(object):
     def get_friends(username):
         """Returns a list of username friends as profile previews, or raises UserNotFoundException
         if none was found."""
+        Logger(__name__).info('Retrieving friends for user {}.'.format(username))
         user_obj = _user(username)
         if user_obj is None:
             raise UserNotFoundException

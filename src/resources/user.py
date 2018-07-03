@@ -24,27 +24,6 @@ class UserResource(Resource):
         self.logger.info('User list fetched. ({})'.format(output))
         response = {'result': output}
         return ResponseBuilder.build_response(response)
-    """
-    def post(self):
-        # get data
-        new_name = self._get_user_name_from_request()
-        new_age = self._get_user_age_from_request()
-
-        # TO DO validate username-already-taken
-
-        # insert into DB
-        user = {'name': new_name, 'age': new_age}
-        new_user_id = User.insert_one(user)
-        self.logger.info('User ({}) added to DB with id {}'.format(user, new_user_id))
-
-        # return fresh data from DB
-        new_user = User.get_one({'_id': new_user_id})
-
-        # formatting
-        output = {'name': new_user['name'], 'age': new_user['age']}
-        response = {'result': output}
-        return ResponseBuilder.build_response(response)
-    """
 
     def delete(self):
         # delete all

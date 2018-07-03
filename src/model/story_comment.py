@@ -111,6 +111,7 @@ class StoryComment(object):
     @staticmethod
     def delete_comment(comment_id):
         """Delete the comment identified by comment_id."""
+        Logger(__name__).info("Deleting comment id {}".format(comment_id))
         deleted_comment = StoryComment._delete_one(comment_id)
         if deleted_comment is None:
             raise StoryCommentNotFoundException
@@ -120,6 +121,7 @@ class StoryComment(object):
     def get_comment(comment_id):
         """Get comment identified by comment_id or raise StoryCommentNotFoundException if none
         was found."""
+        Logger(__name__).info("Retrieving comment id {}".format(comment_id))
         comment_obj = StoryComment._get_one_by_id(comment_id)
         if comment_obj is None:
             raise StoryCommentNotFoundException
@@ -133,6 +135,7 @@ class StoryComment(object):
     @staticmethod
     def get_comments_on_story(story_id):
         """Get all comments for story_id, sorted by timestamp in ascending order."""
+        Logger(__name__).info("Retrieving all comments for story id {}".format(story_id))
         # get all comments matching story_id
         serialized_comments = [StoryComment._serialize_comment(comment_obj) for
                                comment_obj in StoryComment._get_many({'story_id': story_id})]
@@ -146,5 +149,6 @@ class StoryComment(object):
     @staticmethod
     def delete_comments_on_story(story_id):
         """Delete all comments on story_id"""
+        Logger(__name__).info("Deleting all comments on story id {}".format(story_id))
         StoryComment._delete_many({'story_id': story_id})
 

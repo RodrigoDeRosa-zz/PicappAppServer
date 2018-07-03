@@ -8,6 +8,7 @@ from src.utils.request_builder import MissingFieldException, RequestBuilder
 from src.utils.logger_config import Logger
 from src.security.token import Token
 
+
 class LoginResource(Resource):
 
     def __init__(self):

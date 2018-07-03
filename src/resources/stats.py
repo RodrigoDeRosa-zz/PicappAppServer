@@ -1,10 +1,14 @@
 from flask_restful import Resource
 
+from src.utils.logger_config import Logger
 from src.utils.stats import StatCollector
 from src.utils.response_builder import ResponseBuilder
 
 
 class StatsResource(Resource):
+
+    def __init__(self):
+        self.logger = Logger(__name__)
 
     def get(self):
         output = {}
