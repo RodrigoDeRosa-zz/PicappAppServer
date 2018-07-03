@@ -2,7 +2,7 @@ from flask import Flask
 from flask_restful import Api
 from configparser import ConfigParser
 from src.utils.logger_config import Logger
-from src.model.database import mongo
+from src.persistance.database import mongo
 from src.model.index_creation import create_indexes
 from src.resources.user import UserResource
 from src.resources.profile import ProfileResource

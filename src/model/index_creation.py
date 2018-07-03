@@ -1,4 +1,3 @@
-from src.model.database import mongo
 from src.model.story_comment import StoryComment
 from src.model.story import Story
 from src.model.user import User
