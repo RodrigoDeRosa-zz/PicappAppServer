@@ -1,8 +1,9 @@
-from src.model.database import mongo
+from src.persistence.database import mongo
+from src.persistence.persistence import Persistence
 from src.utils.logger_config import Logger
-from pymongo.collection import ReturnDocument
 from src.model.story import Story
 from src.model.flash import Flash
+
 
 class UserAlreadyExistsException(Exception):
     def __init__(self):
@@ -25,67 +26,49 @@ class UserNotFoundException(Exception):
 def _user(username):
     """Silently returns the current user referencing the username, used to prevent using old versions of
     documents. Should only be used internally when editing documents."""
-    return User._get_users_db().find_one({'username': username})
+    return Persistence.get_one(User._get_coll(), {'username': username})
 
 
 class User(object):
 
     @staticmethod
-    def _get_users_db():
+    def _get_coll():
         return mongo.db.users
 
     @staticmethod
     def _get_all():
         Logger(__name__).info('Retrieving all users.')
-        return User._get_users_db().find()
+        return Persistence.get_all(User._get_coll())
 
     @staticmethod
     def _get_one(query):
         Logger(__name__).info('Retrieving user with query {}.'.format(query))
-        return User._get_users_db().find_one(query)
+        return Persistence.get_one(User._get_coll(), query)
 
     @staticmethod
     def _insert_one(new_user):
         Logger(__name__).info('Inserting user with query {}.'.format(new_user))
-        return User._get_users_db().insert(new_user)
+        return Persistence.insert_one(User._get_coll(), new_user)
 
     @staticmethod
     def _delete_all():
         Logger(__name__).info('Deleting all users.')
-        return User._get_users_db().delete_many({})
+        return Persistence.delete_all(User._get_coll())
 
     @staticmethod
     def _update_user_by_username(username, updated_param_dict):
         Logger(__name__).info('Updating user {} with value {}'.format(username, updated_param_dict))
-        return mongo.db.users.find_one_and_update(filter={'username': username},
-                                                  update={"$set": updated_param_dict},
-                                                  return_document=ReturnDocument.AFTER)
-
-    @staticmethod
-    def _push_to_user_by_username(username, pushed_param_dict):
-        Logger(__name__).info('Pushing to user {} with value {}'.format(username, pushed_param_dict))
-        return mongo.db.users.find_one_and_update(filter={'username': username},
-                                                  update={"$push": pushed_param_dict},
-                                                  return_document=ReturnDocument.AFTER)
+        return Persistence.update_one(User._get_coll(), {'username': username}, updated_param_dict)
 
     @staticmethod
     def _delete_field_by_username(username, deleted_param_dict):
         Logger(__name__).info('Deleting fields of user {} with value {}'.format(username, deleted_param_dict))
-        return mongo.db.users.find_one_and_update(filter={'username': username},
-                                                  update={"$unset": deleted_param_dict},
-                                                  return_document=ReturnDocument.AFTER)
-
-    @staticmethod
-    def _pull_array_item_from_user(username, pulled_field_dict):
-        Logger(__name__).info('Pulling array item {} from user {}'.format(pulled_field_dict, username))
-        return mongo.db.users.find_one_and_update(filter={'username': username},
-                                                  update={"$pull": pulled_field_dict},
-                                                  return_document=ReturnDocument.AFTER)
+        return Persistence.unset_on_one(User._get_coll(), {'username': username}, deleted_param_dict)
 
     @staticmethod
     def _delete_one(username):
         Logger(__name__).info('Deleting user {}.'.format(username))
-        return User._get_users_db().find_one_and_delete({'username': username})
+        return Persistence.delete_one(User._get_coll(), {'username': username})
 
     @staticmethod
     def _make_new_user(new_user_data):
