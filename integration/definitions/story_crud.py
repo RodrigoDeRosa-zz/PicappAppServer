@@ -2,7 +2,7 @@ from integration.definitions.general_definitions import test_user1, test_user2, 
     NotNonePlaceholder, expected_response, expected_error_response, unauthorized_response_body
 
 post_story_login_body_missing_media = {
-  "timestamp": "1524157743",
+  "timestamp": "1524157743583",
   "location": "some_magic_maps_location",
   "description": "No caption needed",
   "title": "RIP Pacha",
@@ -12,7 +12,7 @@ post_story_login_body_missing_media = {
 expected_post_story_missing_media = expected_error_response(400)
 
 post_story_login_body_privacy_not_boolean = {
-  "timestamp": "1524157743",
+  "timestamp": "1524157743583",
   "location": "some_magic_maps_location",
   "description": "No caption needed",
   "title": "RIP Pacha",
@@ -20,7 +20,7 @@ post_story_login_body_privacy_not_boolean = {
 }
 
 post_story_login_body_timestamp_not_integer = {
-  "timestamp": "1524157743a",
+  "timestamp": "1524157743583a",
   "location": "some_magic_maps_location",
   "description": "No caption needed",
   "title": "RIP Pacha",
@@ -31,7 +31,7 @@ expected_post_story_invalid_format = expected_error_response(400)
 
 post_private_story_body_ok = {
   "media": "some_magic_image_uri",
-  "timestamp": 1524157743,
+  "timestamp": 1524157743583,
   "location": "some_magic_maps_location",
   "description": "No caption needed",
   "title": "RIP Pacha",
@@ -41,7 +41,7 @@ post_private_story_body_ok = {
 expected_private_post_story_ok_body = {
   "story_id": NotNonePlaceholder(),
   "media": "some_magic_image_uri",
-  "timestamp": 1524157743,
+  "timestamp": 1524157743583,
   "location": "some_magic_maps_location",
   "description": "No caption needed",
   "title": "RIP Pacha",
@@ -54,7 +54,7 @@ expected_private_post_story_ok = expected_response(expected_private_post_story_o
 
 expected_get_story_ok_body = {
     "media": "some_magic_image_uri",
-    "timestamp": 1524157743,
+    "timestamp": 1524157743583,
     "location": "some_magic_maps_location",
     "description": "No caption needed",
     "title": "RIP Pacha",
@@ -78,7 +78,7 @@ expected_delete_story_ok = expected_response({"target_story_id": NotNonePlacehol
 
 post_public_story_body_ok = {
   "media": "some_magic_image_uri",
-  "timestamp": "1524157743",
+  "timestamp": "1524157743583",
   "location": "some_magic_maps_location",
   "description": "No caption needed",
   "title": "RIP Pacha",
@@ -88,7 +88,7 @@ post_public_story_body_ok = {
 expected_public_post_story_ok_body = {
   "story_id": NotNonePlaceholder(),
   "media": "some_magic_image_uri",
-  "timestamp": 1524157743,
+  "timestamp": 1524157743583,
   "location": "some_magic_maps_location",
   "description": "No caption needed",
   "title": "RIP Pacha",
@@ -117,7 +117,7 @@ expected_reaction_ok_user_1_like = expected_response({
 }, 200)
 
 comment_body_missing_field ={
-    "timestamp": "1524157743"
+    "timestamp": "1524157743583"
 }
 
 expected_comment_missing_field = expected_error_response(400)
@@ -152,7 +152,7 @@ expected_comment_ok_3 = expected_response(expected_comment_ok_3_body, 200)
 
 expected_get_public_story_ok_body = {
     "media": "some_magic_image_uri",
-    "timestamp": 1524157743,
+    "timestamp": 1524157743583,
     "location": "some_magic_maps_location",
     "description": "No caption needed",
     "title": "RIP Pacha",
@@ -184,7 +184,7 @@ expected_reaction_ok_user_2_boring = expected_response({
 
 expected_get_public_story_ok_changed_body = {
     "media": "some_magic_image_uri",
-    "timestamp": 1524157743,
+    "timestamp": 1524157743583,
     "location": "some_magic_maps_location",
     "description": "No caption needed",
     "title": "RIP Pacha",
