@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.resources.stats import StatCollector, StatsResource, ResponseBuilder
+from src.resources.stats import *
 
 
 class StatsResourceTestCase(unittest.TestCase):
@@ -30,10 +30,10 @@ class StatsResourceTestCase(unittest.TestCase):
             mocked_respond.side_effect = self.mocked_build_response
 
             expected_output = {
-                "stories posted": mock_number_of_stories,
-                "flashes posted": mock_number_of_flashes,
-                "friendship requests sent": mock_number_of_friend_requests,
-                "error responses sent": mock_number_of_error_responses
+                STORIES_POSTED_TAG: mock_number_of_stories,
+                FLASHES_POSTED_TAG: mock_number_of_flashes,
+                FRIENDSHIP_REQUESTS_SENT_TAG: mock_number_of_friend_requests,
+                ERROR_RESPONSES_TAG: mock_number_of_error_responses
             }
 
             service = StatsResource()

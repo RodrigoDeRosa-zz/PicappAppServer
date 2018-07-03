@@ -4,6 +4,11 @@ from src.utils.logger_config import Logger
 from src.utils.stats import StatCollector
 from src.utils.response_builder import ResponseBuilder
 
+STORIES_POSTED_TAG = "stories"
+FRIENDSHIP_REQUESTS_SENT_TAG = "friendships"
+FLASHES_POSTED_TAG = "flashes"
+ERROR_RESPONSES_TAG = "errors"
+
 
 class StatsResource(Resource):
 
@@ -14,16 +19,16 @@ class StatsResource(Resource):
         output = {}
 
         # get number of stories posted
-        output["stories posted"] = StatCollector.get_number_of_stories_posted()
+        output[STORIES_POSTED_TAG] = StatCollector.get_number_of_stories_posted()
 
         # get number of friendship requests sent
-        output["friendship requests sent"] = StatCollector.get_number_of_friendship_requests_sent()
+        output[FRIENDSHIP_REQUESTS_SENT_TAG] = StatCollector.get_number_of_friendship_requests_sent()
 
         # get number of flashes posted
-        output["flashes posted"] = StatCollector.get_number_of_flashes_posted()
+        output[FLASHES_POSTED_TAG] = StatCollector.get_number_of_flashes_posted()
 
         # get number of errors responded
-        output["error responses sent"] = StatCollector.get_number_of_error_responses()
+        output[ERROR_RESPONSES_TAG] = StatCollector.get_number_of_error_responses()
 
         # return response
         return ResponseBuilder.build_response(output)
