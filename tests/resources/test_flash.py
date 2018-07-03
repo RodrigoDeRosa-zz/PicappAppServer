@@ -24,7 +24,7 @@ class FlashResourceTestCase(unittest.TestCase):
     def test_get_flash_not_found(self):
         with patch.object(Token, "identify") as mocked_token, \
              patch.object(Flash, "get_flash") as mocked_flash, \
-             patch.object(ResponseBuilder, "build_response")as mocked_response_builder,\
+             patch.object(ResponseBuilder, "build_error_response")as mocked_response_builder,\
              patch.object(Friendship, "are_friends") as mocked_are_friends:
 
             mocked_token.side_effect = self.mocked_identify
@@ -40,7 +40,7 @@ class FlashResourceTestCase(unittest.TestCase):
     def test_get_flash_not_friends(self):
         with patch.object(Token, "identify") as mocked_token, \
              patch.object(Flash, "get_flash") as mocked_flash, \
-             patch.object(ResponseBuilder, "build_response")as mocked_response_builder,\
+             patch.object(ResponseBuilder, "build_error_response")as mocked_response_builder,\
              patch.object(Friendship, "are_friends") as mocked_are_friends:
 
             mocked_token.side_effect = self.mocked_identify
@@ -72,7 +72,7 @@ class FlashResourceTestCase(unittest.TestCase):
     def test_failed_delete_story_not_own(self):
         with patch.object(Token, "identify") as mocked_token, \
                 patch.object(Flash, "get_flash") as mocked_get_flash, \
-                patch.object(ResponseBuilder, "build_response")as mocked_response_builder,\
+                patch.object(ResponseBuilder, "build_error_response")as mocked_response_builder,\
                 patch.object(Flash, "delete_flash") as mocked_delete_flash:
 
             aux = dict(flash_mock)
@@ -91,7 +91,7 @@ class FlashResourceTestCase(unittest.TestCase):
     def test_failed_delete_story_not_found(self):
         with patch.object(Token, "identify") as mocked_token, \
                 patch.object(Flash, "get_flash") as mocked_get_flash, \
-                patch.object(ResponseBuilder, "build_response")as mocked_response_builder,\
+                patch.object(ResponseBuilder, "build_error_response")as mocked_response_builder,\
                 patch.object(Flash, "delete_flash") as mocked_delete_flash:
 
             aux = flash_mock

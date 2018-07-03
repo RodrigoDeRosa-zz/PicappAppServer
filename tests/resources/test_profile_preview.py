@@ -24,7 +24,7 @@ class ProfilePreviewResourceTestCase(unittest.TestCase):
     def test_get_profile_preview_not_found(self):
         with patch.object(User, "get_profile_preview") as mocked_get_preview,\
              patch.object(Token, "identify") as mocked_identify, \
-             patch.object(ResponseBuilder, "build_response") as mocked_build_response:
+             patch.object(ResponseBuilder, "build_error_response") as mocked_build_response:
 
             mocked_build_response.side_effect = self.mocked_build_error_response
             mocked_identify.side_effect = self.mocked_identify

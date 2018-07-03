@@ -21,7 +21,7 @@ class FeedResourceTestCase(unittest.TestCase):
 
     def test_feed_missing_field(self):
         with patch.object(FeedBuilder, "get_feed_for_username") as mocked_get_feed, \
-             patch.object(ResponseBuilder, "build_response") as mocked_response_build:
+             patch.object(ResponseBuilder, "build_error_response") as mocked_response_build:
             mocked_response_build.side_effect = self.mocked_build_error_response
 
             mocked_get_feed.side_effect = MagicMock(return_value=[])

@@ -24,8 +24,10 @@ class MyAccountTestCase(unittest.TestCase):
     def test_get_myaccount_successful(self):
         with patch.object(Token, "identify") as mocked_token_identify,\
              patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
+
             mocked_builder_response.side_effect = self.mocked_build_response
             mocked_token_identify.side_effect = MagicMock(return_value=user_mock_without_stories_or_friends['username'])
+
             service = MyAccountResource()
             service._get_token_from_header = MagicMock(return_value=token_mock)
             User._get_one = MagicMock(return_value=user_mock_without_stories_or_friends)
@@ -33,24 +35,29 @@ class MyAccountTestCase(unittest.TestCase):
                              account_info_mock_without_stories_or_friends)
 
     def test_get_myaccount_missing_field(self):
-        with patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
+        with patch.object(ResponseBuilder, "build_error_response") as mocked_builder_response:
+
             mocked_builder_response.side_effect = self.mocked_build_error_response
+
             service = MyAccountResource()
             service._get_token_from_header = MagicMock(side_effect=MissingFieldException("token"))
             self.assertEqual(service.get(user_mock_without_stories_or_friends['username']), 400)
 
     def test_get_myaccount_expired_token(self):
         with patch.object(Token, "identify") as mocked_token_identify, \
-             patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
+             patch.object(ResponseBuilder, "build_error_response") as mocked_builder_response:
+
             mocked_token_identify.side_effect = ExpiredTokenException()
             mocked_builder_response.side_effect = self.mocked_build_error_response
+
             service = MyAccountResource()
             service._get_token_from_header = MagicMock(return_value=token_mock)
             self.assertEqual(service.get(user_mock_without_stories_or_friends['username']), 400)
 
     def test_get_myaccount_username_does_not_match_token(self):
         with patch.object(Token, "identify") as mocked_token_identify, \
-             patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
+             patch.object(ResponseBuilder, "build_error_response") as mocked_builder_response:
+
             mocked_builder_response.side_effect = self.mocked_build_error_response
             another_username = "asd"
             assert another_username != user_mock_without_stories_or_friends['username']
@@ -62,7 +69,8 @@ class MyAccountTestCase(unittest.TestCase):
 
     def test_delete_myaccount_expired_token(self):
         with patch.object(Token, "identify") as mocked_token_identify, \
-             patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
+             patch.object(ResponseBuilder, "build_error_response") as mocked_builder_response:
+
             mocked_builder_response.side_effect = self.mocked_build_error_response
             mocked_token_identify.side_effect = ExpiredTokenException()
 
@@ -72,7 +80,8 @@ class MyAccountTestCase(unittest.TestCase):
 
     def test_delete_myaccount_invalid_data(self):
         with patch.object(Token, "identify") as mocked_token_identify, \
-             patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
+             patch.object(ResponseBuilder, "build_error_response") as mocked_builder_response:
+
             mocked_builder_response.side_effect = self.mocked_build_error_response
             username = user_mock_without_stories_or_friends['username']
             mocked_token_identify.side_effect = MagicMock(return_value=username)
@@ -84,7 +93,8 @@ class MyAccountTestCase(unittest.TestCase):
 
     def test_delete_myaccount_connection_fail(self):
         with patch.object(Token, "identify") as mocked_token_identify, \
-             patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
+             patch.object(ResponseBuilder, "build_error_response") as mocked_builder_response:
+
             mocked_builder_response.side_effect = self.mocked_build_error_response
             username = user_mock_without_stories_or_friends['username']
             mocked_token_identify.side_effect = MagicMock(return_value=username)
@@ -96,7 +106,8 @@ class MyAccountTestCase(unittest.TestCase):
 
     def test_delete_myaccount_no_server(self):
         with patch.object(Token, "identify") as mocked_token_identify, \
-             patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
+             patch.object(ResponseBuilder, "build_error_response") as mocked_builder_response:
+
             mocked_builder_response.side_effect = self.mocked_build_error_response
             username = user_mock_without_stories_or_friends['username']
             mocked_token_identify.side_effect = MagicMock(return_value=username)
@@ -108,7 +119,8 @@ class MyAccountTestCase(unittest.TestCase):
 
     def test_delete_myaccount_unexpected_error(self):
         with patch.object(Token, "identify") as mocked_token_identify, \
-             patch.object(ResponseBuilder, "build_response") as mocked_builder_response:
+             patch.object(ResponseBuilder, "build_error_response") as mocked_builder_response:
+
             mocked_builder_response.side_effect = self.mocked_build_error_response
             username = user_mock_without_stories_or_friends['username']
             mocked_token_identify.side_effect = MagicMock(return_value=username)
@@ -123,6 +135,7 @@ class MyAccountTestCase(unittest.TestCase):
              patch.object(ResponseBuilder, "build_response") as mocked_builder_response,\
              patch.object(User, "delete_user") as mocked_user_delete_user,\
              patch.object(Token, "log_out") as mocked_token_log_out:
+
             mocked_builder_response.side_effect = self.mocked_build_response
             username = user_mock_without_stories_or_friends['username']
             mocked_token_identify.side_effect = MagicMock(return_value=username)
@@ -136,8 +149,9 @@ class MyAccountTestCase(unittest.TestCase):
 
     def test_edit_myaccount_missing_field(self):
         with patch.object(Token, "identify") as mocked_token_identify, \
-             patch.object(ResponseBuilder, "build_response") as mocked_builder_response,\
+             patch.object(ResponseBuilder, "build_error_response") as mocked_builder_response,\
              patch.object(User, "change_account_info") as mocked_user_change_acc_info:
+
             mocked_builder_response.side_effect = self.mocked_build_error_response
             username = user_mock_without_stories_or_friends['username']
             mocked_token_identify.side_effect = MagicMock(return_value=username)
@@ -153,6 +167,7 @@ class MyAccountTestCase(unittest.TestCase):
         with patch.object(Token, "identify") as mocked_token_identify, \
              patch.object(ResponseBuilder, "build_response") as mocked_builder_response,\
              patch.object(User, "change_account_info") as mocked_user_change_acc_info:
+
             mocked_builder_response.side_effect = lambda output, status_code=200: status_code
             username = user_mock_without_stories_or_friends['username']
             mocked_token_identify.side_effect = MagicMock(return_value=username)
