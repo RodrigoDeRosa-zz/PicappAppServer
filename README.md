@@ -43,7 +43,7 @@ By clicking on the badge, you can see the code coverage report.
 ## API
  
 You can see the interface of this Application Server
-[here](https://app.swaggerhub.com/apis/SteelSoft/PicApp-AppServer-Checkpoint1.1/1.0.1.1).
+[here](https://app.swaggerhub.com/apis/SteelSoft/PicApp-AppServer-Final/1.0).
 
 ## Testing script
 
