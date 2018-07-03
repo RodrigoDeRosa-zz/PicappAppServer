@@ -12,7 +12,6 @@ class ProfileResource(Resource):
         self.logger = Logger(__name__)
 
     def get(self, username):
-        # search one by given username
         try:
             # get token from header
             token = self._get_token_from_header()
@@ -32,30 +31,10 @@ class ProfileResource(Resource):
 
         except UserNotFoundException as e:
             err_msg = "No user found with that name"
-            self.logger.error(err_msg)
+            self.logger.info(err_msg)
             return ResponseBuilder.build_error_response(err_msg, e.error_code)
         except (ExpiredTokenException, MissingFieldException, InvalidTokenException) as e:
             return ResponseBuilder.build_error_response(e.message, e.error_code)
         
-    # deprecated until user has more info than username and password
-    """
-    def put(self, username):
-        # get data received
-        new_age = self._get_age_from_request()
-
-        # look for user and update, returning user info after being updated
-        updated_user = User.update_profile(username, {'age': new_age})
-        # if match found able to update
-        if updated_user:
-            output = {'name': updated_user['name'], 'age': updated_user['age']}
-            self.logger.info('User profile updated. ({})'.format(output))
-        else:  # no matches
-            output = "No user found with that name"
-            self.logger.info('No user was found to update for username: {}'.format(username))
-        # formatting
-        response = {'result': output}
-        return ResponseBuilder.build_response(response)
-    """
-
     def _get_token_from_header(self):
         return RequestBuilder.get_field_from_header('token')

@@ -2,6 +2,7 @@ from flask_restful import Resource
 
 from src.utils.response_builder import ResponseBuilder
 from src.utils.request_builder import RequestBuilder, MissingFieldException
+from src.utils.stats import StatCollector
 from src.model.user import User
 from src.utils.logger_config import Logger
 from src.security.token import Token, InvalidTokenException, ExpiredTokenException
@@ -37,11 +38,16 @@ class FlashesResource(Resource):
             flash_data['timestamp'] = InputSanitizer.sanitize_integer(timestamp)
 
             # save new flash at AS
+            self.logger.debug("At POST@/flashes got flash_data {}".format(flash_data))
+
             new_flash_id = User.save_new_flash(flash_data)
 
             # generate response
             response = dict(flash_data)
             response['flash_id'] = new_flash_id
+
+            # save stat
+            StatCollector.save_event_flash_post(flash_data["timestamp"])
 
             # return response
             return ResponseBuilder.build_response(response)

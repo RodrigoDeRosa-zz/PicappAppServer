@@ -30,8 +30,11 @@ class StoryResource(Resource):
 
             # if <username is not the uploader> and <story is private> and ...
             # ... <uploader and username are not friends> return 403
+
             is_private = story["is_private"]
             story_uploader = story["username"]
+            self.logger.debug("At GET@/stories requesting user is {}, uploader is {} and story {} private".format(
+                username, story_uploader, "is" if is_private else "is not"))
             if username != story_uploader and \
                InputSanitizer.sanitize_boolean(is_private) and \
                not Friendship.are_friends(username, story_uploader):
@@ -59,6 +62,8 @@ class StoryResource(Resource):
 
             # if username is not the uploader return 403
             story_uploader = story["username"]
+            self.logger.debug("At DELETE@/stories requesting user is {} and uploader is {}".format(
+                username, story_uploader))
             if username != story_uploader:
                 return ResponseBuilder.build_error_response("Story is not own", 403)
 

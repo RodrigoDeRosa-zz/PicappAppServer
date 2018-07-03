@@ -1,5 +1,4 @@
 import requests
-import time
 import json
 from configparser import ConfigParser
 from src.model.exceptions.response_exceptions import *
@@ -12,6 +11,7 @@ SERVER_TOKEN = '1713908341'
 NEW_TOKEN_PATH = '/token'
 NEW_USER_PATH = '/user'
 DELETE_USER_BASE_PATH = '/users/'
+
 
 class SharedServerConnector(object):
 
@@ -84,6 +84,7 @@ class SharedServerConnector(object):
         if response.status_code not in self.success_codes:
             handle_error(response)
         return username
+
 
 def handle_error(response):
     """Handles request error and raises necessary exception."""
