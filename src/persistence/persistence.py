@@ -1,4 +1,4 @@
-from src.persistance.database import mongo
+from src.persistence.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 
@@ -36,7 +36,7 @@ class Persistence(object):
     @staticmethod
     def delete_one(target_collection, query):
         Logger(__name__).debug('Deleting one element matching query {} in collection {}.'.format(
-            query, target_collection))
+            query, target_collection.name))
 
         return target_collection.find_one_and_delete(query)
 
@@ -49,7 +49,7 @@ class Persistence(object):
 
     @staticmethod
     def update_one(target_collection, query, updated_param_dict):
-        Logger(__name__).debug('Updating one element matching query {} in collection {} with value {}'.format(
+        Logger(__name__).debug('Updating one element in collection {} matching query {} with value {}'.format(
             target_collection.name, query, updated_param_dict))
 
         return target_collection.find_one_and_update(filter=query,
@@ -58,11 +58,24 @@ class Persistence(object):
 
     @staticmethod
     def add_item_to_one(target_collection, query, pushed_param_dict):
-        Logger(__name__).debug('Pushing to collection {} one element matching query {} with value {}'.format(
+        Logger(__name__).debug('Pushing to one element of collection {} matching query {} with value {}'.format(
             target_collection.name, query, pushed_param_dict))
 
         return target_collection.find_one_and_update(filter=query,
                                                      update={"$push": pushed_param_dict},
                                                      return_document=ReturnDocument.AFTER)
 
+    @staticmethod
+    def unset_on_one(target_collection, query, deleted_field_dict):
+        Logger(__name__).debug('Deleting field {} on element {} of collection {}'.format(
+            deleted_field_dict, query, target_collection.name))
 
+        return target_collection.find_one_and_update(filter=query,
+                                                     update={"$unset": deleted_field_dict})
+
+    @staticmethod
+    def delete_many(target_collection, query):
+        Logger(__name__).debug('Deleting all elements from collection {} matching query {}.'.format(
+            target_collection, query))
+
+        return target_collection.delete_many(query)

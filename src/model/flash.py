@@ -1,4 +1,5 @@
-from src.persistance.database import mongo
+from src.persistence.database import mongo
+from src.persistence.persistence import Persistence
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
@@ -16,26 +17,26 @@ class FlashNotFoundException(Exception):
 class Flash(object):
 
     @staticmethod
-    def _get_flashes_db():
+    def _get_coll():
         return mongo.db.flashes
 
     @staticmethod
     def _get_all():
         # warning, does not filter out deprecated flashes, for internal use only
         Logger(__name__).info('Retrieving all flashes.')
-        return Flash._get_flashes_db().find()
+        return Persistence.get_all(Flash._get_coll())
 
     @staticmethod
     def _get_one(query):
         # warning, does not filter out deprecated flashes, for internal use only
         Logger(__name__).info('Retrieving flash with query {}.'.format(query))
-        return Flash._get_flashes_db().find_one(query)
+        return Persistence.get_one(Flash._get_coll(), query)
 
     @staticmethod
     def _unsafe_get_many(query):
         # warning, does not filter out deprecated flashes, for internal use only
         Logger(__name__).info('Retrieving all flashes matching query {}.'.format(query))
-        return Flash._get_flashes_db().find(query)
+        return Persistence.get_many(Flash._get_coll(), query)
 
     @staticmethod
     def _get_one_by_id(flash_id):
@@ -49,31 +50,12 @@ class Flash(object):
     @staticmethod
     def _insert_one(new_flash):
         Logger(__name__).info('Inserting flash with query {}.'.format(new_flash))
-        return Flash._get_flashes_db().insert(new_flash)
-
-    @staticmethod
-    def _delete_all():
-        Logger(__name__).info('Deleting all flashes.')
-        return Flash._get_flashes_db().delete_many({})
-
-    @staticmethod
-    def _update_flash(flash_id, updated_param_dict):
-        Logger(__name__).info('Updating flash {} with value {}'.format(flash_id, updated_param_dict))
-        return Flash._get_flashes_db().find_one_and_update(filter={'_id': ObjectId(flash_id)},
-                                                           update={"$set": updated_param_dict},
-                                                           return_document=ReturnDocument.AFTER)
-
-    @staticmethod
-    def _add_item_to_flash(flash_id, pushed_param_dict):
-        Logger(__name__).info('Pushing to flash {} with value {}'.format(flash_id, pushed_param_dict))
-        return Flash._get_flashes_db().find_one_and_update(filter={'_id': ObjectId(flash_id)},
-                                                           update={"$push": pushed_param_dict},
-                                                           return_document=ReturnDocument.AFTER)
+        return Persistence.insert_one(Flash._get_coll(), new_flash)
 
     @staticmethod
     def _delete_one(flash_id):
         Logger(__name__).info('Deleting flash {}.'.format(flash_id))
-        return Flash._get_flashes_db().find_one_and_delete({'_id': ObjectId(flash_id)})
+        return Persistence.delete_one(Flash._get_coll(), {'_id': ObjectId(flash_id)})
 
     @staticmethod
     def save_new(flash_data):

@@ -1,4 +1,5 @@
-from src.persistance.database import mongo
+from src.persistence.database import mongo
+from src.persistence.persistence import Persistence
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 from src.model.story_comment import StoryComment
@@ -21,18 +22,13 @@ class StoryReactionNotFoundException(Exception):
 class Story(object):
 
     @staticmethod
-    def _get_stories_db():
+    def _get_coll():
         return mongo.db.stories
-
-    @staticmethod
-    def _get_all():
-        Logger(__name__).info('Retrieving all stories.')
-        return Story._get_stories_db().find()
 
     @staticmethod
     def _get_one(query):
         Logger(__name__).info('Retrieving story with query {}.'.format(query))
-        return Story._get_stories_db().find_one(query)
+        return Persistence.get_one(Story._get_coll(), query)
 
     @staticmethod
     def _get_one_by_id(story_id):
@@ -41,49 +37,32 @@ class Story(object):
     @staticmethod
     def _get_many(query):
         Logger(__name__).info('Retrieving all stories matching query {}.'.format(query))
-        return Story._get_stories_db().find(query)
+        return Persistence.get_many(Story._get_coll(), query)
 
     @staticmethod
     def _insert_one(new_story):
         Logger(__name__).info('Inserting story with query {}.'.format(new_story))
-        return Story._get_stories_db().insert(new_story)
-
-    @staticmethod
-    def _delete_all():
-        Logger(__name__).info('Deleting all stories.')
-        return Story._get_stories_db().delete_many({})
+        return Persistence.insert_one(Story._get_coll(), new_story)
 
     @staticmethod
     def _update_story(story_id, updated_param_dict):
         Logger(__name__).info('Updating story {} with value {}'.format(story_id, updated_param_dict))
-        return mongo.db.stories.find_one_and_update(filter={'_id': ObjectId(story_id)},
-                                                    update={"$set": updated_param_dict},
-                                                    return_document=ReturnDocument.AFTER)
+        return Persistence.update_one(Story._get_coll(), {'_id': ObjectId(story_id)}, updated_param_dict)
 
     @staticmethod
     def _add_item_to_story(story_id, pushed_param_dict):
         Logger(__name__).info('Pushing to story {} with value {}'.format(story_id, pushed_param_dict))
-        return mongo.db.stories.find_one_and_update(filter={'_id': ObjectId(story_id)},
-                                                    update={"$push": pushed_param_dict},
-                                                    return_document=ReturnDocument.AFTER)
+        return Persistence.add_item_to_one(Story._get_coll(), {'_id': ObjectId(story_id)}, pushed_param_dict)
 
     @staticmethod
     def _delete_one(story_id):
         Logger(__name__).info('Deleting story {}.'.format(story_id))
-        return Story._get_stories_db().find_one_and_delete({'_id': ObjectId(story_id)})
+        return Persistence.delete_one(Story._get_coll(), {'_id': ObjectId(story_id)})
 
     @staticmethod
     def _delete_field_on_story(story_id, deleted_field_dict):
         Logger(__name__).info('Deleting field {} on story {}'.format(deleted_field_dict, story_id))
-        return mongo.db.stories.find_one_and_update(filter={'_id': ObjectId(story_id)},
-                                                    update={"$unset": deleted_field_dict})
-
-    @staticmethod
-    def _pull_array_item_from_story(story_id, pulled_field_dict):
-        Logger(__name__).info('Pulling array item {} from story {}'.format(pulled_field_dict, story_id))
-        return mongo.db.stories.find_one_and_update(filter={'_id': ObjectId(story_id)},
-                                                    update={"$pull": pulled_field_dict},
-                                                    return_document=ReturnDocument.AFTER)
+        return Persistence.unset_on_one(Story._get_coll(), {'_id': ObjectId(story_id)}, deleted_field_dict)
 
     @staticmethod
     def _make_new_story(new_story_data):

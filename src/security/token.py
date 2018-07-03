@@ -1,4 +1,4 @@
-from src.persistance.database import mongo
+from src.persistence.database import mongo
 from src.utils.logger_config import Logger
 import time
 
