@@ -6,6 +6,7 @@ import time
 STORY_POST = "story_post"
 FRIENDSHIP_REQUEST_SENT = "friendship_post"
 FLASH_POST = "flash_post"
+ERROR_RESPONSE = "error_response"
 
 
 def objects_to_timestamps(objs_iterable):
@@ -77,3 +78,12 @@ class StatCollector(object):
     @staticmethod
     def get_number_of_flashes_posted():
         return StatCollector._get_timestamps_of_event(FLASH_POST)
+
+    # ERROR RESPONSES SENT
+    @staticmethod
+    def save_event_error_response():
+        return StatCollector._save_new_event(ERROR_RESPONSE, get_time_in_millisec())
+
+    @staticmethod
+    def get_number_of_error_responses():
+        return StatCollector._get_timestamps_of_event(ERROR_RESPONSE)

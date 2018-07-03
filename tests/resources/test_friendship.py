@@ -84,7 +84,7 @@ class FriendshipResourceTestCase(unittest.TestCase):
     def test_delete_friendship_not_friends(self):
         with patch.object(Token, 'identify') as mocked_token,\
              patch.object(Friendship, 'wants_to_not_be_friends_with') as mocked_friendship,\
-             patch.object(ResponseBuilder, 'build_response') as mocked_response_builder:
+             patch.object(ResponseBuilder, 'build_error_response') as mocked_response_builder:
 
             mocked_token.side_effect = self.mocked_identify
             mocked_friendship.side_effect = MagicMock(side_effect=NotFriendsException)
@@ -101,8 +101,8 @@ class FriendshipResourceTestCase(unittest.TestCase):
     def test_get_friendship_not_found(self):
         with patch.object(Token, 'identify') as mocked_token,\
              patch.object(Friendship, 'get_friendship_state_from_to') as mocked_get_friendship,\
-             patch.object(ResponseBuilder, 'build_response') as mocked_response_builder:
-            
+             patch.object(ResponseBuilder, 'build_error_response') as mocked_response_builder:
+
             mocked_token.side_effect = self.mocked_identify
             mocked_get_friendship.side_effect = MagicMock(side_effect=UserNotFoundException)
             mocked_response_builder.side_effect = self.mocked_build_error_response

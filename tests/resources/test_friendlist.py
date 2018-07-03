@@ -21,7 +21,7 @@ class FriendListResourceTestCase(unittest.TestCase):
 
     def test_get_friend_list_missing_field(self):
         with patch.object(Token, "identify") as mocked_token, \
-             patch.object(ResponseBuilder, "build_response") as mocked_response_build, \
+             patch.object(ResponseBuilder, "build_error_response") as mocked_response_build, \
              patch.object(Friendship, "get_friends") as mocked_get_friends:
             mocked_response_build.side_effect = self.mocked_build_error_response
             mocked_token.side_effect = self.mocked_identify

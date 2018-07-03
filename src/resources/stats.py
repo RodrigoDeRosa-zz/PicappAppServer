@@ -18,5 +18,8 @@ class StatsResource(Resource):
         # get number of flashes posted
         output["flashes posted"] = StatCollector.get_number_of_flashes_posted()
 
+        # get number of errors responded
+        output["error responses sent"] = StatCollector.get_number_of_error_responses()
+
         # return response
         return ResponseBuilder.build_response(output)
