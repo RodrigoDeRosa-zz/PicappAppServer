@@ -227,7 +227,7 @@ class User(object):
     def _get_user_feed_data(username, number_of_stories):
         user_obj = _user(username)
         friend_ids = [friend_id for friend_id, friendship_state in user_obj["friends"].items()
-                      if friendship_state == "friends"]  # really ugly, TODO refactor this "friends"
+                      if friendship_state == "friends"]  # really ugly
         return {
             "friend_ids": set(friend_ids),
             "number of friends": len(friend_ids),
@@ -241,12 +241,11 @@ class User(object):
 
         # get target ids
         target_ids = [friend_id for friend_id, friendship_state in _user(username)["friends"].items()
-                      if friendship_state == "friends"]  # really ugly, TODO refactor this "friends"
+                      if friendship_state == "friends"]  # really ugly
         target_ids.append(username)
 
         for user_obj in User._get_all():
             uploader_username = user_obj['username']
-            # TODO: if username is not in uploader's friend_ids delete private stories from the feed_data
             feed_data_stories_from_this_user = User._get_stories_feed_data(uploader_username,
                                                                            uploader_username in target_ids)
             feed_data.extend(feed_data_stories_from_this_user)
@@ -285,7 +284,7 @@ class User(object):
         # target ids are friends' and own
         user_obj = User._get_one({'username': username})
         target_ids = [friend_id for friend_id, friendship_state in user_obj["friends"].items()
-                      if friendship_state == "friends"]  # really ugly, TODO refactor this "friends"
+                      if friendship_state == "friends"]  # really ugly
         target_ids.append(username)
 
         for target_id in target_ids:

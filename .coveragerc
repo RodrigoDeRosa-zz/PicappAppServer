@@ -17,3 +17,4 @@ omit =
     src/resources/cleaner.py
     src/resources/user.py
     src/persistence/persistence.py
+    src/scripts/*

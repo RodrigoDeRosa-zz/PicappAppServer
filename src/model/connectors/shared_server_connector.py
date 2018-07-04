@@ -2,12 +2,12 @@ import requests
 import json
 from configparser import ConfigParser
 from src.model.exceptions.response_exceptions import *
+from src.model.internal_token import SERVER_TOKEN
 from src.utils.logger_config import Logger
 from pathlib import Path
 
 
 BASE_PATH = "/api"
-SERVER_TOKEN = '1713908341'
 NEW_TOKEN_PATH = '/token'
 NEW_USER_PATH = '/user'
 DELETE_USER_BASE_PATH = '/users/'
