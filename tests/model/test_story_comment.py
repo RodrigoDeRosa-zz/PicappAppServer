@@ -1,15 +1,22 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.model.story_comment import StoryCommentNotFoundException, StoryComment
+from src.model.story_comment import StoryCommentNotFoundException, StoryComment, Persistence
 from tests.mocks.story_comment_mock import story_comment_mock, internal_story_comment_mock, \
     internal_story_comment_mock_post, internal_story_comment_mock_pre
 
 
 class StoryCommentTestCase(unittest.TestCase):
 
+    def setUp(self):
+        self.original_get_coll = StoryComment._get_coll
+        StoryComment._get_coll = MagicMock(return_value="asd")
+
+    def tearDown(self):
+        StoryComment._get_coll = self.original_get_coll
+
     def test_successful_make_new_comment(self):
-        with patch.object(StoryComment, "_insert_one") as mocked_insert_one:
+        with patch.object(Persistence, "insert_one") as mocked_insert_one:
 
             aux = dict(internal_story_comment_mock)
             aux_id = aux.pop("_id")
@@ -19,7 +26,7 @@ class StoryCommentTestCase(unittest.TestCase):
                                                            aux["story_id"]), aux_id)
 
     def test_successful_delete_comment(self):
-        with patch.object(StoryComment, "_delete_one") as mocked_delete_one:
+        with patch.object(Persistence, "delete_one") as mocked_delete_one:
 
             aux = dict(internal_story_comment_mock)
             aux_id = aux["_id"]
@@ -28,7 +35,7 @@ class StoryCommentTestCase(unittest.TestCase):
             self.assertEqual(StoryComment.delete_comment(aux_id), aux_id)
 
     def test_delete_comment_not_found(self):
-        with patch.object(StoryComment, "_delete_one") as mocked_delete_one,\
+        with patch.object(Persistence, "delete_one") as mocked_delete_one,\
              self.assertRaises(StoryCommentNotFoundException) as context:
 
             aux = dict(internal_story_comment_mock)
@@ -41,7 +48,7 @@ class StoryCommentTestCase(unittest.TestCase):
         self.assertEqual(exc.message, "Story comment was not found")
 
     def test_successful_get_comment(self):
-        with patch.object(StoryComment, "_get_one_by_id") as mocked_get_one:
+        with patch.object(Persistence, "get_one") as mocked_get_one:
 
             aux = dict(internal_story_comment_mock)
             aux_id = aux["_id"]
@@ -50,7 +57,7 @@ class StoryCommentTestCase(unittest.TestCase):
             self.assertEqual(StoryComment.get_comment(aux_id), story_comment_mock)
 
     def test_get_comment_not_found(self):
-        with patch.object(StoryComment, "_get_one_by_id") as mocked_get_one,\
+        with patch.object(Persistence, "get_one") as mocked_get_one,\
              self.assertRaises(StoryCommentNotFoundException) as context:
 
             aux = dict(internal_story_comment_mock)
@@ -63,7 +70,7 @@ class StoryCommentTestCase(unittest.TestCase):
         self.assertEqual(exc.message, "Story comment was not found")
 
     def test_get_comments_on_story_in_correct_order(self):
-        with patch.object(StoryComment, "_get_many") as mocked_get_many:
+        with patch.object(Persistence, "get_many") as mocked_get_many:
             aux = [internal_story_comment_mock, internal_story_comment_mock_post, internal_story_comment_mock_pre]
             mocked_get_many.side_effect = MagicMock(return_value=aux)
 

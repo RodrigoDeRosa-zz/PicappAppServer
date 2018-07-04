@@ -1,4 +1,5 @@
-from src.model.database import mongo
+from src.persistence.database import mongo
+from src.persistence.persistence import Persistence
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
@@ -13,23 +14,23 @@ class StoryCommentNotFoundException(Exception):
 class StoryComment(object):
 
     @staticmethod
-    def _get_comments_db():
+    def _get_coll():
         return mongo.db.story_comments
 
     @staticmethod
     def _get_all():
         Logger(__name__).info('Retrieving all story comments.')
-        return StoryComment._get_comments_db().find()
+        return Persistence.get_all(StoryComment._get_coll())
 
     @staticmethod
     def _get_many(query):
         Logger(__name__).info('Retrieving all story comments matching query {}.'.format(query))
-        return StoryComment._get_comments_db().find(query)
+        return Persistence.get_many(StoryComment._get_coll(), query)
 
     @staticmethod
     def _get_one(query):
         Logger(__name__).info('Retrieving story comment with query {}.'.format(query))
-        return StoryComment._get_comments_db().find_one(query)
+        return Persistence.get_one(StoryComment._get_coll(), query)
 
     @staticmethod
     def _get_one_by_id(comment_id):
@@ -38,49 +39,22 @@ class StoryComment(object):
     @staticmethod
     def _insert_one(new_comment):
         Logger(__name__).info('Inserting story comment with query {}.'.format(new_comment))
-        return StoryComment._get_comments_db().insert(new_comment)
+        return Persistence.insert_one(StoryComment._get_coll(), new_comment)
 
     @staticmethod
     def _delete_all():
         Logger(__name__).info('Deleting all story comments.')
-        return StoryComment._get_comments_db().delete_many({})
+        return Persistence.delete_all(StoryComment._get_coll())
 
     @staticmethod
     def _delete_many(query):
         Logger(__name__).info('Deleting all story comments matching query {}.'.format(query))
-        return StoryComment._get_comments_db().delete_many(query)
-
-    @staticmethod
-    def _update_story(comment_id, updated_param_dict):
-        Logger(__name__).info('Updating story comment {} with value {}'.format(comment_id, updated_param_dict))
-        return mongo.db.story_comments.find_one_and_update(filter={'_id': ObjectId(comment_id)},
-                                                           update={"$set": updated_param_dict},
-                                                           return_document=ReturnDocument.AFTER)
-
-    @staticmethod
-    def _add_item_to_story(comment_id, pushed_param_dict):
-        Logger(__name__).info('Pushing to story comment {} with value {}'.format(comment_id, pushed_param_dict))
-        return mongo.db.story_comments.find_one_and_update(filter={'_id': ObjectId(comment_id)},
-                                                           update={"$push": pushed_param_dict},
-                                                           return_document=ReturnDocument.AFTER)
+        return Persistence.delete_many(StoryComment._get_coll(), query)
 
     @staticmethod
     def _delete_one(comment_id):
         Logger(__name__).info('Deleting story comment {}.'.format(comment_id))
-        return StoryComment._get_comments_db().find_one_and_delete({'_id': comment_id})
-
-    @staticmethod
-    def _delete_field_on_story(comment_id, deleted_field_dict):
-        Logger(__name__).info('Deleting field {} on story comment {}'.format(deleted_field_dict, comment_id))
-        return mongo.db.story_comments.find_one_and_update(filter={'_id': ObjectId(comment_id)},
-                                                           update={"$unset": deleted_field_dict})
-
-    @staticmethod
-    def _pull_array_item_from_story(comment_id, pulled_field_dict):
-        Logger(__name__).info('Pulling array item {} from story comment {}'.format(pulled_field_dict, comment_id))
-        return mongo.db.story_comments.find_one_and_update(filter={'_id': ObjectId(comment_id)},
-                                                           update={"$pull": pulled_field_dict},
-                                                           return_document=ReturnDocument.AFTER)
+        return Persistence.delete_one(StoryComment._get_coll(), {'_id': ObjectId(comment_id)})
 
     @staticmethod
     def _make_new(text, username, timestamp, story_id):

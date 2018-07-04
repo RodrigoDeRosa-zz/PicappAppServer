@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from src.model.flash import FlashNotFoundException, Flash, time
+from src.model.flash import FlashNotFoundException, Flash, time, Persistence
 from tests.mocks.object_id_mock import object_id_mock
 from tests.mocks.user_mock import user_mock_without_stories_or_friends
 from tests.mocks.flash_data_mocks import flash_data_mock_with_title_and_description
@@ -11,14 +11,21 @@ from bson.objectid import ObjectId
 
 class FlashTestCase(unittest.TestCase):
 
-    def mocked_user_get_one(self, query):
+    def setUp(self):
+        self.original_get_coll = Flash._get_coll
+        Flash._get_coll = MagicMock(return_value="asd")
+
+    def tearDown(self):
+        Flash._get_coll = self.original_get_coll
+
+    def mocked_user_get_one(self, coll, query):
         return user_mock_without_stories_or_friends
 
-    def mocked_flash_insert_one(self, query):
+    def mocked_flash_insert_one(self, coll, query):
         return object_id_mock
 
     def test_save_new_flash_successful(self):
-        with patch.object(Flash, "_insert_one") as mocked_insert:
+        with patch.object(Persistence, "insert_one") as mocked_insert:
             mocked_insert.side_effect = self.mocked_flash_insert_one
 
             flash_data_mock = flash_data_mock_with_title_and_description
@@ -28,7 +35,7 @@ class FlashTestCase(unittest.TestCase):
             self.assertEqual(Flash.save_new(flash_data_mock), expected_output)
 
     def test_get_flash_not_found(self):
-        with patch.object(Flash, "_get_one_by_id") as mocked_flash_get, \
+        with patch.object(Persistence, "get_one") as mocked_flash_get, \
              self.assertRaises(FlashNotFoundException) as context:
             mocked_flash_get.side_effect = MagicMock(return_value=None)
             mocked_flash_id = object_id_mock
@@ -39,18 +46,21 @@ class FlashTestCase(unittest.TestCase):
         self.assertEqual(exc.error_code, 404)
 
     def test_get_flash_successful(self):
-        with patch.object(Flash, "_get_one_by_id") as mocked_flash_get:
+        with patch.object(Persistence, "get_one") as mocked_flash_get, \
+             patch.object(time, "time") as mocked_get_time:
 
             internal_flash_mock = dict(flash_mock)
             internal_flash_mock['_id'] = ObjectId(internal_flash_mock.pop('flash_id'))
+            fake_now = internal_flash_mock['timestamp']
             expected_flash = flash_mock
 
             mocked_flash_get.side_effect = MagicMock(return_value=internal_flash_mock)
+            mocked_get_time.side_effect = MagicMock(return_value=fake_now / 1000)  # fake seconds instead of milli
 
-            self.assertEqual(Flash.get_flash('asd'), expected_flash)
+            self.assertEqual(Flash.get_flash('537eed02ed345b2e039652d2'), expected_flash)
 
     def test_successful_delete_flash(self):
-        with patch.object(Flash, "_delete_one") as mocked_delete_one:
+        with patch.object(Persistence, "delete_one") as mocked_delete_one:
 
             mocked_internal_flash = dict(flash_mock)
             mocked_internal_flash["_id"] = ObjectId(mocked_internal_flash.pop('flash_id'))
@@ -60,7 +70,7 @@ class FlashTestCase(unittest.TestCase):
             self.assertEqual(Flash.delete_flash(object_id_mock), object_id_mock)
 
     def test_delete_flash_not_found(self):
-        with patch.object(Flash, "_delete_one") as mocked_delete_one,\
+        with patch.object(Persistence, "delete_one") as mocked_delete_one,\
              self.assertRaises(FlashNotFoundException) as context:
 
             mocked_delete_one.side_effect = MagicMock(return_value=None)
@@ -71,7 +81,7 @@ class FlashTestCase(unittest.TestCase):
         self.assertEqual(exc.message, "Flash was not found")
 
     def test_get_deprecated_flash_raises_exception(self):
-        with patch.object(Flash, "_get_one") as mocked_get_one, \
+        with patch.object(Persistence, "get_one") as mocked_get_one, \
              patch.object(time, "time") as mocked_get_time, \
              self.assertRaises(FlashNotFoundException) as context:
 
@@ -86,7 +96,7 @@ class FlashTestCase(unittest.TestCase):
         self.assertEqual(exc.message, "Flash was not found")
 
     def test_get_many_flashes_does_not_return_deprecated_ones(self):
-        with patch.object(Flash, "_unsafe_get_many") as mocked_unsafe_get_many, \
+        with patch.object(Persistence, "get_many") as mocked_unsafe_get_many, \
              patch.object(time, "time") as mocked_get_time:
 
             not_deprecated_flash1 = dict(flash_mock)
