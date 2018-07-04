@@ -1,7 +1,6 @@
 from src.persistence.database import mongo
 from src.persistence.persistence import Persistence
 from src.utils.logger_config import Logger
-from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
 import time
 
@@ -146,6 +145,18 @@ class Flash(object):
         # right now - number of epochs in 1 hour * number of hours allowed is the minimum epochs allowed
         if flash_obj is None:
             return True
-        min_timestamp_allowed = time.time() - 3600 * FLASH_LIFETIME_HOURS
-        min_millisecs_allowed = min_timestamp_allowed * 1000
+        min_timestamp_allowed = time.time() - 3600 * FLASH_LIFETIME_HOURS  # in seconds
+        min_millisecs_allowed = min_timestamp_allowed * 1000  # in milliseconds
         return flash_obj['timestamp'] <= min_millisecs_allowed
+
+    @staticmethod
+    def delete_deprecated_flashes():
+        # get all and keep deprecated ones
+        Logger(__name__).info('Deleting deprecated flashes')
+        target_ids = [str(flash_obj['_id']) for flash_obj in Flash._get_all()
+                      if Flash._flash_is_deprecated(flash_obj)]
+        # delete one by one
+        for target_id in target_ids:
+            Flash._delete_one(target_id)
+
+        return len(target_ids)

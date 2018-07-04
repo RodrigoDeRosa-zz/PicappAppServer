@@ -23,6 +23,7 @@ from src.resources.flashes import FlashesResource
 from src.resources.flash import FlashResource
 from src.resources.flash_feed import FlashFeedResource
 from src.resources.stats import StatsResource
+from src.resources.purge import PurgeResource
 
 
 LOCAL_MONGO = 'mongodb://localhost:27017/restdb'
@@ -53,6 +54,7 @@ api.add_resource(FlashesResource, "/flashes")
 api.add_resource(FlashResource, "/flashes/<flash_id>")
 api.add_resource(FlashFeedResource, "/flashfeed")
 api.add_resource(StatsResource, "/stats")
+api.add_resource(PurgeResource, "/admin/purge")
 
 
 def run_app(local=True, external_server=False):
