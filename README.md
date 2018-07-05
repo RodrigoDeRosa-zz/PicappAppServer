@@ -6,10 +6,12 @@
 ## Installation and usage
 In order to install and run the AppServer as local inside a virtualenv, simply clone this repository and run:
 
-    $ virtualenv venv
+    $ virtualenv -p python3 venv
     $ source venv/bin/activate
     $ pip install -r requirements.txt
     $ gunicorn 'src.main:run_app(local=True,external_server=True)' --log-file=-
+
+This will start the AppServer as local, connect to the cloud-hosted SharedServer and start listening on [localhost:8000](https://localhost:8000).
 
 To deactivate the virtual env, simply type in the same terminal:
 
