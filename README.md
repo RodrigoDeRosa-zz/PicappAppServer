@@ -11,6 +11,10 @@ In order to install and run the AppServer as local inside a virtualenv, simply c
     $ pip install -r requirements.txt
     $ gunicorn 'src.main:run_app(local=True,external_server=True)' --log-file=-
 
+To deactivate the virtual env, simply type in the same terminal:
+
+    $ deactivate
+
 ## Docker
 In order to run the server locally via Docker, you need to install both
 [docker](https://docs.docker.com/install/) and 

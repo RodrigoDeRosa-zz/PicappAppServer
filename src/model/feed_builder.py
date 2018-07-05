@@ -9,13 +9,15 @@ from src.model.user import User
 from src.model.story import Story
 from src.utils.logger_config import Logger
 
-INITIAL_SCORE = 10
+INITIAL_SCORE = 10.0
 BONUS_SCALING = 0.3
 PENALTY_SCALING = 0.1
 
 NICE_STORY_BONUS = 5
 HOT_BONUS = 10
 UNINTERESTING_STORY_PENALTY = 3
+POPULAR_POSTER_BONUS = 3
+NEW_STORY_BONUS = 2
 
 
 class FeedBuilder(object):
@@ -110,6 +112,10 @@ class StoryVariables(BaseVariables):
         except ZeroDivisionError:
             return 0.5
 
+    @numeric_rule_variable
+    def number_of_stories(self):
+        return self.story["number of stories"]
+
 
 class StoryActions(BaseActions):
 
@@ -149,12 +155,12 @@ rules = [
             }
         ]
     },
-    # likes > 2 AND days_since_post <= 2  -> HOT
+    # likes >= 2 AND days_since_post <= 2  -> HOT
     {
         "conditions": {"all": [
             {
                 "name": "likes",
-                "operator": "greater_than",
+                "operator": "greater_than_or_equal_to",
                 "value": 2
             },
             {
@@ -170,7 +176,7 @@ rules = [
             }
         ]
     },
-    # days_since_post >= 5 or like_dislike_rate < 0.3
+    # days_since_post >= 5 or like_dislike_rate < 0.3  -> UNINTERESTING
     {
         "conditions": {"any": [
             {
@@ -189,6 +195,45 @@ rules = [
             {
                 "name": "apply_penalty",
                 "params": {"penalty": UNINTERESTING_STORY_PENALTY}
+            }
+        ]
+    },
+    # number_of_friends >= 2 and number_of_stories > 2   -> POPULAR POSTER
+    {
+        "conditions": {"all": [
+            {
+                "name": "number_of_friends",
+                "operator": "greater_than_or_equal_to",
+                "value": 2
+
+            },
+            {
+                "name": "number_of_stories",
+                "operator": "greater_than",
+                "value": 2
+            }
+        ]},
+        "actions": [
+            {
+                "name": "apply_bonus",
+                "params": {"bonus": POPULAR_POSTER_BONUS}
+            }
+        ]
+    },
+    # days_since_post < 3 -> NEW
+    {
+        "conditions": {"all": [
+            {
+                "name": "days_since_post",
+                "operator": "less_than",
+                "value": 3
+
+            }
+        ]},
+        "actions": [
+            {
+                "name": "apply_bonus",
+                "params": {"bonus": NEW_STORY_BONUS}
             }
         ]
     }
