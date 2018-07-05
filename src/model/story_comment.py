@@ -1,7 +1,6 @@
 from src.persistence.database import mongo
 from src.persistence.persistence import Persistence
 from src.utils.logger_config import Logger
-from pymongo.collection import ReturnDocument
 from bson.objectid import ObjectId
 
 
