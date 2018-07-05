@@ -9,12 +9,6 @@ function APITEST()
 	INTEGRATION_TESTS_HOST=$1 pytest integration/integration_tests.py
 }
 
-function DBTEST()
-{
-	echo "not implemented yet"
-}
-
-
 case $1 in
 	unit)
 		UNITTEST
@@ -23,19 +17,14 @@ case $1 in
 		shift
 		APITEST $1
 		;;
-	db)
-		DBTEST
-		;;
 	all)
-		DBTEST
 		UNITTEST
 		APITEST 'local'
 		;;
 	*)
 		printf "usage:\n(./this) unit --> run unit tests\n"
 		printf "(./this) api local --> run API tests against 'local' or 'heroku' according to next argument\n"
-		printf "(./this) db --> run DB tests against local mongo test collection\n"
-		printf "(./this) all --> run DB, then unit, then api local tests in said order\n"
+		printf "(./this) all --> run unit, then api local tests in said order\n"
 		exit 1;
 esac
 

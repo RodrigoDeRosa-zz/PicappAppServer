@@ -1,5 +1,4 @@
 from src.model.user import User
-from src.model.flash import Flash
 from src.utils.logger_config import Logger
 
 FEED_FLASHES_PER_USER = 10

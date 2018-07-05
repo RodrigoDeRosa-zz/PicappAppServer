@@ -1,4 +1,3 @@
-from src.persistence.database import mongo
 from src.utils.logger_config import Logger
 from pymongo.collection import ReturnDocument
 

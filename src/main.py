@@ -4,13 +4,11 @@ from configparser import ConfigParser
 from src.utils.logger_config import Logger
 from src.persistence.database import mongo
 from src.model.index_creation import create_indexes
-from src.resources.user import UserResource
 from src.resources.profile import ProfileResource
 from src.resources.ping import PingResource
 from src.resources.login import LoginResource
 from src.resources.myaccount import MyAccountResource
 from src.resources.signup import SignUpResource
-from src.resources.cleaner import CleanerResource
 from src.resources.friendship import FriendshipResource
 from src.resources.stories import StoriesResource
 from src.resources.story import StoryResource
@@ -35,13 +33,11 @@ logger = Logger(__name__)
 app.config['MONGO_DBNAME'] = 'restdb'
 
 
-api.add_resource(UserResource, "/users")
 api.add_resource(ProfileResource, "/users/<username>")
 api.add_resource(PingResource, "/ping")
 api.add_resource(LoginResource, "/users/login")
 api.add_resource(MyAccountResource, "/users/<username>/myaccount")
 api.add_resource(SignUpResource, "/users/signup")
-api.add_resource(CleanerResource, "/admin/clean")
 api.add_resource(FriendshipResource, "/users/<username>/friendship")
 api.add_resource(StoriesResource, "/stories")
 api.add_resource(StoryResource, "/stories/<story_id>")
